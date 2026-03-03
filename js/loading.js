@@ -26,10 +26,21 @@ let config = json['config'];
 
 let gamesList = $('#gamesList');
 for (game in games) {
+    const gamePath = games[game]['path'];
+    const isLegacy = typeof gamePath === 'string' && gamePath.startsWith('flash/');
     gamesList.append(
-        `<li url="games/${games[game]['path']}" ${
+        `<li class="game-item" data-name="${game}" data-type="${isLegacy ? 'Legacy' : 'HTML5'}" url="games/${gamePath}" ${
             games[game]['aliases'] ? 'aliases="' + games[game]['aliases'].join(',') + '"' : ''
-        }>${game} <span class="star">★</span> </li>`,
+        }>
+            <div class="game-main">
+                <span class="game-dot">${isLegacy ? '🕹️' : '🎮'}</span>
+                <span class="game-title">${game}</span>
+            </div>
+            <div class="game-meta">
+                <span class="game-type">${isLegacy ? 'Legacy' : 'HTML5'}</span>
+                <span class="star" title="Favorite">★</span>
+            </div>
+        </li>`,
     );
 }
 
@@ -41,17 +52,16 @@ stars.forEach((star) => {
         event.stopPropagation();
         star.classList.toggle('filled');
 
-        const gameItem = star.parentNode;
-        var gameName = gameItem.textContent;
+        const gameItem = star.closest('li');
+        const gameName = gameItem.dataset.name;
         const isStarred = starredGamesList.includes(gameName);
 
         if (isStarred) {
-            starredGamesList = starredGamesList.filter((gameName) => gameName !== gameName);
+            starredGamesList = starredGamesList.filter((name) => name !== gameName);
 
             //THIS DOES NOT PUT THE GAME BACK IN ORDER ACCORDING TO THE WAY THE USER SORTED IT
             //so for the weird ppl that sort by reverse alphabetical it should act pretty weird
             //this is bc im layz and copy pasted this alphabetical sort thing, ill implement based off users sort later
-            const gameItem = star.closest('li');
             const parent = gameItem.parentNode;
 
             const originalPosition = Array.from(parent.children)
@@ -75,7 +85,7 @@ function updateGameList() {
     const children = Array.from(gamesList.children);
 
     children.forEach((gameItem) => {
-        const currentGameName = gameItem.textContent;
+        const currentGameName = gameItem.dataset.name;
         const stars = gameItem.querySelector('.star');
 
         if (starredGamesList.includes(currentGameName)) {

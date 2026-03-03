@@ -145,20 +145,19 @@ function updateList() {
 
     // then filter items with the search input
     elems.forEach(function (item) {
-        let similarity = jaroWinklerSimilarity(filter, item.innerHTML.toLowerCase().slice(0, filter.length - 1));
-        if (item.getAttribute('aliases')) {
-            for (alias in item.getAttribute('aliases').split(',')) {
-                if (alias.length > 1) {
-                    console.log('alias');
-                    console.log(alias);
-                    console.log(typeof alias);
-                    console.log(alias.length);
-                    similarity += jaroWinklerSimilarity(filter, alias.toLowerCase().slice(0, filter.length - 1));
-                }
-            }
-        }
+        const title = (item.dataset.name || item.textContent || '').toLowerCase();
+        const aliases = (item.getAttribute('aliases') || '')
+            .split(',')
+            .map((a) => a.trim().toLowerCase())
+            .filter(Boolean);
 
-        if ((similarity >= 0.7 && item.innerHTML.length > 2) || item.innerHTML.toLowerCase().indexOf(filter) > -1) {
+        let similarity = filter.length ? jaroWinklerSimilarity(filter, title.slice(0, filter.length)) : 1;
+        aliases.forEach((alias) => {
+            similarity += filter.length ? jaroWinklerSimilarity(filter, alias.slice(0, filter.length)) : 0;
+        });
+
+        const directHit = title.includes(filter) || aliases.some((alias) => alias.includes(filter));
+        if ((similarity >= 0.7 && title.length > 1) || directHit) {
             item.style.display = '';
         } else {
             item.style.display = 'none';
@@ -167,27 +166,32 @@ function updateList() {
 
     // now sort by jaro winkler distance
     elems.sort(function (a, b) {
-        let distanceA = jaroWinklerSimilarity(filter, a.textContent.toLowerCase());
-        if (a.getAttribute('aliases')) {
-            for (alias in a.getAttribute('aliases').split(',')) {
-                distanceA += jaroWinklerSimilarity(filter, alias.toLowerCase());
-            }
-        }
+        const aliasesA = (a.getAttribute('aliases') || '')
+            .split(',')
+            .map((x) => x.trim().toLowerCase())
+            .filter(Boolean);
+        const aliasesB = (b.getAttribute('aliases') || '')
+            .split(',')
+            .map((x) => x.trim().toLowerCase())
+            .filter(Boolean);
 
-        let distanceB = jaroWinklerSimilarity(filter, b.textContent.toLowerCase());
-        if (b.getAttribute('aliases')) {
-            for (alias in b.getAttribute('aliases').split(',')) {
-                distanceB += jaroWinklerSimilarity(filter, alias.toLowerCase());
-            }
-        }
+        let distanceA = jaroWinklerSimilarity(filter, (a.dataset.name || a.textContent || '').toLowerCase());
+        aliasesA.forEach((alias) => {
+            distanceA += jaroWinklerSimilarity(filter, alias);
+        });
+
+        let distanceB = jaroWinklerSimilarity(filter, (b.dataset.name || b.textContent || '').toLowerCase());
+        aliasesB.forEach((alias) => {
+            distanceB += jaroWinklerSimilarity(filter, alias);
+        });
         return distanceA - distanceB;
     });
 
     // then fill it with the sorted and filtered list
     for (const item of elems) {
         document.getElementById('gamesList').appendChild(item);
-        updateGameList();
     }
+    updateGameList();
 }
 $('#search').on('input', updateList);
 $('#sort').on('change', updateList);

@@ -172,32 +172,78 @@ body.noscript {
 
 #gamesList {
     list-style: none;
-    padding: 0;
+    padding: 0.6rem;
     margin: 0;
     z-index: 10;
     width: 75%;
     height: 60vh;
     font-family: var(--font-family);
     overflow-y: scroll;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
 }
 
 #gamesList li {
-    padding: 1.4%;
+    padding: 0.7rem 0.8rem;
     transition: all 0.2s ease-in;
-    letter-spacing: 1px;
+    letter-spacing: 0.4px;
     background-color: var(--games-color);
+    border-radius: 10px;
+    border: 1px solid #243862;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 #gamesList li:hover,
 #gamesList li:focus,
 #gamesList .active {
     background-color: var(--hover-color);
+    border-color: #4f78d4;
+}
+
+.game-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.game-dot {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.game-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 600;
+}
+
+.game-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.game-type {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.42rem;
+    border-radius: 999px;
+    border: 1px solid #35508c;
+    color: #bcd0ff;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .star {
     cursor: pointer;
     color: #ccc;
-    float: right;
+    float: none;
 }
 
 .filled {
@@ -932,5 +978,9 @@ body {
     #sort,
     .randgame {
         width: calc(50% - 0.25rem);
+    }
+
+    #gamesList {
+        grid-template-columns: 1fr;
     }
 }
