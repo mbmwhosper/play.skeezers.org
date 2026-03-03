@@ -790,3 +790,147 @@ button.in-game-button[attr-snapped='true'] img {
     font-weight: 600;
     font-family: var(--font-family);
 }
+
+/* Skeezers Arcade UI refresh */
+:root {
+    --bg: #0b1020;
+    --block-color: #121a31;
+    --button-color: #192343;
+    --games-color: #121a31;
+    --hover-color: #1c2a50;
+    --scrollbar-color: #24386c;
+    --scroll-track-color: #0a0f1c;
+    --font-color: #e8eeff;
+}
+
+body {
+    background: radial-gradient(1200px 600px at 10% -10%, #22356a55, transparent 70%),
+        radial-gradient(1000px 500px at 95% 0%, #10b5ff33, transparent 60%), var(--bg);
+    font-family: var(--font-family);
+}
+
+#particles {
+    opacity: 0.45;
+}
+
+#title {
+    margin-top: 1.5rem;
+    font-size: clamp(2.2rem, 6vw, 4.8rem);
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    background-image: linear-gradient(90deg, #8ab4ff, #88ffd3, #8ab4ff);
+    text-shadow: 0 0 30px #78a6ff55;
+}
+
+#subtitle {
+    margin: 0.25rem auto 0;
+    text-align: center;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #b8caf8;
+    font-size: 0.85rem;
+    z-index: 50;
+}
+
+.homepage,
+.games,
+.settings {
+    margin-top: 9rem;
+}
+
+.card-row {
+    width: min(1100px, 92vw);
+    gap: 0.75rem;
+}
+
+.column button {
+    width: 100%;
+}
+
+.card {
+    background: linear-gradient(180deg, #172447, #121a31);
+    border: 1px solid #2d467f;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px #02061166;
+    transition: transform 140ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px #00000088;
+    border-color: #4f78d4;
+}
+
+.card h5 {
+    font-size: 1.35rem;
+    margin-bottom: 0.35rem;
+}
+
+.card p {
+    color: #c5d4fa;
+    line-height: 1.45;
+}
+
+.searchbar {
+    width: min(1100px, 92vw);
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+#search,
+#sort,
+.randgame {
+    border: 1px solid #2f477f;
+    border-radius: 12px;
+    background: #11192f;
+}
+
+#search:focus {
+    border-color: #72a5ff;
+    box-shadow: 0 0 0 3px #72a5ff30;
+}
+
+#gamesList {
+    width: min(1100px, 92vw);
+    border: 1px solid #2b406f;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #0f1629;
+}
+
+#gamesList li {
+    border-bottom: 1px solid #1e2d53;
+    padding: 0.85rem 1rem;
+}
+
+#gamesList li:last-child {
+    border-bottom: none;
+}
+
+#gamesList li:hover,
+#gamesList li:focus,
+#gamesList .active {
+    background: #1a2a50;
+}
+
+@media (max-width: 900px) {
+    .homepage,
+    .games,
+    .settings {
+        margin-top: 8.5rem;
+    }
+
+    .searchbar {
+        flex-wrap: wrap;
+    }
+
+    #search {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    #sort,
+    .randgame {
+        width: calc(50% - 0.25rem);
+    }
+}
