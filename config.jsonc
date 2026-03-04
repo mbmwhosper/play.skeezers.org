@@ -1020,6 +1020,81 @@
       "aliases": [],
       "categories": []
     },
+    "Conway's Game of Life (Alt)": {
+      "path": "conway-s-game-of-life",
+      "aliases": [
+        "Conway life"
+      ],
+      "categories": [
+        "strategy"
+      ]
+    },
+    "Eaglercraft Ampler Launcher (Alt)": {
+      "path": "eaglercraft-ampler-launcher",
+      "aliases": [
+        "Eaglercraft launcher"
+      ],
+      "categories": [
+        "sandbox"
+      ]
+    },
+    "Five Nights at Epstein's (Alt)": {
+      "path": "five-nights-at-epstein-s",
+      "aliases": [],
+      "categories": [
+        "horror"
+      ]
+    },
+    "Gun Spin (Alt)": {
+      "path": "gun-spin",
+      "aliases": [],
+      "categories": [
+        "arcade"
+      ]
+    },
+    "Lion Solider's Vengeance (Alt)": {
+      "path": "lion-solider-s-vengeance",
+      "aliases": [],
+      "categories": [
+        "action"
+      ]
+    },
+    "Mario (Alt)": {
+      "path": "mario",
+      "aliases": [
+        "Mario game"
+      ],
+      "categories": [
+        "platformer"
+      ]
+    },
+    "P.craft (Alt)": {
+      "path": "p-craft",
+      "aliases": [
+        "p craft"
+      ],
+      "categories": [
+        "sandbox"
+      ]
+    },
+    "Run 3 Beta (Alt)": {
+      "path": "run-3-beta-may-not-work",
+      "aliases": [
+        "run 3 beta"
+      ],
+      "categories": [
+        "runner"
+      ]
+    },
+    "Subway Surfers New York (Alt)": {
+      "path": "subway-surfers-new-york",
+      "aliases": [
+        "subway surfers ny"
+      ],
+      "categories": [
+        "runner"
+      ]
+    },
     "Web OSU": {
       "path": "web-osu",
       "aliases": [],
