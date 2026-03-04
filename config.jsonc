@@ -1100,10 +1100,11 @@
       "aliases": [],
       "categories": []
     },
-    "Adventure Capitalist Clone": {
+    "Adventure Capitalist": {
       "path": "https://than1089.github.io/adventure-capitalist/",
       "aliases": [
-        "AdVenture Capitalist"
+        "AdVenture Capitalist",
+        "Adventure Capitalist Clone"
       ],
       "categories": [
         "idle",
