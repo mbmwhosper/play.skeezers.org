@@ -765,6 +765,11 @@
       "aliases": [],
       "categories": []
     },
+    "Smart Ball": {
+      "path": "smart-ball",
+      "aliases": [],
+      "categories": []
+    },
     "Smash Karts": {
       "path": "smash-karts",
       "aliases": [],
@@ -1019,6 +1024,15 @@
       "path": "web-osu",
       "aliases": [],
       "categories": []
+    },
+    "Where Is The Water": {
+      "path": "where-is-the-water",
+      "aliases": [
+        "Where's My Water"
+      ],
+      "categories": [
+        "puzzle"
+      ]
     },
     "Ultimate Chess": {
       "path": "flash/?game=ultimate-chess",
