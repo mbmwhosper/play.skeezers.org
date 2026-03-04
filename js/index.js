@@ -3,10 +3,11 @@
   const allGames = Object.entries(gamesSource).map(([name, data]) => {
     const path = data?.path || "";
     const isLegacy = path.startsWith("flash/");
+    const isExternal = /^https?:\/\//i.test(path);
     return {
       name,
       path,
-      url: `games/${path}`,
+      url: isExternal ? path : `games/${path}`,
       aliases: Array.isArray(data?.aliases) ? data.aliases : [],
       categories: Array.isArray(data?.categories) ? data.categories : [],
       type: isLegacy ? "legacy" : "html5",

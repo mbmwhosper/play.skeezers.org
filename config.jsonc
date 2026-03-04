@@ -1100,6 +1100,74 @@
       "aliases": [],
       "categories": []
     },
+    "Adventure Capitalist Clone": {
+      "path": "https://than1089.github.io/adventure-capitalist/",
+      "aliases": [
+        "AdVenture Capitalist"
+      ],
+      "categories": [
+        "idle",
+        "tycoon"
+      ]
+    },
+    "Fireboy and Watergirl Forest Temple (Alt)": {
+      "path": "fireboy-and-watergirl-in-the-forest-temple",
+      "aliases": [
+        "Fireboy and Watergirl 1 web"
+      ],
+      "categories": [
+        "platformer",
+        "puzzle"
+      ]
+    },
+    "Fireboy and Watergirl Light Temple (Alt)": {
+      "path": "fireboy-and-watergirl-in-the-light-temple",
+      "aliases": [
+        "Fireboy and Watergirl 2 web"
+      ],
+      "categories": [
+        "platformer",
+        "puzzle"
+      ]
+    },
+    "Fireboy and Watergirl Ice Temple (Alt)": {
+      "path": "fireboy-and-watergirl-in-the-ice-temple",
+      "aliases": [
+        "Fireboy and Watergirl 3 web"
+      ],
+      "categories": [
+        "platformer",
+        "puzzle"
+      ]
+    },
+    "Fireboy and Watergirl Crystal Temple (Alt)": {
+      "path": "fireboy-and-watergirl-in-the-crystal-temple",
+      "aliases": [
+        "Fireboy and Watergirl 4 web"
+      ],
+      "categories": [
+        "platformer",
+        "puzzle"
+      ]
+    },
+    "OvO Classic (Alt)": {
+      "path": "ovo",
+      "aliases": [
+        "ovo classic"
+      ],
+      "categories": [
+        "platformer"
+      ]
+    },
+    "OvO 2 Web (Alt)": {
+      "path": "ovo-2",
+      "aliases": [
+        "ovo 2 web"
+      ],
+      "categories": [
+        "platformer"
+      ]
+    },
     "Where Is The Water": {
       "path": "where-is-the-water",
       "aliases": [
