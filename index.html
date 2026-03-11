@@ -29,11 +29,29 @@
       <select id="sort">
         <option value="az">A → Z</option>
         <option value="za">Z → A</option>
+        <option value="popular">Most played</option>
+      </select>
+
+      <select id="modeFilter">
+        <option value="all">Any mode</option>
+        <option value="multiplayer">Multiplayer</option>
+        <option value="singleplayer">Single-player</option>
+      </select>
+
+      <select id="vibeFilter">
+        <option value="all">Any vibe</option>
+        <option value="quick">Quick (&lt;10 min)</option>
+        <option value="chill">Chill</option>
       </select>
 
       <button id="favoritesOnly" class="ghost">Favorites only</button>
+      <button id="continueBtn" class="ghost">Continue playing</button>
       <button id="randomGame">Random game</button>
     </section>
+
+    <section class="shelves" id="shelves"></section>
+
+    <section class="recent" id="recent"></section>
 
     <section class="stats" id="stats"></section>
 
@@ -44,9 +62,19 @@
     <div class="player-bar">
       <button id="backBtn">← Back to Library</button>
       <div id="nowPlaying"></div>
+      <button id="openExternal" class="ghost">Open in new tab</button>
+    </div>
+    <div id="frameFallback" class="frame-fallback hidden">
+      <p>This embed looks unavailable right now.</p>
+      <button id="fallbackOpen">Open game in new tab</button>
     </div>
     <iframe id="gameFrame" title="Game player" allowfullscreen loading="eager"></iframe>
   </section>
+
+  <dialog id="detailsModal" class="details-modal">
+    <article id="detailsContent"></article>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
 
   <script src="js/config.js"></script>
   <script src="js/index.js" defer></script>
