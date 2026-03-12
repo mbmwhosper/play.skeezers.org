@@ -62,7 +62,6 @@
   let plays = JSON.parse(localStorage.getItem("plays") || "{}");
   let ratings = JSON.parse(localStorage.getItem("ratings") || "{}");
   let currentGame = null;
-  let embedTimer = null;
 
   const categories = new Set();
   allGames.forEach((g) => g.categories.forEach((c) => c && categories.add(c)));
@@ -138,25 +137,18 @@
     currentGame = game;
     trackPlay(game);
 
-    dom.frameFallback.classList.add("hidden");
+    if (dom.frameFallback) dom.frameFallback.classList.add("hidden");
     dom.frame.classList.remove("hidden");
     dom.frame.src = game.url;
     dom.nowPlaying.textContent = `Now Playing: ${game.name}`;
     dom.player.classList.remove("hidden");
 
-    clearTimeout(embedTimer);
-    embedTimer = setTimeout(() => {
-      dom.frame.classList.add("hidden");
-      dom.frameFallback.classList.remove("hidden");
-    }, 8000);
-
     render();
   }
 
   dom.frame.addEventListener("load", () => {
-    clearTimeout(embedTimer);
     dom.frame.classList.remove("hidden");
-    dom.frameFallback.classList.add("hidden");
+    if (dom.frameFallback) dom.frameFallback.classList.add("hidden");
   });
 
   function similarGames(game) {
@@ -331,7 +323,6 @@
   dom.backBtn.addEventListener("click", () => {
     dom.player.classList.add("hidden");
     dom.frame.src = "";
-    clearTimeout(embedTimer);
   });
 
   function openCurrentExternal() {
@@ -339,8 +330,8 @@
     window.open(currentGame.url, "_blank", "noopener");
   }
 
-  dom.openExternal.addEventListener("click", openCurrentExternal);
-  dom.fallbackOpen.addEventListener("click", openCurrentExternal);
+  if (dom.openExternal) dom.openExternal.addEventListener("click", openCurrentExternal);
+  if (dom.fallbackOpen) dom.fallbackOpen.addEventListener("click", openCurrentExternal);
 
   render();
 })();
