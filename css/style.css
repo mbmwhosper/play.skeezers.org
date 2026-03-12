@@ -50,15 +50,23 @@ body {
 }
 
 .container {
-  width: min(1200px, 94vw);
+  width: min(1240px, 94vw);
   margin: 0 auto 2rem;
 }
 
 .toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
   display: grid;
-  grid-template-columns: 1.8fr 1fr 0.8fr 1fr 1fr auto auto auto;
-  gap: 0.5rem;
-  margin: 1rem 0;
+  grid-template-columns: minmax(260px, 2fr) repeat(4, minmax(120px, 1fr)) auto auto auto;
+  gap: 0.55rem;
+  margin: 0.85rem 0 1rem;
+  padding: 0.6rem;
+  background: color-mix(in oklab, var(--panel) 88%, #000 12%);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
 }
 
 input, select, button {
@@ -66,38 +74,47 @@ input, select, button {
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--text);
-  padding: 0.7rem 0.8rem;
-  font-size: 0.95rem;
+  padding: 0.68rem 0.8rem;
+  font-size: 0.93rem;
+  min-height: 42px;
 }
 
-button { cursor: pointer; }
+button {
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+}
 button:hover { border-color: var(--accent); }
+button:active { transform: translateY(1px); }
 button.ghost { background: transparent; }
 
 .stats {
   color: var(--muted);
-  font-size: 0.9rem;
-  margin-bottom: 0.75rem;
+  font-size: 0.88rem;
+  margin-bottom: 0.8rem;
+  opacity: 0.95;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.72rem;
 }
 
 .card {
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 0.75rem;
+  border-radius: 13px;
+  padding: 0.8rem;
   display: grid;
-  gap: 0.55rem;
+  gap: 0.58rem;
+  box-shadow: 0 2px 12px #0000001f;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .card:hover {
   border-color: #4e73cf;
   transform: translateY(-2px);
+  box-shadow: 0 8px 22px #0000003a;
 }
 
 .row {
@@ -151,12 +168,17 @@ button.ghost { background: transparent; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
   border-bottom: 1px solid var(--line);
   padding: 0.65rem 0.9rem;
   background: #0f1830;
 }
 
+#nowPlaying {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
 #gameFrame {
   grid-row: 2;
   width: 100%;
@@ -169,22 +191,23 @@ button.ghost { background: transparent; }
 .shelves,
 .recent {
   display: grid;
-  gap: 0.7rem;
-  margin-bottom: 0.9rem;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .shelf {
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--panel);
-  padding: 0.6rem;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #131f3f, #101a35);
+  padding: 0.68rem;
 }
 
 .shelf h3,
 .recent h3 {
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.48rem;
   font-size: 0.9rem;
   color: var(--muted);
+  letter-spacing: 0.02em;
 }
 
 .shelf-row,
@@ -221,20 +244,20 @@ button.ghost { background: transparent; }
   margin: 0.15rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
   .container {
-    width: min(1200px, 96vw);
+    width: min(1240px, 96vw);
   }
 
   .toolbar {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   #search { grid-column: 1 / -1; }
-  #randomGame, #favoritesOnly { grid-column: span 1; }
+  #favoritesOnly, #continueBtn, #randomGame { grid-column: span 1; }
 
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
@@ -244,12 +267,17 @@ button.ghost { background: transparent; }
   }
 
   .toolbar {
+    position: static;
     grid-template-columns: 1fr;
+    padding: 0.55rem;
   }
 
   #category,
   #sort,
+  #modeFilter,
+  #vibeFilter,
   #favoritesOnly,
+  #continueBtn,
   #randomGame,
   #search {
     width: 100%;
