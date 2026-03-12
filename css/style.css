@@ -10,7 +10,7 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--text); background: var(--bg); }
+body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--text); background: var(--bg); overflow-x: hidden; }
 .bg-glow { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(1200px 500px at -10% -20%, #3657aa50, transparent 70%), radial-gradient(1000px 500px at 120% -10%, #13c2ff33, transparent 65%); }
 
 button, select, input { border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--text); padding: .65rem .8rem; min-height: 40px; }
@@ -18,7 +18,7 @@ button { cursor: pointer; }
 button.ghost { background: transparent; }
 button.active { border-color: var(--accent); color: #dce9ff; }
 
-.app-shell { display: grid; grid-template-columns: 230px 1fr; min-height: 100vh; gap: 1rem; width: min(1440px, 97vw); margin: 0 auto; padding: 1rem 0 1.5rem; }
+.app-shell { display: grid; grid-template-columns: 230px minmax(0, 1fr); min-height: 100vh; gap: 1rem; width: min(1440px, 97vw); margin: 0 auto; padding: 1rem 0 1.5rem; overflow-x: clip; }
 .sidebar { border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, #131f3f, #101a35); padding: .9rem; position: sticky; top: .8rem; height: calc(100vh - 1.6rem); display: grid; grid-template-rows: auto auto 1fr; }
 .brand h1 { margin: 0; font-size: 1rem; }
 .brand p { margin: .2rem 0 .8rem; color: var(--muted); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
@@ -26,8 +26,8 @@ button.active { border-color: var(--accent); color: #dce9ff; }
 .side-nav button { text-align: left; }
 .hint { color: var(--muted); align-self: end; opacity: .8; }
 
-.content { min-width: 0; }
-.topbar { display: grid; grid-template-columns: minmax(260px, 2fr) repeat(4, minmax(120px,1fr)) repeat(5, auto); gap: .5rem; border: 1px solid var(--line); border-radius: 14px; padding: .6rem; background: color-mix(in oklab, var(--panel) 90%, #000 10%); position: sticky; top: .8rem; z-index: 6; }
+.content { min-width: 0; max-width: 100%; overflow-x: hidden; }
+.topbar { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(110px,1fr)) repeat(5, auto); gap: .5rem; border: 1px solid var(--line); border-radius: 14px; padding: .6rem; background: color-mix(in oklab, var(--panel) 90%, #000 10%); position: sticky; top: .8rem; z-index: 6; max-width: 100%; }
 .stats { color: var(--muted); font-size: .88rem; margin: .8rem 0; }
 
 .shelves { display: grid; gap: .7rem; margin-bottom: 1rem; }
@@ -64,12 +64,16 @@ button.active { border-color: var(--accent); color: #dce9ff; }
 #paletteList { display: grid; gap: .4rem; max-height: 50vh; overflow: auto; }
 #paletteList button { text-align: left; }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .app-shell { grid-template-columns: 1fr; width: min(1440px, 96vw); }
   .sidebar { position: static; height: auto; grid-template-rows: auto auto; }
   .hint { display:none; }
-  .topbar { grid-template-columns: 1fr 1fr 1fr; }
+  .topbar { grid-template-columns: 1fr 1fr; }
   #search { grid-column: 1 / -1; }
+}
+
+@media (max-width: 1100px) {
+  .topbar { grid-template-columns: 1fr; }
 }
 @media (max-width: 680px) {
   .topbar { grid-template-columns: 1fr; }
