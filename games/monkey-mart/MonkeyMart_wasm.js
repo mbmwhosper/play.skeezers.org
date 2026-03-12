@@ -5788,12 +5788,8 @@ var Browser = {
         setTimeout(func, delay)
     },
     requestAnimationFrame: function(func) {
-        if (typeof requestAnimationFrame === "function") {
-            requestAnimationFrame(func);
-            return
-        }
-        var RAF = Browser.fakeRequestAnimationFrame;
-        RAF(func)
+        // Prefer timer-based loop so updates continue when RAF is throttled in background tabs.
+        Browser.fakeRequestAnimationFrame(func)
     },
     safeCallback: function(func) {
         return function() {
@@ -9960,7 +9956,8 @@ var GLFW = {
         GLFW.onFocusChanged(1)
     },
     onBlur: function(event) {
-        GLFW.onFocusChanged(0)
+        // Keep game focused even when tab loses focus.
+        GLFW.onFocusChanged(1)
     },
     onFullScreenEventChange: function(event) {
         GLFW.isFullscreen = document["fullScreen"] || document["mozFullScreen"] || document["webkitIsFullScreen"] || document["msIsFullScreen"];
