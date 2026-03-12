@@ -1178,6 +1178,36 @@
         "puzzle"
       ]
     },
+    "HexGL": {
+      "path": "https://hexgl.bkcore.com/play/",
+      "aliases": [
+        "HexGL Open Source"
+      ],
+      "categories": [
+        "racing",
+        "webgl"
+      ]
+    },
+    "Sandboxels": {
+      "path": "https://sandboxels.r74n.com/",
+      "aliases": [
+        "Sandboxels Falling Sand"
+      ],
+      "categories": [
+        "sandbox",
+        "simulation"
+      ]
+    },
+    "NZ: Portable": {
+      "path": "https://nzp.gay",
+      "aliases": [
+        "Nazi Zombies Portable"
+      ],
+      "categories": [
+        "fps",
+        "zombies"
+      ]
+    },
     "Ultimate Chess": {
       "path": "flash/?game=ultimate-chess",
       "aliases": [],
