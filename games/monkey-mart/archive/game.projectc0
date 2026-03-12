@@ -201,7 +201,7 @@ max_count = 0
 max_tile_count = 0
 
 [engine]
-run_while_iconified = 0
+run_while_iconified = 1
 fixed_update_frequency = 60
 
 [native_extension]
