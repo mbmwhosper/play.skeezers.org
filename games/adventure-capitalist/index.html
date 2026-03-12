@@ -67,11 +67,31 @@
         // Seed a fresh profile with 1100 Angels (best-effort via Unity SendMessage hooks).
         // Runs once per browser profile.
         (function setupAngelSeed() {
-            var SEED_KEY = 'adcap_seed_angels_1100_v1';
+            var SEED_KEY = 'adcap_seed_angels_1100_v2';
             if (localStorage.getItem(SEED_KEY) === 'done') return;
 
+            function ensureSendMessageBridge() {
+                if (typeof Module !== 'object' || typeof Module.cwrap !== 'function') return false;
+                if (typeof Module.SendMessage === 'function') return true;
+
+                var sendStr = Module.cwrap('SendMessageString', 'void', ['string', 'string', 'string']);
+                var sendNum = Module.cwrap('SendMessageFloat', 'void', ['string', 'string', 'number']);
+                var sendNoArg = Module.cwrap('SendMessage', 'void', ['string', 'string']);
+
+                Module.SendMessage = function (obj, method, param) {
+                    if (typeof param === 'undefined' || param === null || param === '') {
+                        return sendNoArg(obj, method);
+                    }
+                    if (typeof param === 'number') {
+                        return sendNum(obj, method, param);
+                    }
+                    return sendStr(obj, method, String(param));
+                };
+                return true;
+            }
+
             function trySeed() {
-                if (typeof Module === 'undefined' || typeof Module.SendMessage !== 'function') return false;
+                if (!ensureSendMessageBridge()) return false;
 
                 var objects = [
                     'GameController', 'InvestorsUI', 'MainUIController', 'Main UI Canvas',
@@ -79,33 +99,34 @@
                 ];
                 var methods = [
                     'SetAngelInvestorData', 'AddAngelInvestorBonus', 'set_AngelInvestorBonus',
-                    'set_AngelBonus', 'SetAngelsQuikBuyParent', 'SetCashHackAmount', 'AddCash'
+                    'set_AngelBonus', 'SetAngelsQuikBuyParent'
                 ];
 
+                // Fallback: pump starting cash so angel claim threshold is immediately reachable.
                 try {
-                    // Cash hack fallback to quickly enable angel claiming, if angel-specific calls are ignored.
                     Module.SendMessage('MONEY', 'SetCashHackAmount', '1e120');
-                    Module.SendMessage('MONEY', 'AddCash', '');
+                    Module.SendMessage('MONEY', 'AddCash');
                 } catch (e) {}
 
                 for (var i = 0; i < objects.length; i++) {
                     for (var j = 0; j < methods.length; j++) {
-                        try {
-                            Module.SendMessage(objects[i], methods[j], '1100');
-                        } catch (e) {}
+                        try { Module.SendMessage(objects[i], methods[j], 1100); } catch (e) {}
+                        try { Module.SendMessage(objects[i], methods[j], '1100'); } catch (e) {}
                     }
                 }
 
                 localStorage.setItem(SEED_KEY, 'done');
-                console.log('[AdCap Seed] Attempted angel seed to 1100.');
+                console.log('[AdCap Seed] Attempted angel seed to 1100 (v2 bridge).');
                 return true;
             }
 
             Module.postRun = Module.postRun || [];
             Module.postRun.push(function () {
-                // Try immediately and then once more shortly after UI systems initialize.
+                // Try repeatedly while UI objects finish bootstrapping.
                 trySeed();
-                setTimeout(trySeed, 2500);
+                setTimeout(trySeed, 1200);
+                setTimeout(trySeed, 3000);
+                setTimeout(trySeed, 6000);
             });
         })();
     </script>
