@@ -13,62 +13,89 @@
 <body>
   <div class="bg-glow"></div>
 
-  <header class="hero">
-    <h1>Skeezers Arcade</h1>
-    <p>HTML5-only • Massive catalog • Fast launch</p>
-  </header>
+  <main class="app-shell" id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <h1>Skeezers Arcade</h1>
+        <p>Arcade OS</p>
+      </div>
+      <nav class="side-nav" id="sideNav">
+        <button data-view="home" class="active">Home</button>
+        <button data-view="recent">Recently Played</button>
+        <button data-view="favorites">Favorites</button>
+        <button data-view="multiplayer">Multiplayer</button>
+        <button data-view="chill">Chill</button>
+        <button data-view="random">Random</button>
+      </nav>
+      <small class="hint">Tip: press <kbd>/</kbd> to search • <kbd>Ctrl/⌘+K</kbd> command palette</small>
+    </aside>
 
-  <main class="container" id="app">
-    <section class="toolbar">
-      <input id="search" type="text" placeholder="Search HTML5 games..." />
+    <section class="content">
+      <header class="topbar">
+        <input id="search" type="text" placeholder="Search games, aliases, genres..." />
 
-      <select id="category">
-        <option value="all">All categories</option>
-      </select>
+        <select id="category">
+          <option value="all">All categories</option>
+        </select>
 
-      <select id="sort">
-        <option value="az">A → Z</option>
-        <option value="za">Z → A</option>
-        <option value="popular">Most played</option>
-      </select>
+        <select id="sort">
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+          <option value="popular">Most played</option>
+        </select>
 
-      <select id="modeFilter">
-        <option value="all">Any mode</option>
-        <option value="multiplayer">Multiplayer</option>
-        <option value="singleplayer">Single-player</option>
-      </select>
+        <select id="modeFilter">
+          <option value="all">Any mode</option>
+          <option value="multiplayer">Multiplayer</option>
+          <option value="singleplayer">Single-player</option>
+        </select>
 
-      <select id="vibeFilter">
-        <option value="all">Any vibe</option>
-        <option value="quick">Quick (&lt;10 min)</option>
-        <option value="chill">Chill</option>
-      </select>
+        <select id="vibeFilter">
+          <option value="all">Any vibe</option>
+          <option value="quick">Quick (&lt;10 min)</option>
+          <option value="chill">Chill</option>
+        </select>
 
-      <button id="favoritesOnly" class="ghost">Favorites only</button>
-      <button id="continueBtn" class="ghost">Continue playing</button>
-      <button id="randomGame">Random game</button>
+        <button id="iframeSafeOnly" class="ghost">Iframe-safe</button>
+        <button id="favoritesOnly" class="ghost">Favorites</button>
+        <button id="continueBtn" class="ghost">Continue</button>
+        <button id="randomGame">Random</button>
+        <button id="openPalette" class="ghost">⌘K</button>
+      </header>
+
+      <section class="stats" id="stats"></section>
+      <section class="shelves" id="shelves"></section>
+      <section class="grid" id="gamesGrid" aria-live="polite"></section>
     </section>
-
-    <section class="shelves" id="shelves"></section>
-
-    <section class="recent" id="recent"></section>
-
-    <section class="stats" id="stats"></section>
-
-    <section class="grid" id="gamesGrid" aria-live="polite"></section>
   </main>
 
   <section id="player" class="player hidden">
     <div class="player-bar">
-      <button id="backBtn">← Back to Library</button>
+      <button id="backBtn">← Library</button>
       <div id="nowPlaying"></div>
-      <button id="openExternal" class="ghost">Open in new tab</button>
+      <div class="player-actions">
+        <select id="aspectRatio">
+          <option value="fill">Fill</option>
+          <option value="16:9">16:9</option>
+          <option value="4:3">4:3</option>
+        </select>
+        <button id="reportBroken" class="ghost">Report broken</button>
+        <button id="openExternal" class="ghost">Open in new tab</button>
+      </div>
     </div>
-    <iframe id="gameFrame" title="Game player" allowfullscreen loading="eager"></iframe>
+    <div class="frame-wrap" id="frameWrap">
+      <iframe id="gameFrame" title="Game player" allowfullscreen loading="eager"></iframe>
+    </div>
   </section>
 
   <dialog id="detailsModal" class="details-modal">
     <article id="detailsContent"></article>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+
+  <dialog id="palette" class="palette">
+    <input id="paletteInput" type="text" placeholder="Run command or jump to game..." />
+    <div id="paletteList"></div>
     <form method="dialog"><button>Close</button></form>
   </dialog>
 

@@ -4,21 +4,17 @@
   const inferTraits = (name, categories) => {
     const lower = name.toLowerCase();
     const tags = new Set(categories.map((c) => c.toLowerCase()));
-
-    const multiplayer = tags.has("online") || lower.includes(".io") || lower.includes("random") || lower.includes("karts");
-    const quick = tags.has("arcade") || tags.has("runner") || lower.includes("random") || lower.includes("slope");
-    const chill = tags.has("puzzle") || tags.has("idle") || tags.has("strategy") || tags.has("sandbox") || lower.includes("clicker");
-
-    return { multiplayer, quick, chill, controller: false };
+    const multiplayer = tags.has("online") || lower.includes(".io") || lower.includes("kart");
+    const quick = tags.has("arcade") || tags.has("runner") || lower.includes("slope");
+    const chill = tags.has("puzzle") || tags.has("idle") || tags.has("sandbox") || tags.has("strategy");
+    return { multiplayer, quick, chill };
   };
 
   const allGames = Object.entries(gamesSource).map(([name, data]) => {
     const path = data?.path || "";
-    const isLegacy = path.startsWith("flash/");
     const isExternal = /^https?:\/\//i.test(path);
     const categories = Array.isArray(data?.categories) ? data.categories : [];
     const traits = inferTraits(name, categories);
-
     return {
       name,
       path,
@@ -26,83 +22,60 @@
       aliases: Array.isArray(data?.aliases) ? data.aliases : [],
       categories,
       isExternal,
-      type: isLegacy ? "legacy" : "html5",
+      iframeSafe: !isExternal,
       ...traits,
     };
   });
 
   const dom = {
-    search: document.getElementById("search"),
-    category: document.getElementById("category"),
-    sort: document.getElementById("sort"),
-    modeFilter: document.getElementById("modeFilter"),
-    vibeFilter: document.getElementById("vibeFilter"),
-    favoritesOnly: document.getElementById("favoritesOnly"),
-    continueBtn: document.getElementById("continueBtn"),
-    randomGame: document.getElementById("randomGame"),
-    stats: document.getElementById("stats"),
-    shelves: document.getElementById("shelves"),
-    recent: document.getElementById("recent"),
-    grid: document.getElementById("gamesGrid"),
-    player: document.getElementById("player"),
-    frame: document.getElementById("gameFrame"),
-    nowPlaying: document.getElementById("nowPlaying"),
-    backBtn: document.getElementById("backBtn"),
-    openExternal: document.getElementById("openExternal"),
-    frameFallback: document.getElementById("frameFallback"),
-    fallbackOpen: document.getElementById("fallbackOpen"),
-    detailsModal: document.getElementById("detailsModal"),
-    detailsContent: document.getElementById("detailsContent"),
+    search: byId("search"), category: byId("category"), sort: byId("sort"), modeFilter: byId("modeFilter"), vibeFilter: byId("vibeFilter"),
+    iframeSafeOnly: byId("iframeSafeOnly"), favoritesOnly: byId("favoritesOnly"), continueBtn: byId("continueBtn"), randomGame: byId("randomGame"),
+    stats: byId("stats"), shelves: byId("shelves"), grid: byId("gamesGrid"), sideNav: byId("sideNav"),
+    player: byId("player"), frame: byId("gameFrame"), frameWrap: byId("frameWrap"), aspectRatio: byId("aspectRatio"),
+    nowPlaying: byId("nowPlaying"), backBtn: byId("backBtn"), openExternal: byId("openExternal"), reportBroken: byId("reportBroken"),
+    detailsModal: byId("detailsModal"), detailsContent: byId("detailsContent"),
+    palette: byId("palette"), paletteInput: byId("paletteInput"), paletteList: byId("paletteList"), openPalette: byId("openPalette"),
   };
 
-  let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-  let showFavoritesOnly = false;
+  let favorites = readJSON("favorites", []);
+  let recentPlayed = readJSON("recentPlayed", []);
+  let plays = readJSON("plays", {});
+  let broken = readJSON("brokenGames", {});
   let lastPlayed = localStorage.getItem("lastPlayed") || "";
-  let recentPlayed = JSON.parse(localStorage.getItem("recentPlayed") || "[]");
-  let plays = JSON.parse(localStorage.getItem("plays") || "{}");
-  let ratings = JSON.parse(localStorage.getItem("ratings") || "{}");
+  let showFavoritesOnly = false;
+  let showIframeSafeOnly = false;
   let currentGame = null;
+  let activeView = "home";
 
   const categories = new Set();
   allGames.forEach((g) => g.categories.forEach((c) => c && categories.add(c)));
-  [...categories].sort().forEach((c) => {
-    const option = document.createElement("option");
-    option.value = c;
-    option.textContent = c;
-    dom.category.appendChild(option);
-  });
+  [...categories].sort().forEach((c) => dom.category.append(new Option(c, c)));
 
-  function saveState() {
+  function byId(id) { return document.getElementById(id); }
+  function readJSON(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch { return fallback; } }
+  function save() {
     localStorage.setItem("favorites", JSON.stringify(favorites));
     localStorage.setItem("recentPlayed", JSON.stringify(recentPlayed));
     localStorage.setItem("plays", JSON.stringify(plays));
-    localStorage.setItem("ratings", JSON.stringify(ratings));
+    localStorage.setItem("brokenGames", JSON.stringify(broken));
     localStorage.setItem("lastPlayed", lastPlayed);
   }
-
-  function getGame(name) {
-    return allGames.find((g) => g.name === name);
-  }
-
-  function toggleFavorite(name) {
-    if (favorites.includes(name)) favorites = favorites.filter((x) => x !== name);
-    else favorites.unshift(name);
-    saveState();
-    render();
-  }
-
-  function vote(name, type) {
-    if (!ratings[name]) ratings[name] = { up: 0, down: 0 };
-    ratings[name][type] += 1;
-    saveState();
-    render();
-  }
+  function getGame(name) { return allGames.find((g) => g.name === name); }
 
   function trackPlay(game) {
     lastPlayed = game.name;
     plays[game.name] = (plays[game.name] || 0) + 1;
-    recentPlayed = [game.name, ...recentPlayed.filter((x) => x !== game.name)].slice(0, 8);
-    saveState();
+    recentPlayed = [game.name, ...recentPlayed.filter((x) => x !== game.name)].slice(0, 12);
+    save();
+  }
+
+  function launchGame(game) {
+    currentGame = game;
+    trackPlay(game);
+    dom.player.classList.remove("hidden");
+    dom.frame.src = game.url;
+    dom.nowPlaying.textContent = `${game.name} • ${game.isExternal ? "External" : "Embedded"}`;
+    render();
   }
 
   function filteredGames() {
@@ -113,16 +86,24 @@
     const vibe = dom.vibeFilter.value;
 
     let out = allGames.filter((g) => {
-      const inSearch =
-        !q ||
-        g.name.toLowerCase().includes(q) ||
-        g.aliases.some((a) => a.toLowerCase().includes(q));
+      const inSearch = !q || g.name.toLowerCase().includes(q) || g.aliases.some((a) => a.toLowerCase().includes(q));
       const inCategory = category === "all" || g.categories.includes(category);
       const inFav = !showFavoritesOnly || favorites.includes(g.name);
+      const inSafe = !showIframeSafeOnly || g.iframeSafe;
       const inMode = mode === "all" || (mode === "multiplayer" ? g.multiplayer : !g.multiplayer);
       const inVibe = vibe === "all" || (vibe === "quick" ? g.quick : g.chill);
-      return inSearch && inCategory && inFav && inMode && inVibe;
+      const inView =
+        activeView === "home" ||
+        (activeView === "recent" && recentPlayed.includes(g.name)) ||
+        (activeView === "favorites" && favorites.includes(g.name)) ||
+        (activeView === "multiplayer" && g.multiplayer) ||
+        (activeView === "chill" && g.chill) ||
+        activeView === "random";
+
+      return inSearch && inCategory && inFav && inSafe && inMode && inVibe && inView;
     });
+
+    if (activeView === "random") out = out.sort(() => Math.random() - 0.5);
 
     out.sort((a, b) => {
       if (sort === "za") return b.name.localeCompare(a.name);
@@ -133,167 +114,130 @@
     return out;
   }
 
-  function launchGame(game) {
-    currentGame = game;
-    trackPlay(game);
-
-    if (dom.frameFallback) dom.frameFallback.classList.add("hidden");
-    dom.frame.classList.remove("hidden");
-    dom.frame.src = game.url;
-    dom.nowPlaying.textContent = `Now Playing: ${game.name}`;
-    dom.player.classList.remove("hidden");
-
-    render();
+  function shelf(title, items) {
+    if (!items.length) return "";
+    return `<section class="shelf"><h3>${title}</h3><div class="shelf-row">${items.slice(0, 8).map((g) => `
+      <button class="shelf-item" data-play="${escapeHtml(g.name)}">${escapeHtml(g.name)}<small>${plays[g.name] || 0} plays</small></button>
+    `).join("")}</div></section>`;
   }
 
-  dom.frame.addEventListener("load", () => {
-    dom.frame.classList.remove("hidden");
-    if (dom.frameFallback) dom.frameFallback.classList.add("hidden");
-  });
+  function renderShelves() {
+    if (activeView !== "home") { dom.shelves.innerHTML = ""; return; }
+    const hot = [...allGames].sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0));
+    const recent = recentPlayed.map(getGame).filter(Boolean);
+    const quick = allGames.filter((g) => g.quick);
+    const multi = allGames.filter((g) => g.multiplayer);
+    const chill = allGames.filter((g) => g.chill);
 
-  function similarGames(game) {
-    return allGames
-      .filter((g) => g.name !== game.name)
-      .map((g) => ({ g, score: g.categories.filter((c) => game.categories.includes(c)).length }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5)
-      .map((x) => x.g);
-  }
+    dom.shelves.innerHTML = [
+      shelf("Continue where you left off", recent.length ? recent : hot),
+      shelf("Trending now", hot),
+      shelf("Quick 5-minute games", quick),
+      shelf("Best with friends", multi),
+      shelf("Chill picks", chill),
+    ].join("");
 
-  function details(game) {
-    const rating = ratings[game.name] || { up: 0, down: 0 };
-    const sims = similarGames(game)
-      .map((g) => `<button class="link-btn" data-play="${g.name}">${g.name}</button>`)
-      .join(" ");
-
-    dom.detailsContent.innerHTML = `
-      <h2>${game.name}</h2>
-      <p><strong>Type:</strong> ${game.type.toUpperCase()} • ${game.multiplayer ? "Multiplayer" : "Single-player"}</p>
-      <p><strong>Tags:</strong> ${game.categories.join(", ") || "none"} ${game.quick ? "• quick" : ""} ${game.chill ? "• chill" : ""}</p>
-      <p><strong>Plays:</strong> ${plays[game.name] || 0}</p>
-      <p><strong>Rating:</strong> 👍 ${rating.up} • 👎 ${rating.down}</p>
-      <div class="actions">
-        <button data-play="${game.name}">Play now</button>
-        <button data-vote="up" data-name="${game.name}">👍</button>
-        <button data-vote="down" data-name="${game.name}">👎</button>
-      </div>
-      <p><strong>Similar:</strong> ${sims || "none yet"}</p>
-    `;
-
-    dom.detailsContent.querySelectorAll("[data-play]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const g = getGame(btn.dataset.play);
-        if (g) launchGame(g);
-        dom.detailsModal.close();
-      });
-    });
-
-    dom.detailsContent.querySelectorAll("[data-vote]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        vote(btn.dataset.name, btn.dataset.vote);
-        details(game);
-      });
-    });
-
-    dom.detailsModal.showModal();
+    dom.shelves.querySelectorAll("[data-play]").forEach((btn) => btn.addEventListener("click", () => {
+      const g = getGame(btn.dataset.play); if (g) launchGame(g);
+    }));
   }
 
   function renderStats(list) {
     const total = allGames.length;
-    const html5 = allGames.filter((g) => g.type === "html5").length;
-    const hot = [...allGames]
-      .sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0))
-      .slice(0, 1)[0];
-
-    dom.stats.textContent = `${list.length} shown • ${total} total • ${html5} HTML5 • Most played: ${hot ? hot.name : "n/a"}`;
+    const iframeSafe = allGames.filter((g) => g.iframeSafe).length;
+    const brokenCount = Object.keys(broken).length;
+    dom.stats.textContent = `${list.length} shown • ${total} total • ${iframeSafe} iframe-safe • ${brokenCount} reported broken`;
   }
 
-  function shelf(title, items) {
-    if (!items.length) return "";
-    const cards = items
-      .slice(0, 6)
-      .map(
-        (g) => `<button class="shelf-item" data-play="${g.name}">${g.name}<small>${plays[g.name] || 0} plays</small></button>`,
-      )
-      .join("");
-    return `<section class="shelf"><h3>${title}</h3><div class="shelf-row">${cards}</div></section>`;
-  }
-
-  function renderShelves() {
-    const dayIndex = new Date().getDate() % Math.max(allGames.length, 1);
-    const daily = allGames[dayIndex] ? [allGames[dayIndex]] : [];
-    const weekly = [...allGames].sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0));
-
-    dom.shelves.innerHTML = [
-      shelf("Game of the Day", daily),
-      shelf("Weekly Highlights", weekly),
-      shelf("Best with friends", allGames.filter((g) => g.multiplayer)),
-      shelf("Quick chaos", allGames.filter((g) => g.quick)),
-      shelf("Chill picks", allGames.filter((g) => g.chill)),
-    ].join("");
-
-    dom.shelves.querySelectorAll("[data-play]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const g = getGame(btn.dataset.play);
-        if (g) launchGame(g);
-      });
-    });
-  }
-
-  function renderRecent() {
-    const games = recentPlayed.map(getGame).filter(Boolean);
-    if (!games.length) {
-      dom.recent.innerHTML = "";
-      return;
-    }
-
-    dom.recent.innerHTML = `<h3>Recently played</h3><div class="recent-row">${games
-      .map((g) => `<button data-play="${g.name}">${g.name}</button>`)
-      .join("")}</div>`;
-
-    dom.recent.querySelectorAll("[data-play]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const g = getGame(btn.dataset.play);
-        if (g) launchGame(g);
-      });
-    });
-  }
-
-  function render() {
+  function renderGrid() {
     const list = filteredGames();
     renderStats(list);
-    renderShelves();
-    renderRecent();
     dom.grid.innerHTML = "";
+
+    if (!list.length) {
+      dom.grid.innerHTML = `<article class="card"><div class="title">No games match this filter</div><div class="meta">Try relaxing category/mode filters or disable iframe-safe only.</div></article>`;
+      return;
+    }
 
     list.forEach((game) => {
       const card = document.createElement("article");
       card.className = "card";
-
       const isFav = favorites.includes(game.name);
-      const rating = ratings[game.name] || { up: 0, down: 0 };
-      const categoryText = game.categories.length ? game.categories.slice(0, 2).join(" • ") : "No category";
-
+      const tags = [game.multiplayer ? "MULTI" : "SOLO", game.iframeSafe ? "IFRAME SAFE" : "EXTERNAL"].join(" • ");
       card.innerHTML = `
-        <div class="row">
-          <div class="title" title="${game.name}">${game.name}</div>
-          <span class="badge">${game.multiplayer ? "MULTI" : "SOLO"}</span>
-        </div>
-        <div class="meta">${categoryText}</div>
-        <div class="meta">👍 ${rating.up} • 👎 ${rating.down} • ${plays[game.name] || 0} plays</div>
+        <div class="row"><div class="title" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div><span class="badge">${tags}</span></div>
+        <div class="meta">${escapeHtml((game.categories.slice(0, 3).join(" • ") || "No category"))}</div>
+        <div class="meta">${plays[game.name] || 0} plays ${broken[game.name] ? "• ⚠ reported" : ""}</div>
         <div class="actions">
-          <button class="play-btn">Play</button>
-          <button class="details-btn">Details</button>
-          <button class="fav-btn ${isFav ? "active" : ""}" title="Favorite">★</button>
+          <button class="play-btn" data-play="${escapeHtml(game.name)}">Play</button>
+          <button data-details="${escapeHtml(game.name)}">Details</button>
+          <button class="fav-btn ${isFav ? "active" : ""}" data-fav="${escapeHtml(game.name)}">★</button>
         </div>
       `;
-
-      card.querySelector(".play-btn").addEventListener("click", () => launchGame(game));
-      card.querySelector(".details-btn").addEventListener("click", () => details(game));
-      card.querySelector(".fav-btn").addEventListener("click", () => toggleFavorite(game.name));
       dom.grid.appendChild(card);
     });
+
+    dom.grid.querySelectorAll("[data-play]").forEach((b) => b.addEventListener("click", () => launchGame(getGame(b.dataset.play))));
+    dom.grid.querySelectorAll("[data-details]").forEach((b) => b.addEventListener("click", () => openDetails(getGame(b.dataset.details))));
+    dom.grid.querySelectorAll("[data-fav]").forEach((b) => b.addEventListener("click", () => {
+      const n = b.dataset.fav;
+      favorites = favorites.includes(n) ? favorites.filter((x) => x !== n) : [n, ...favorites];
+      save(); render();
+    }));
   }
+
+  function openDetails(game) {
+    if (!game) return;
+    dom.detailsContent.innerHTML = `
+      <h2>${escapeHtml(game.name)}</h2>
+      <p><strong>Mode:</strong> ${game.multiplayer ? "Multiplayer" : "Single-player"}</p>
+      <p><strong>Launch:</strong> ${game.iframeSafe ? "Iframe-safe" : "External"}</p>
+      <p><strong>Tags:</strong> ${escapeHtml(game.categories.join(", ") || "none")}</p>
+      <p><strong>Plays:</strong> ${plays[game.name] || 0}</p>
+      <div class="actions">
+        <button id="detailPlay">Play now</button>
+        <button id="detailBroken" class="ghost">Report broken</button>
+      </div>
+    `;
+    byId("detailPlay").addEventListener("click", () => { launchGame(game); dom.detailsModal.close(); });
+    byId("detailBroken").addEventListener("click", () => { broken[game.name] = Date.now(); save(); dom.detailsModal.close(); render(); });
+    dom.detailsModal.showModal();
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  }
+
+  function renderPalette(query = "") {
+    const q = query.trim().toLowerCase();
+    const commands = [
+      { label: "Go: Home", run: () => setView("home") },
+      { label: "Go: Favorites", run: () => setView("favorites") },
+      { label: "Go: Multiplayer", run: () => setView("multiplayer") },
+      { label: "Toggle iframe-safe filter", run: () => { showIframeSafeOnly = !showIframeSafeOnly; render(); } },
+      { label: "Launch random game", run: () => { const list = filteredGames(); if (list[0]) launchGame(list[Math.floor(Math.random() * list.length)]); } },
+    ];
+
+    const games = allGames
+      .filter((g) => !q || g.name.toLowerCase().includes(q) || g.aliases.some((a) => a.toLowerCase().includes(q)))
+      .slice(0, 12)
+      .map((g) => ({ label: `Play: ${g.name}`, run: () => launchGame(g) }));
+
+    const rows = [...commands, ...games].filter((x) => !q || x.label.toLowerCase().includes(q));
+    dom.paletteList.innerHTML = rows.map((r, i) => `<button data-cmd="${i}">${escapeHtml(r.label)}</button>`).join("");
+    dom.paletteList.querySelectorAll("[data-cmd]").forEach((b) => b.addEventListener("click", () => {
+      rows[Number(b.dataset.cmd)]?.run();
+      dom.palette.close();
+    }));
+  }
+
+  function setView(view) {
+    activeView = view;
+    dom.sideNav.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+    render();
+  }
+
+  function render() { renderShelves(); renderGrid(); }
 
   dom.search.addEventListener("input", render);
   dom.category.addEventListener("change", render);
@@ -304,34 +248,59 @@
   dom.favoritesOnly.addEventListener("click", () => {
     showFavoritesOnly = !showFavoritesOnly;
     dom.favoritesOnly.classList.toggle("active", showFavoritesOnly);
-    dom.favoritesOnly.textContent = showFavoritesOnly ? "All games" : "Favorites only";
     render();
   });
 
-  dom.continueBtn.addEventListener("click", () => {
-    const game = getGame(lastPlayed);
-    if (game) launchGame(game);
+  dom.iframeSafeOnly.addEventListener("click", () => {
+    showIframeSafeOnly = !showIframeSafeOnly;
+    dom.iframeSafeOnly.classList.toggle("active", showIframeSafeOnly);
+    render();
   });
 
-  dom.randomGame.addEventListener("click", () => {
-    const list = filteredGames();
-    if (!list.length) return;
-    const game = list[Math.floor(Math.random() * list.length)];
-    launchGame(game);
+  dom.continueBtn.addEventListener("click", () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
+  dom.randomGame.addEventListener("click", () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
+  dom.backBtn.addEventListener("click", () => { dom.player.classList.add("hidden"); dom.frame.src = ""; });
+  dom.openExternal.addEventListener("click", () => { if (currentGame) window.open(currentGame.url, "_blank", "noopener"); });
+  dom.reportBroken.addEventListener("click", () => { if (!currentGame) return; broken[currentGame.name] = Date.now(); save(); alert("Marked as broken. Thanks."); render(); });
+
+  dom.aspectRatio.addEventListener("change", () => {
+    dom.frameWrap.classList.remove("ratio-16-9", "ratio-4-3");
+    if (dom.aspectRatio.value === "16:9") dom.frameWrap.classList.add("ratio-16-9");
+    if (dom.aspectRatio.value === "4:3") dom.frameWrap.classList.add("ratio-4-3");
   });
 
-  dom.backBtn.addEventListener("click", () => {
-    dom.player.classList.add("hidden");
-    dom.frame.src = "";
+  dom.sideNav.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.view === "random") {
+      setView("home");
+      const list = filteredGames();
+      if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]);
+      return;
+    }
+    setView(b.dataset.view);
+  }));
+
+  dom.openPalette.addEventListener("click", () => {
+    renderPalette();
+    dom.palette.showModal();
+    dom.paletteInput.value = "";
+    dom.paletteInput.focus();
+  });
+  dom.paletteInput.addEventListener("input", () => renderPalette(dom.paletteInput.value));
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {
+      e.preventDefault(); dom.search.focus();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault(); renderPalette(); dom.palette.showModal(); dom.paletteInput.focus();
+    }
+    if (["ArrowRight", "ArrowLeft"].includes(e.key) && dom.player.classList.contains("hidden")) {
+      const cards = Array.from(document.querySelectorAll("[data-play]"));
+      const idx = cards.indexOf(document.activeElement);
+      const next = e.key === "ArrowRight" ? cards[idx + 1] : cards[idx - 1];
+      if (next) next.focus();
+    }
   });
 
-  function openCurrentExternal() {
-    if (!currentGame) return;
-    window.open(currentGame.url, "_blank", "noopener");
-  }
-
-  if (dom.openExternal) dom.openExternal.addEventListener("click", openCurrentExternal);
-  if (dom.fallbackOpen) dom.fallbackOpen.addEventListener("click", openCurrentExternal);
-
-  render();
+  setView("home");
 })();
