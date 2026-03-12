@@ -1208,6 +1208,104 @@
         "zombies"
       ]
     },
+    "c4 (OSS Web)": {
+      "path": "https://kenrick95.github.io/c4/",
+      "aliases": [
+        "Connect Four OSS"
+      ],
+      "categories": [
+        "boardgame",
+        "strategy"
+      ]
+    },
+    "Green Mahjong (OSS Web)": {
+      "path": "https://danbeck.github.io/green-mahjong/",
+      "aliases": [
+        "Mahjong OSS"
+      ],
+      "categories": [
+        "boardgame",
+        "puzzle"
+      ]
+    },
+    "SkiFree.js (OSS Web)": {
+      "path": "https://basicallydan.github.io/skifree.js/",
+      "aliases": [
+        "SkiFree"
+      ],
+      "categories": [
+        "arcade",
+        "runner"
+      ]
+    },
+    "Zedinvaders (OSS Web)": {
+      "path": "https://salvatorecapolupo.github.io/zedinvaders/",
+      "aliases": [
+        "Zed Invaders"
+      ],
+      "categories": [
+        "arcade",
+        "shooter"
+      ]
+    },
+    "Astray (OSS Web)": {
+      "path": "https://wwwtyro.github.io/Astray/",
+      "aliases": [
+        "Astry"
+      ],
+      "categories": [
+        "puzzle",
+        "webgl"
+      ]
+    },
+    "Custom Tetris (OSS Web)": {
+      "path": "https://ondras.github.io/custom-tetris/",
+      "aliases": [
+        "Tetris OSS"
+      ],
+      "categories": [
+        "puzzle",
+        "arcade"
+      ]
+    },
+    "Command & Conquer (OSS Web)": {
+      "path": "https://adityaravishankar.github.io/command-and-conquer/",
+      "aliases": [
+        "C&C HTML5"
+      ],
+      "categories": [
+        "strategy",
+        "rts"
+      ]
+    },
+    "Clumsy Bird (OSS Web)": {
+      "path": "https://ellisonleao.github.io/clumsy-bird/",
+      "aliases": [
+        "Flappy Bird Clone OSS"
+      ],
+      "categories": [
+        "arcade"
+      ]
+    },
+    "2048 (OSS Web)": {
+      "path": "https://gabrielecirulli.github.io/2048/",
+      "aliases": [
+        "2048 Open Source"
+      ],
+      "categories": [
+        "puzzle"
+      ]
+    },
+    "Ancient Beast (OSS Web)": {
+      "path": "https://play.ancientbeast.com/",
+      "aliases": [
+        "Ancient Beast"
+      ],
+      "categories": [
+        "strategy",
+        "turn-based"
+      ]
+    },
     "Ultimate Chess": {
       "path": "flash/?game=ultimate-chess",
       "aliases": [],
