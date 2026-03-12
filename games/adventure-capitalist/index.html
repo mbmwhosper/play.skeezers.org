@@ -67,9 +67,6 @@
         // Seed a fresh profile with 1100 Angels (best-effort via Unity SendMessage hooks).
         // Runs once per browser profile.
         (function setupAngelSeed() {
-            var SEED_KEY = 'adcap_seed_angels_1100_v2';
-            if (localStorage.getItem(SEED_KEY) === 'done') return;
-
             function ensureSendMessageBridge() {
                 if (typeof Module !== 'object' || typeof Module.cwrap !== 'function') return false;
                 if (typeof Module.SendMessage === 'function') return true;
@@ -79,12 +76,8 @@
                 var sendNoArg = Module.cwrap('SendMessage', 'void', ['string', 'string']);
 
                 Module.SendMessage = function (obj, method, param) {
-                    if (typeof param === 'undefined' || param === null || param === '') {
-                        return sendNoArg(obj, method);
-                    }
-                    if (typeof param === 'number') {
-                        return sendNum(obj, method, param);
-                    }
+                    if (typeof param === 'undefined' || param === null || param === '') return sendNoArg(obj, method);
+                    if (typeof param === 'number') return sendNum(obj, method, param);
                     return sendStr(obj, method, String(param));
                 };
                 return true;
@@ -94,39 +87,47 @@
                 if (!ensureSendMessageBridge()) return false;
 
                 var objects = [
-                    'GameController', 'InvestorsUI', 'MainUIController', 'Main UI Canvas',
-                    'PlanetBoostPanel', 'MissionControl', 'MONEY', 'Angel Investors', 'Angel Claim'
+                    'GameController', 'InvestorsUI', 'InvestorsUI - HandleKongregateEvent',
+                    'MainUIController', 'Main UI Canvas', 'PlanetBoostPanel', 'MissionControl',
+                    'MONEY', 'Angel Investors', 'Angel Claim', 'Angels Panel', 'Cash Panel'
                 ];
-                var methods = [
+                var angelMethods = [
                     'SetAngelInvestorData', 'AddAngelInvestorBonus', 'set_AngelInvestorBonus',
                     'set_AngelBonus', 'SetAngelsQuikBuyParent'
                 ];
+                var cashMethods = ['SetCashHackAmount', 'AddCash'];
 
-                // Fallback: pump starting cash so angel claim threshold is immediately reachable.
-                try {
-                    Module.SendMessage('MONEY', 'SetCashHackAmount', '1e120');
-                    Module.SendMessage('MONEY', 'AddCash');
-                } catch (e) {}
-
+                // Force massive starting cash so claiming angels is always available.
                 for (var i = 0; i < objects.length; i++) {
-                    for (var j = 0; j < methods.length; j++) {
-                        try { Module.SendMessage(objects[i], methods[j], 1100); } catch (e) {}
-                        try { Module.SendMessage(objects[i], methods[j], '1100'); } catch (e) {}
+                    for (var c = 0; c < cashMethods.length; c++) {
+                        try { Module.SendMessage(objects[i], cashMethods[c], '1e180'); } catch (e) {}
+                        try { Module.SendMessage(objects[i], cashMethods[c], 1e180); } catch (e) {}
                     }
                 }
 
-                localStorage.setItem(SEED_KEY, 'done');
-                console.log('[AdCap Seed] Attempted angel seed to 1100 (v2 bridge).');
+                // Attempt direct angel value writes.
+                for (var j = 0; j < objects.length; j++) {
+                    for (var k = 0; k < angelMethods.length; k++) {
+                        try { Module.SendMessage(objects[j], angelMethods[k], 1100); } catch (e) {}
+                        try { Module.SendMessage(objects[j], angelMethods[k], '1100'); } catch (e) {}
+                    }
+                }
+
+                // Attempt to trigger angel claim flow.
+                try { Module.SendMessage('GameController', 'AngelClaim'); } catch (e) {}
+                try { Module.SendMessage('InvestorsUI', 'AngelClaim'); } catch (e) {}
                 return true;
             }
 
             Module.postRun = Module.postRun || [];
             Module.postRun.push(function () {
-                // Try repeatedly while UI objects finish bootstrapping.
+                var attempts = 0;
+                var id = setInterval(function () {
+                    attempts++;
+                    trySeed();
+                    if (attempts >= 30) clearInterval(id); // ~30s of retries
+                }, 1000);
                 trySeed();
-                setTimeout(trySeed, 1200);
-                setTimeout(trySeed, 3000);
-                setTimeout(trySeed, 6000);
             });
         })();
     </script>
