@@ -28,14 +28,13 @@ button.active { border-color: var(--accent); color: #dce9ff; }
 .hint { color: var(--muted); align-self: end; opacity: .8; }
 
 .content { min-width: 0; max-width: 100%; overflow-x: hidden; }
-.topbar { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: .5rem; border: 1px solid var(--line); border-radius: 14px; padding: .7rem; background: color-mix(in oklab, var(--panel) 90%, #000 10%); position: sticky; top: .8rem; z-index: 8; max-width: 100%; overflow: hidden; }
-#search { grid-column: 1 / -1; min-width: 0; }
+.topbar { display: grid; grid-template-columns: minmax(260px, 2fr) repeat(4, minmax(132px, 1fr)); gap: .5rem; border: 1px solid var(--line); border-radius: 14px; padding: .7rem; background: color-mix(in oklab, var(--panel) 90%, #000 10%); position: sticky; top: .8rem; z-index: 8; max-width: 100%; overflow: visible; }
 .topbar > * { min-width: 0; }
 .topbar input,
 .topbar select,
 .topbar button { width: 100%; }
 .topbar select { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.topbar button { white-space: normal; line-height: 1.2; font-size: 13px; }
+.topbar button { white-space: normal; line-height: 1.2; }
 .stats { color: var(--muted); font-size: .88rem; margin: .8rem 0; line-height: 1.4; }
 
 .shelves { display: grid; gap: .7rem; margin-bottom: 1rem; }
@@ -76,15 +75,11 @@ button.active { border-color: var(--accent); color: #dce9ff; }
   .app-shell { grid-template-columns: 1fr; width: min(1440px, 96vw); }
   .sidebar { position: static; height: auto; grid-template-rows: auto auto; }
   .hint { display:none; }
-  .topbar { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+  .topbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #search { grid-column: 1 / -1; }
 }
 
 @media (max-width: 1100px) {
-  .topbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-width: 760px) {
   .topbar { grid-template-columns: 1fr; }
 }
 @media (max-width: 680px) {
