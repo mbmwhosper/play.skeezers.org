@@ -43,7 +43,7 @@
   let broken = readJSON("brokenGames", {});
   let lastPlayed = localStorage.getItem("lastPlayed") || "";
   let showFavoritesOnly = false;
-  let showIframeSafeOnly = false;
+  let showIframeSafeOnly = true;
   let currentGame = null;
   let activeView = "home";
 
@@ -70,11 +70,15 @@
   }
 
   function launchGame(game) {
+    if (!game || game.isExternal) {
+      alert("This game is hosted on an external domain and is disabled in school-safe mode.");
+      return;
+    }
     currentGame = game;
     trackPlay(game);
     dom.player.classList.remove("hidden");
     dom.frame.src = game.url;
-    dom.nowPlaying.textContent = `${game.name} • ${game.isExternal ? "External" : "Embedded"}`;
+    dom.nowPlaying.textContent = `${game.name} • Embedded`;
     render();
   }
 
@@ -145,8 +149,9 @@
   function renderStats(list) {
     const total = allGames.length;
     const iframeSafe = allGames.filter((g) => g.iframeSafe).length;
+    const external = allGames.filter((g) => g.isExternal).length;
     const brokenCount = Object.keys(broken).length;
-    dom.stats.textContent = `${list.length} shown · ${total} total · ${iframeSafe} iframe-safe · ${brokenCount} broken reports`;
+    dom.stats.textContent = `${list.length} shown · ${total} total · ${iframeSafe} local/iframe-safe · ${external} external disabled · ${brokenCount} broken reports`;
   }
 
   function renderGrid() {
@@ -163,13 +168,15 @@
       const card = document.createElement("article");
       card.className = "card";
       const isFav = favorites.includes(game.name);
+      const blockedExternal = game.isExternal;
       const tags = [game.multiplayer ? "MULTI" : "SOLO", game.iframeSafe ? "IFRAME SAFE" : "EXTERNAL"].join(" • ");
       card.innerHTML = `
         <div class="row"><div class="title" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div><span class="badge">${tags}</span></div>
         <div class="meta">${escapeHtml((game.categories.slice(0, 3).join(" • ") || "No category"))}</div>
         <div class="meta">${plays[game.name] || 0} plays ${broken[game.name] ? "• ⚠ reported" : ""}</div>
+        <div class="meta">${blockedExternal ? "External domain blocked in school-safe mode" : "Local/embedded"}</div>
         <div class="actions">
-          <button class="play-btn" data-play="${escapeHtml(game.name)}">Play</button>
+          <button class="play-btn" data-play="${escapeHtml(game.name)}" ${blockedExternal ? "disabled title=\"External domains disabled\"" : ""}>${blockedExternal ? "Unavailable" : "Play"}</button>
           <button data-details="${escapeHtml(game.name)}">Details</button>
           <button class="fav-btn ${isFav ? "active" : ""}" data-fav="${escapeHtml(game.name)}">★</button>
         </div>
@@ -188,14 +195,15 @@
 
   function openDetails(game) {
     if (!game) return;
+    const blockedExternal = game.isExternal;
     dom.detailsContent.innerHTML = `
       <h2>${escapeHtml(game.name)}</h2>
       <p><strong>Mode:</strong> ${game.multiplayer ? "Multiplayer" : "Single-player"}</p>
-      <p><strong>Launch:</strong> ${game.iframeSafe ? "Iframe-safe" : "External"}</p>
+      <p><strong>Launch:</strong> ${game.iframeSafe ? "Iframe-safe" : "External (disabled in school-safe mode)"}</p>
       <p><strong>Tags:</strong> ${escapeHtml(game.categories.join(", ") || "none")}</p>
       <p><strong>Plays:</strong> ${plays[game.name] || 0}</p>
       <div class="actions">
-        <button id="detailPlay">Play now</button>
+        <button id="detailPlay" ${blockedExternal ? "disabled title=\"External domains disabled\"" : ""}>${blockedExternal ? "Unavailable" : "Play now"}</button>
         <button id="detailBroken" class="ghost">Report broken</button>
       </div>
     `;
@@ -254,13 +262,21 @@
   dom.iframeSafeOnly.addEventListener("click", () => {
     showIframeSafeOnly = !showIframeSafeOnly;
     dom.iframeSafeOnly.classList.toggle("active", showIframeSafeOnly);
+    dom.iframeSafeOnly.textContent = showIframeSafeOnly ? "School-safe: On" : "School-safe: Off";
     render();
   });
 
   dom.continueBtn.addEventListener("click", () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
   dom.randomGame.addEventListener("click", () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
   dom.backBtn.addEventListener("click", () => { dom.player.classList.add("hidden"); dom.frame.src = ""; });
-  dom.openExternal.addEventListener("click", () => { if (currentGame) window.open(currentGame.url, "_blank", "noopener"); });
+  dom.openExternal.addEventListener("click", () => {
+    if (!currentGame) return;
+    if (currentGame.isExternal) {
+      alert("External domains are disabled in school-safe mode.");
+      return;
+    }
+    window.open(currentGame.url, "_blank", "noopener");
+  });
   dom.reportBroken.addEventListener("click", () => { if (!currentGame) return; broken[currentGame.name] = Date.now(); save(); alert("Marked as broken. Thanks."); render(); });
 
   dom.aspectRatio.addEventListener("change", () => {
@@ -301,6 +317,9 @@
       if (next) next.focus();
     }
   });
+
+  dom.iframeSafeOnly.classList.toggle("active", showIframeSafeOnly);
+  dom.iframeSafeOnly.textContent = showIframeSafeOnly ? "School-safe: On" : "School-safe: Off";
 
   setView("home");
 })();
