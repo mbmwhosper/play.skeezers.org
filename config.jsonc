@@ -1306,6 +1306,105 @@
         "turn-based"
       ]
     },
+    "Bloxd.io": {
+      "path": "https://bloxd.io/",
+      "aliases": [
+        "Bloxd"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "sandbox"
+      ]
+    },
+    "Venge.io": {
+      "path": "https://venge.io/",
+      "aliases": [
+        "Venge"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "fps"
+      ]
+    },
+    "Krunker.io": {
+      "path": "https://krunker.io/",
+      "aliases": [
+        "Krunker"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "fps"
+      ]
+    },
+    "ZombsRoyale.io": {
+      "path": "https://zombsroyale.io/",
+      "aliases": [
+        "Zombs Royale"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "battle"
+      ]
+    },
+    "Surviv.io": {
+      "path": "https://surviv.io/",
+      "aliases": [
+        "Surviv"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "battle"
+      ]
+    },
+    "Shell Shockers": {
+      "path": "https://shellshock.io/",
+      "aliases": [
+        "Shellshock"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "fps"
+      ]
+    },
+    "Skribbl.io": {
+      "path": "https://skribbl.io/",
+      "aliases": [
+        "Skribbl"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "party"
+      ]
+    },
+    "Gartic Phone": {
+      "path": "https://garticphone.com/",
+      "aliases": [
+        "Gartic"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "party"
+      ]
+    },
+    "Haxball": {
+      "path": "https://www.haxball.com/",
+      "aliases": [
+        "HaxBall"
+      ],
+      "categories": [
+        "online",
+        "multiplayer",
+        "sports"
+      ]
+    },
     "Ultimate Chess": {
       "path": "flash/?game=ultimate-chess",
       "aliases": [],
