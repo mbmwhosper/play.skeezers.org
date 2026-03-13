@@ -1405,6 +1405,28 @@
         "sports"
       ]
     },
+    "PvZ Web": {
+      "path": "pvz-web",
+      "aliases": [
+        "Plants vs Zombies Web",
+        "PvZ"
+      ],
+      "categories": [
+        "strategy",
+        "tower-defense",
+        "local"
+      ]
+    },
+    "Teabag Simulator": {
+      "path": "teabag-simulator/teabag-simulator.html",
+      "aliases": [
+        "Teabag"
+      ],
+      "categories": [
+        "simulation",
+        "local"
+      ]
+    },
     "Ultimate Chess": {
       "path": "flash/?game=ultimate-chess",
       "aliases": [],

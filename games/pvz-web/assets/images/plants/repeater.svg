@@ -1,0 +1,11 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M50 50 L50 95" stroke="#15803D" stroke-width="8" stroke-linecap="round" />
+  <circle cx="45" cy="40" r="25" fill="#22C55E" stroke="#166534" stroke-width="3" />
+  <path d="M60 30 Q90 30 90 40 Q90 50 60 50" fill="#22C55E" stroke="#166534" stroke-width="3" />
+  <!-- Leaves -->
+  <path d="M20 25 Q5 15 10 45 Q20 40 20 25" fill="#166534" />
+  <path d="M25 20 Q15 5 40 10 Q35 20 25 20" fill="#166534" />
+  <!-- Eye -->
+  <path d="M35 30 L45 32" stroke="#000" stroke-width="3" />
+  <circle cx="40" cy="38" r="4" fill="#000" />
+</svg>

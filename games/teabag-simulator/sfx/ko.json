@@ -1,0 +1,2022 @@
+{
+  "version": 2,
+  "sounds": {
+    "jump": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "square",
+            "freqStart": 194.10199344909796,
+            "freqEnd": 851.1968262674864,
+            "detune": 890.4000000000001
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 1.684
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 2.4,
+            "depth": 0.55,
+            "dest": "gain",
+            "wave": "square"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "triangle",
+            "freqStart": 675,
+            "freqEnd": 428,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 618,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.26
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.030130060241861212,
+        "decay": 0.06950243175887968,
+        "sustain": 0.186,
+        "release": 0.030581831989313878
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.15,
+        "feedback": 0.3,
+        "mix": 0.3
+      },
+      "duration": 0.10642000000000001,
+      "masterVolume": 0.507,
+      "reverb": {
+        "enabled": false,
+        "decay": 0.4871000000000001,
+        "mix": 0.229
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -24,
+        "knee": 12,
+        "ratio": 4,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      }
+    },
+    "doubleJump": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "square",
+            "freqStart": 194.10199344909796,
+            "freqEnd": 851.1968262674864,
+            "detune": 1200
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 1.684
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 2.4,
+            "depth": 0.55,
+            "dest": "gain",
+            "wave": "square"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "triangle",
+            "freqStart": 675,
+            "freqEnd": 428,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 618,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.26
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.030130060241861212,
+        "decay": 0.06950243175887968,
+        "sustain": 0.186,
+        "release": 0.030581831989313878
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.15,
+        "feedback": 0.3,
+        "mix": 0.3
+      },
+      "duration": 0.10642000000000001,
+      "masterVolume": 0.507,
+      "reverb": {
+        "enabled": false,
+        "decay": 0.4871000000000001,
+        "mix": 0.229
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -24,
+        "knee": 12,
+        "ratio": 4,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      }
+    },
+    "land": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "brown",
+            "freqStart": 1927,
+            "freqEnd": 600,
+            "detune": -109
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "bitcrush",
+            "drive": 4.9
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 14,
+            "depth": 0.18,
+            "dest": "gain",
+            "wave": "triangle"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": true,
+          "source": {
+            "type": "sine",
+            "freqStart": 112.46826503806983,
+            "freqEnd": 56.367658625289074,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": true,
+            "type": "highpass",
+            "freq": 731.1895832262499,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.004178303666466218,
+        "decay": 0.014387985782558456,
+        "sustain": 0,
+        "release": 0.001
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.275,
+        "feedback": 0.22,
+        "mix": 0.47
+      },
+      "duration": 0.08258,
+      "masterVolume": 0.6,
+      "reverb": {
+        "enabled": false,
+        "decay": 1.5,
+        "mix": 0.3
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -24,
+        "knee": 12,
+        "ratio": 4,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      }
+    },
+    "mount": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "fm",
+            "freqStart": 130.02593806861816,
+            "freqEnd": 851.1968262674864,
+            "detune": -100
+          },
+          "fm": {
+            "enabled": true,
+            "ratio": 7.79425,
+            "depth": 81
+          },
+          "waveshaper": {
+            "enabled": true,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.48
+        },
+        {
+          "enabled": true,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 166.73623692392684,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.0020941124558508926,
+        "decay": 0.006194410750767814,
+        "sustain": 0.143,
+        "release": 0.001
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.15,
+        "feedback": 0.3,
+        "mix": 0.3
+      },
+      "duration": 0.16899999999999998,
+      "masterVolume": 0.64,
+      "reverb": {
+        "enabled": false,
+        "decay": 1.5,
+        "mix": 0.3
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -24,
+        "knee": 12,
+        "ratio": 4,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      }
+    },
+    "teabagHit": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "white",
+            "freqStart": 1974,
+            "freqEnd": 452,
+            "detune": -158
+          },
+          "fm": {
+            "enabled": true,
+            "ratio": 2.34,
+            "depth": 368
+          },
+          "waveshaper": {
+            "enabled": true,
+            "curve": "softclip",
+            "drive": 2.634
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.421
+        },
+        {
+          "enabled": true,
+          "source": {
+            "type": "triangle",
+            "freqStart": 274.1763532329707,
+            "freqEnd": 72.28197252792266,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": true,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.443
+        },
+        {
+          "enabled": true,
+          "source": {
+            "type": "sine",
+            "freqStart": 2060.772240883233,
+            "freqEnd": 259.4358541967912,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.307
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.002685344445658507,
+        "decay": 0.012971792709839558,
+        "sustain": 0.157,
+        "release": 0.001386577950786654
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.187,
+        "feedback": 0.11,
+        "mix": 0.35
+      },
+      "duration": 0.04086,
+      "masterVolume": 0.5,
+      "reverb": {
+        "enabled": false,
+        "decay": 1.5,
+        "mix": 0.3
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -24,
+        "knee": 12,
+        "ratio": 4,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      }
+    },
+    "ko": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "sawtooth",
+            "freqStart": 1800,
+            "freqEnd": 1308,
+            "detune": -960
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": true,
+            "curve": "softclip",
+            "drive": 2.9000000000000004
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 7639,
+            "Q": 4.8,
+            "envAmount": 2542
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.3
+        },
+        {
+          "enabled": true,
+          "source": {
+            "type": "triangle",
+            "freqStart": 902,
+            "freqEnd": 447,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 2529,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.393
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.0046025657358135606,
+        "decay": 0.014387985782558456,
+        "sustain": 0.25,
+        "release": 0.0019225984136077166
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.15,
+        "feedback": 0.3,
+        "mix": 0.3
+      },
+      "reverb": {
+        "enabled": false,
+        "decay": 1.5,
+        "mix": 0.3
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -27,
+        "knee": 12,
+        "ratio": 5.1,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      },
+      "duration": 0.12727999999999998,
+      "masterVolume": 0.264
+    },
+    "combo": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "sawtooth",
+            "freqStart": 690,
+            "freqEnd": 2564,
+            "detune": 186
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": true,
+            "curve": "hardclip",
+            "drive": 5.1
+          },
+          "filter": {
+            "enabled": true,
+            "type": "lowpass",
+            "freq": 1264,
+            "Q": 1.9,
+            "envAmount": -1888
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.35
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.03,
+        "decay": 0.155,
+        "sustain": 0.45,
+        "release": 0.143
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.15,
+        "feedback": 0.3,
+        "mix": 0.3
+      },
+      "duration": 0.591,
+      "masterVolume": 0.65,
+      "reverb": {
+        "enabled": false,
+        "decay": 1.5,
+        "mix": 0.3
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -24,
+        "knee": 12,
+        "ratio": 4,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      }
+    },
+    "chainCombo": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "sine",
+            "freqStart": 1029,
+            "freqEnd": 1301,
+            "detune": -106
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": true,
+            "curve": "hardclip",
+            "drive": 2.7
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": true,
+            "rate": 28.8,
+            "depth": 0.29,
+            "dest": "pitch",
+            "wave": "triangle"
+          },
+          "gain": 0.6
+        },
+        {
+          "enabled": true,
+          "source": {
+            "type": "triangle",
+            "freqStart": 278,
+            "freqEnd": 288,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.28
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.046,
+        "decay": 0.036,
+        "sustain": 0.48,
+        "release": 0.267
+      },
+      "delay": {
+        "enabled": true,
+        "time": 0.229,
+        "feedback": 0.34,
+        "mix": 0.18
+      },
+      "duration": 0.069,
+      "masterVolume": 0.41,
+      "reverb": {
+        "enabled": false,
+        "decay": 1.5,
+        "mix": 0.3
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -24,
+        "knee": 12,
+        "ratio": 4,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      }
+    },
+    "menuSelect": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "triangle",
+            "freqStart": 459,
+            "freqEnd": 2440,
+            "detune": 43
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": true,
+            "type": "highpass",
+            "freq": 5135,
+            "Q": 1.8,
+            "envAmount": 1741
+          },
+          "lfo": {
+            "enabled": true,
+            "rate": 24.6,
+            "depth": 0.42,
+            "dest": "gain",
+            "wave": "triangle"
+          },
+          "gain": 0.37
+        },
+        {
+          "enabled": true,
+          "source": {
+            "type": "sine",
+            "freqStart": 961,
+            "freqEnd": 271,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.35
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.036,
+        "decay": 0.079,
+        "sustain": 0.23,
+        "release": 0.158
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.15,
+        "feedback": 0.3,
+        "mix": 0.3
+      },
+      "duration": 0.529,
+      "masterVolume": 0.69
+    },
+    "menuNav": {
+      "layers": [
+        {
+          "enabled": true,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        },
+        {
+          "enabled": false,
+          "source": {
+            "type": "sine",
+            "freqStart": 440,
+            "freqEnd": 440,
+            "detune": 0
+          },
+          "fm": {
+            "enabled": false,
+            "ratio": 2,
+            "depth": 100
+          },
+          "waveshaper": {
+            "enabled": false,
+            "curve": "softclip",
+            "drive": 2
+          },
+          "filter": {
+            "enabled": false,
+            "type": "lowpass",
+            "freq": 2000,
+            "Q": 1,
+            "envAmount": 0
+          },
+          "lfo": {
+            "enabled": false,
+            "rate": 5,
+            "depth": 0.3,
+            "dest": "gain",
+            "wave": "sine"
+          },
+          "gain": 0.5
+        }
+      ],
+      "envelope": {
+        "attack": 0.01,
+        "decay": 0.1,
+        "sustain": 0,
+        "release": 0.05
+      },
+      "delay": {
+        "enabled": false,
+        "time": 0.15,
+        "feedback": 0.3,
+        "mix": 0.3
+      },
+      "reverb": {
+        "enabled": false,
+        "decay": 1.5,
+        "mix": 0.3
+      },
+      "chorus": {
+        "enabled": false,
+        "rate": 1.5,
+        "depth": 0.005,
+        "mix": 0.5
+      },
+      "phaser": {
+        "enabled": false,
+        "rate": 0.5,
+        "depth": 2000,
+        "stages": 4,
+        "feedback": 0.5
+      },
+      "compressor": {
+        "enabled": false,
+        "threshold": -24,
+        "knee": 12,
+        "ratio": 4,
+        "attack": 0.003,
+        "release": 0.25
+      },
+      "distortion": {
+        "enabled": false,
+        "curve": "softclip",
+        "drive": 4,
+        "mix": 0.5
+      },
+      "eq": {
+        "enabled": false,
+        "lowFreq": 200,
+        "lowGain": 0,
+        "midFreq": 1000,
+        "midGain": 0,
+        "midQ": 1,
+        "highFreq": 5000,
+        "highGain": 0
+      },
+      "bitcrusher": {
+        "enabled": false,
+        "bits": 8,
+        "sampleRate": 0.5
+      },
+      "tremolo": {
+        "enabled": false,
+        "rate": 5,
+        "depth": 0.5,
+        "wave": "sine"
+      },
+      "duration": 0.2,
+      "masterVolume": 0.6
+    }
+  }
+}

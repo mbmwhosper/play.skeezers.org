@@ -1,0 +1,10 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M50 50 L50 95" stroke="#15803D" stroke-width="10" stroke-linecap="round" />
+  <circle cx="50" cy="40" r="35" fill="#7E22CE" stroke="#581C87" stroke-width="3" />
+  <!-- Mouth -->
+  <path d="M20 40 Q50 70 80 40" fill="#000" />
+  <path d="M25 42 L30 35 L35 45 L40 35 L45 45 L50 35 L55 45 L60 35 L65 45 L70 35 L75 42" stroke="#FFF" stroke-width="2" fill="none" />
+  <!-- Eye -->
+  <circle cx="40" cy="25" r="4" fill="#FACC15" />
+  <circle cx="60" cy="25" r="4" fill="#FACC15" />
+</svg>

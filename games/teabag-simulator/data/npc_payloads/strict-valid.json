@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "meta": {
+    "id": "npc_strict_valid",
+    "label": "Strict Valid",
+    "baseTemplate": "male_base"
+  },
+  "runtimeProfile": {
+    "baseType": "normal",
+    "npcType": "strict_valid_runner",
+    "wScale": 1,
+    "hScale": 1,
+    "healthMin": 80,
+    "healthMax": 120,
+    "color": "#3182CE",
+    "skinColor": "#F0C8A0",
+    "hairColor": "#8B4513",
+    "hairStyle": "short",
+    "eyeColor": "#1A1A2E",
+    "legColor": "#4A5568",
+    "shoeColor": "#2D3748",
+    "feminineBody": false,
+    "bustScale": 0,
+    "hasDress": false,
+    "shortDress": false
+  },
+  "poses": {
+    "normal": {
+      "layers": [
+        {
+          "id": "layer_0001",
+          "name": "Body",
+          "type": "rect",
+          "visible": true,
+          "geometry": { "x": 452, "y": 272, "w": 56, "h": 128 },
+          "style": {
+            "fill": "#3182CE",
+            "stroke": "#0F172A",
+            "strokeWidth": 2,
+            "opacity": 1,
+            "fillMode": "solid"
+          }
+        }
+      ]
+    },
+    "panic": {
+      "layers": [
+        {
+          "id": "layer_0002",
+          "name": "Body Panic",
+          "type": "rect",
+          "visible": true,
+          "geometry": { "x": 452, "y": 272, "w": 56, "h": 128 },
+          "style": {
+            "fill": "#3182CE",
+            "stroke": "#0F172A",
+            "strokeWidth": 2,
+            "opacity": 1,
+            "fillMode": "solid"
+          }
+        }
+      ]
+    },
+    "ko": {
+      "layers": [
+        {
+          "id": "layer_0003",
+          "name": "Body KO",
+          "type": "rect",
+          "visible": true,
+          "geometry": { "x": 416, "y": 352, "w": 128, "h": 44 },
+          "style": {
+            "fill": "#3182CE",
+            "stroke": "#0F172A",
+            "strokeWidth": 2,
+            "opacity": 1,
+            "fillMode": "solid"
+          }
+        }
+      ]
+    }
+  }
+}

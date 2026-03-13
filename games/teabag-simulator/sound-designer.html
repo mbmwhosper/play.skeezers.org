@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sound Designer — Teabag Simulator</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { overflow: hidden; background: #111; color: #ccc; font-family: monospace; display: flex; flex-direction: column; height: 100vh; max-height: 100vh; }
+#toolbar { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #1a1a2e; border-bottom: 1px solid #333; flex-shrink: 0; }
+#toolbar button { background: #2a2a4e; color: #ccc; border: 1px solid #444; padding: 4px 10px; cursor: pointer; font-family: monospace; font-size: 12px; }
+#toolbar button:hover { background: #3a3a6e; }
+#toolbar .status { color: #888; font-size: 11px; margin-left: auto; }
+#workspace { display: flex; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
+
+#slotPanel { width: 180px; background: #1a1a2e; border-right: 1px solid #333; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+#slotPanel h3 { padding: 6px 10px; font-size: 12px; color: #888; border-bottom: 1px solid #333; }
+.slot-item { display: flex; align-items: center; gap: 6px; padding: 5px 10px; cursor: pointer; font-size: 11px; border-left: 3px solid transparent; user-select: none; }
+.slot-item:hover { background: #222244; }
+.slot-item.selected { background: #2a2a5e; border-left-color: #0f0; }
+.slot-item .dot { width: 8px; height: 8px; border-radius: 50%; background: #555; flex-shrink: 0; }
+.slot-item .dot.defined { background: #0f0; }
+.slot-item .icon { width: 18px; text-align: center; flex-shrink: 0; font-size: 13px; }
+.slot-item .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slot-item .rnd { background: #2a2a4e; color: #888; border: 1px solid #444; padding: 1px 5px; cursor: pointer; font-family: monospace; font-size: 10px; flex-shrink: 0; }
+.slot-item .rnd:hover { background: #3a3a6e; color: #ccc; }
+
+#vizPanel { flex: 1; display: flex; flex-direction: column; background: #0a0a14; position: relative; min-width: 0; overflow: hidden; }
+#vizCanvas { width: 100%; flex: 1; display: block; }
+#vizControls { display: flex; gap: 8px; padding: 4px 8px; background: #1a1a2e; border-top: 1px solid #333; align-items: center; }
+#vizControls button { background: #2a2a4e; color: #ccc; border: 1px solid #444; padding: 4px 12px; cursor: pointer; font-family: monospace; font-size: 12px; }
+#vizControls button:hover { background: #3a3a6e; }
+#vizControls button.active { background: #2a6a2e; border-color: #0f0; }
+#vizControls .label { color: #666; font-size: 11px; }
+
+#paramWrap { width: 320px; flex-shrink: 0; background: #1a1a2e; border-left: 1px solid #333; display: flex; flex-direction: column; overflow: hidden; }
+#paramWrap h3 { padding: 6px 10px; font-size: 12px; color: #888; border-bottom: 1px solid #333; }
+#paramScroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: 20px; }
+
+.section { border-bottom: 1px solid #222; }
+.section-header { display: flex; align-items: center; gap: 6px; padding: 6px 10px; cursor: pointer; font-size: 12px; color: #aaa; background: #161628; user-select: none; }
+.section-header:hover { background: #1c1c38; }
+.section-header .arrow { font-size: 10px; width: 12px; transition: transform 0.15s; }
+.section-header .arrow.collapsed { transform: rotate(-90deg); }
+.section-header .toggle { margin-left: auto; }
+.section-body { padding: 4px 12px 8px 10px; }
+.section-body.hidden { display: none; }
+
+.param-row { display: flex; align-items: center; gap: 6px; padding: 2px 6px 2px 0; font-size: 11px; }
+.param-row label { width: 70px; flex-shrink: 0; color: #888; text-align: right; }
+.param-row input[type="range"] { flex: 1; height: 14px; accent-color: #4a8; }
+.param-row .val { width: 62px; text-align: right; color: #aaa; font-size: 10px; flex-shrink: 0; }
+.param-row select { background: #222; color: #ccc; border: 1px solid #444; padding: 2px 4px; font-family: monospace; font-size: 11px; flex: 1; }
+.param-row input[type="checkbox"] { accent-color: #4a8; }
+
+.layer-tab-bar { display: flex; border-bottom: 1px solid #333; }
+.layer-tab { flex: 1; padding: 5px 0; text-align: center; font-size: 11px; cursor: pointer; color: #666; border-bottom: 2px solid transparent; }
+.layer-tab:hover { color: #aaa; background: #1c1c38; }
+.layer-tab.active { color: #ccc; border-bottom-color: #4a8; }
+.layer-tab.disabled { color: #444; }
+
+input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <button id="exportBtn">Export JSON</button>
+  <button id="importBtn">Import JSON</button>
+  <button id="copyJsBtn">Copy JS</button>
+  <span style="width:1px;background:#333;height:18px"></span>
+  <button id="copySlotBtn">Copy Slot</button>
+  <button id="pasteSlotBtn">Paste Slot</button>
+  <span class="status" id="statusMsg">Ready</span>
+</div>
+<div id="workspace">
+  <div id="slotPanel">
+    <h3>Sound Slots</h3>
+    <div id="slotList"></div>
+  </div>
+  <div id="vizPanel">
+    <canvas id="vizCanvas"></canvas>
+    <div id="vizControls">
+      <button id="playBtn">&#9654; Play</button>
+      <span class="label">Space to play</span>
+      <span style="flex:1"></span>
+      <button id="fftToggle">FFT</button>
+    </div>
+  </div>
+  <div id="paramWrap">
+    <h3>Parameters</h3>
+    <div class="layer-tab-bar" id="layerTabs"></div>
+    <div id="paramScroll"></div>
+  </div>
+</div>
+<input type="file" id="fileInput" accept=".json">
+
+<script>
+// ── AudioContext (lazy init) ──
+let ac = null;
+function getAC() {
+  if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  if (ac.state === 'suspended') ac.resume();
+  return ac;
+}
+
+// ── Noise Buffers ──
+let noiseBuffers = {};
+function initNoiseBuffers() {
+  const a = getAC(), sr = a.sampleRate, len = sr;
+  const white = a.createBuffer(1, len, sr);
+  const wd = white.getChannelData(0);
+  for (let i = 0; i < len; i++) wd[i] = Math.random() * 2 - 1;
+  noiseBuffers.white = white;
+  const pink = a.createBuffer(1, len, sr);
+  const pd = pink.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for (let i = 0; i < len; i++) {
+    const w = Math.random() * 2 - 1;
+    b0 = 0.99886*b0 + w*0.0555179;
+    b1 = 0.99332*b1 + w*0.0750759;
+    b2 = 0.96900*b2 + w*0.1538520;
+    b3 = 0.86650*b3 + w*0.3104856;
+    b4 = 0.55000*b4 + w*0.5329522;
+    b5 = -0.7616*b5 - w*0.0168980;
+    pd[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362) * 0.11;
+    b6 = w * 0.115926;
+  }
+  noiseBuffers.pink = pink;
+  const brown = a.createBuffer(1, len, sr);
+  const bd = brown.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < len; i++) {
+    const w = Math.random() * 2 - 1;
+    last = (last + 0.02 * w);
+    if (last > 1) last = 1; if (last < -1) last = -1;
+    bd[i] = last * 3.5;
+  }
+  noiseBuffers.brown = brown;
+}
+
+// ── Reverb IR generation (algorithmic) ──
+function generateReverbIR(decay, sr) {
+  const len = Math.floor(sr * decay);
+  const buf = getAC().createBuffer(2, len, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay * 2);
+    }
+  }
+  return buf;
+}
+
+// ── Waveshaper Curves ──
+function makeWaveshaperCurve(type, drive) {
+  const n = 8192;
+  const curve = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const x = (i / (n - 1)) * 2 - 1;
+    switch (type) {
+      case 'softclip': curve[i] = Math.tanh(drive * x); break;
+      case 'hardclip': curve[i] = Math.max(-1, Math.min(1, drive * x)); break;
+      case 'foldback': curve[i] = Math.sin(drive * x * Math.PI); break;
+      case 'bitcrush': { const s = Math.max(2, Math.round(drive * 4)); curve[i] = Math.round(x * s) / s; } break;
+      default: curve[i] = x;
+    }
+  }
+  return curve;
+}
+
+// ── Slot Definitions ──
+const SLOTS = [
+  { id: 'jump', icon: '\u2B06', label: 'Jump' },
+  { id: 'doubleJump', icon: '\u23EB', label: 'Double Jump' },
+  { id: 'land', icon: '\u2B07', label: 'Land' },
+  { id: 'mount', icon: '\uD83D\uDC0E', label: 'Mount' },
+  { id: 'teabagHit', icon: '\uD83D\uDCA5', label: 'Teabag Hit' },
+  { id: 'ko', icon: '\uD83D\uDC80', label: 'KO' },
+  { id: 'combo', icon: '\uD83D\uDD17', label: 'Combo' },
+  { id: 'chainCombo', icon: '\u26D3', label: 'Chain Combo' },
+  { id: 'menuSelect', icon: '\u2713', label: 'Menu Select' },
+  { id: 'menuNav', icon: '\u2192', label: 'Menu Nav' },
+  { id: 'zoneTransition', icon: '\uD83C\uDF00', label: 'Zone Trans' },
+  { id: 'prestige', icon: '\u2B50', label: 'Prestige' },
+];
+
+// ── Default Sound ──
+function defaultLayer() {
+  return {
+    enabled: false,
+    source: { type: 'sine', freqStart: 440, freqEnd: 440, detune: 0 },
+    fm: { enabled: false, ratio: 2, depth: 100 },
+    waveshaper: { enabled: false, curve: 'softclip', drive: 2 },
+    filter: { enabled: false, type: 'lowpass', freq: 2000, Q: 1, envAmount: 0 },
+    lfo: { enabled: false, rate: 5, depth: 0.3, dest: 'gain', wave: 'sine' },
+    gain: 0.5,
+  };
+}
+function defaultSound() {
+  const l1 = defaultLayer(); l1.enabled = true;
+  return {
+    layers: [l1, defaultLayer(), defaultLayer(), defaultLayer()],
+    envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.05 },
+    delay: { enabled: false, time: 0.15, feedback: 0.3, mix: 0.3 },
+    reverb: { enabled: false, decay: 1.5, mix: 0.3 },
+    chorus: { enabled: false, rate: 1.5, depth: 0.005, mix: 0.5 },
+    phaser: { enabled: false, rate: 0.5, depth: 2000, stages: 4, feedback: 0.5 },
+    compressor: { enabled: false, threshold: -24, knee: 12, ratio: 4, attack: 0.003, release: 0.25 },
+    distortion: { enabled: false, curve: 'softclip', drive: 4, mix: 0.5 },
+    eq: { enabled: false, lowFreq: 200, lowGain: 0, midFreq: 1000, midGain: 0, midQ: 1, highFreq: 5000, highGain: 0 },
+    bitcrusher: { enabled: false, bits: 8, sampleRate: 0.5 },
+    tremolo: { enabled: false, rate: 5, depth: 0.5, wave: 'sine' },
+    duration: 0.2,
+    masterVolume: 0.6,
+  };
+}
+
+// ensure old saves get new fx fields
+function migrateSound(snd) {
+  const def = defaultSound();
+  for (const k of ['reverb','chorus','phaser','compressor','distortion','eq','bitcrusher','tremolo']) {
+    if (!snd[k]) snd[k] = JSON.parse(JSON.stringify(def[k]));
+  }
+  return snd;
+}
+
+// ── State ──
+let sounds = {};
+let selectedSlot = 'jump';
+let activeLayerTab = 0;
+let showFFT = false;
+let analyserNode = null;
+let isPlaying = false;
+
+// ── Persistence ──
+const STORAGE_KEY = 'teabag_sound_designer';
+let saveTimer = null;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sounds));
+    setStatus('Saved');
+  }, 500);
+}
+function loadFromStorage() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (d && typeof d === 'object') sounds = d;
+  } catch(e) {}
+}
+
+function setStatus(msg) {
+  document.getElementById('statusMsg').textContent = msg;
+  setTimeout(() => { document.getElementById('statusMsg').textContent = 'Ready'; }, 2000);
+}
+
+function getSound(id) {
+  if (!sounds[id]) sounds[id] = defaultSound();
+  return migrateSound(sounds[id]);
+}
+
+// ── Slot Panel ──
+function buildSlotPanel() {
+  const list = document.getElementById('slotList');
+  list.innerHTML = '';
+  SLOTS.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'slot-item' + (s.id === selectedSlot ? ' selected' : '');
+    el.dataset.id = s.id;
+    const dot = document.createElement('span');
+    dot.className = 'dot' + (sounds[s.id] ? ' defined' : '');
+    const icon = document.createElement('span');
+    icon.className = 'icon';
+    icon.textContent = s.icon;
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = s.label;
+    const rnd = document.createElement('button');
+    rnd.className = 'rnd';
+    rnd.textContent = 'R';
+    rnd.title = 'Randomize';
+    rnd.onclick = (e) => { e.stopPropagation(); randomizeSound(s.id); };
+    el.append(dot, icon, name, rnd);
+    el.onclick = () => selectSlot(s.id);
+    list.appendChild(el);
+  });
+}
+
+function selectSlot(id) {
+  selectedSlot = id;
+  buildSlotPanel();
+  buildParamPanel();
+  drawViz();
+}
+
+// ── Layer Tabs ──
+function buildLayerTabs() {
+  const bar = document.getElementById('layerTabs');
+  bar.innerHTML = '';
+  const snd = getSound(selectedSlot);
+  for (let i = 0; i < 4; i++) {
+    const tab = document.createElement('div');
+    tab.className = 'layer-tab' + (activeLayerTab === i ? ' active' : '') + (!snd.layers[i].enabled ? ' disabled' : '');
+    tab.textContent = 'L' + (i + 1);
+    tab.onclick = () => { activeLayerTab = i; buildParamPanel(); };
+    bar.appendChild(tab);
+  }
+  const gt = document.createElement('div');
+  gt.className = 'layer-tab' + (activeLayerTab === 4 ? ' active' : '');
+  gt.textContent = 'Global';
+  gt.onclick = () => { activeLayerTab = 4; buildParamPanel(); };
+  bar.appendChild(gt);
+}
+
+// ── Parameter Panel Builder ──
+function buildParamPanel() {
+  buildLayerTabs();
+  const scroll = document.getElementById('paramScroll');
+  scroll.innerHTML = '';
+  const snd = getSound(selectedSlot);
+  if (activeLayerTab < 4) {
+    buildLayerParams(scroll, snd, activeLayerTab);
+  } else {
+    buildGlobalParams(scroll, snd);
+  }
+}
+
+// Track open/closed state of sections across rebuilds
+const sectionOpenState = {};
+
+function makeSection(parent, title, defaultCollapsed) {
+  const key = selectedSlot + '|' + activeLayerTab + '|' + title;
+  const isCollapsed = (key in sectionOpenState) ? !sectionOpenState[key] : defaultCollapsed;
+
+  const sec = document.createElement('div');
+  sec.className = 'section';
+  const hdr = document.createElement('div');
+  hdr.className = 'section-header';
+  const arrow = document.createElement('span');
+  arrow.className = 'arrow' + (isCollapsed ? ' collapsed' : '');
+  arrow.textContent = '\u25BC';
+  const lbl = document.createElement('span');
+  lbl.textContent = title;
+  hdr.append(arrow, lbl);
+  const body = document.createElement('div');
+  body.className = 'section-body' + (isCollapsed ? ' hidden' : '');
+  hdr.onclick = () => {
+    arrow.classList.toggle('collapsed');
+    body.classList.toggle('hidden');
+    sectionOpenState[key] = !body.classList.contains('hidden');
+  };
+  sec.append(hdr, body);
+  parent.appendChild(sec);
+  return { sec, hdr, body, key };
+}
+
+function addSelect(parent, label, options, value, onChange) {
+  const row = document.createElement('div');
+  row.className = 'param-row';
+  const lbl = document.createElement('label');
+  lbl.textContent = label;
+  const sel = document.createElement('select');
+  options.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = typeof o === 'object' ? o.value : o;
+    opt.textContent = typeof o === 'object' ? o.label : o;
+    if (opt.value === value) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.onchange = () => { onChange(sel.value); scheduleSave(); buildSlotPanel(); drawViz(); };
+  row.append(lbl, sel);
+  parent.appendChild(row);
+}
+
+function addSlider(parent, label, min, max, step, value, format, onChange, log) {
+  const row = document.createElement('div');
+  row.className = 'param-row';
+  const lbl = document.createElement('label');
+  lbl.textContent = label;
+  const slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = 0; slider.max = 1; slider.step = 0.001;
+  const val = document.createElement('span');
+  val.className = 'val';
+
+  function toSlider(v) {
+    if (log) return Math.log(v / min) / Math.log(max / min);
+    return (v - min) / (max - min);
+  }
+  function fromSlider(s) {
+    if (log) return min * Math.pow(max / min, s);
+    return min + s * (max - min);
+  }
+
+  slider.value = toSlider(value);
+  val.textContent = format(value);
+
+  slider.oninput = () => {
+    const v = fromSlider(parseFloat(slider.value));
+    val.textContent = format(v);
+    onChange(v);
+    scheduleSave();
+    drawViz();
+  };
+  row.append(lbl, slider, val);
+  parent.appendChild(row);
+}
+
+function addToggle(parent, label, value, onChange, sectionKey) {
+  const row = document.createElement('div');
+  row.className = 'param-row';
+  const lbl = document.createElement('label');
+  lbl.textContent = label;
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = value;
+  cb.onchange = () => {
+    onChange(cb.checked);
+    // Auto-open section when enabling
+    if (cb.checked && sectionKey) sectionOpenState[sectionKey] = true;
+    scheduleSave(); buildParamPanel(); buildSlotPanel(); drawViz();
+  };
+  row.append(lbl, cb);
+  parent.appendChild(row);
+}
+
+const fmtHz = v => v < 1000 ? v.toFixed(1) + ' Hz' : (v/1000).toFixed(2) + ' kHz';
+const fmtMs = v => v < 1 ? (v * 1000).toFixed(0) + ' ms' : v.toFixed(2) + ' s';
+const fmtPct = v => (v * 100).toFixed(0) + '%';
+const fmtN = v => v.toFixed(2);
+const fmtInt = v => v.toFixed(0);
+const fmtCents = v => v.toFixed(0) + ' ct';
+const fmtDb = v => v.toFixed(1) + ' dB';
+
+function buildLayerParams(parent, snd, idx) {
+  const layer = snd.layers[idx];
+
+  const { body: enBody, key: enKey } = makeSection(parent, 'Layer ' + (idx + 1) + ' Enable', false);
+  addToggle(enBody, 'Enabled', layer.enabled, v => { layer.enabled = v; }, enKey);
+
+  if (!layer.enabled) return;
+
+  // Source
+  const { body: srcBody } = makeSection(parent, 'Source', false);
+  const sourceTypes = [
+    { value: 'sine', label: 'Sine' }, { value: 'square', label: 'Square' },
+    { value: 'sawtooth', label: 'Sawtooth' }, { value: 'triangle', label: 'Triangle' },
+    { value: 'white', label: 'White Noise' }, { value: 'pink', label: 'Pink Noise' },
+    { value: 'brown', label: 'Brown Noise' }, { value: 'fm', label: 'FM Synth' },
+  ];
+  addSelect(srcBody, 'Type', sourceTypes, layer.source.type, v => { layer.source.type = v; buildParamPanel(); });
+  const isNoise = ['white','pink','brown'].includes(layer.source.type);
+  if (!isNoise) {
+    addSlider(srcBody, 'Freq Start', 20, 20000, 1, layer.source.freqStart, fmtHz, v => { layer.source.freqStart = v; }, true);
+    addSlider(srcBody, 'Freq End', 20, 20000, 1, layer.source.freqEnd, fmtHz, v => { layer.source.freqEnd = v; }, true);
+    addSlider(srcBody, 'Detune', -1200, 1200, 1, layer.source.detune, fmtCents, v => { layer.source.detune = v; });
+  }
+
+  // FM
+  if (layer.source.type === 'fm') {
+    const { body: fmBody } = makeSection(parent, 'FM Synthesis', false);
+    addSlider(fmBody, 'Ratio', 0.25, 16, 0.01, layer.fm.ratio, fmtN, v => { layer.fm.ratio = v; });
+    addSlider(fmBody, 'Depth', 0, 2000, 1, layer.fm.depth, fmtInt, v => { layer.fm.depth = v; });
+  }
+
+  // Waveshaper
+  const { body: wsBody, key: wsKey } = makeSection(parent, 'Waveshaper', !layer.waveshaper.enabled);
+  addToggle(wsBody, 'Enable', layer.waveshaper.enabled, v => { layer.waveshaper.enabled = v; }, wsKey);
+  if (layer.waveshaper.enabled) {
+    addSelect(wsBody, 'Curve', [
+      { value: 'softclip', label: 'Soft Clip' }, { value: 'hardclip', label: 'Hard Clip' },
+      { value: 'foldback', label: 'Foldback' }, { value: 'bitcrush', label: 'Bitcrush' },
+    ], layer.waveshaper.curve, v => { layer.waveshaper.curve = v; });
+    addSlider(wsBody, 'Drive', 1, 20, 0.1, layer.waveshaper.drive, fmtN, v => { layer.waveshaper.drive = v; });
+  }
+
+  // Filter
+  const { body: fBody, key: fKey } = makeSection(parent, 'Filter', !layer.filter.enabled);
+  addToggle(fBody, 'Enable', layer.filter.enabled, v => { layer.filter.enabled = v; }, fKey);
+  if (layer.filter.enabled) {
+    addSelect(fBody, 'Type', [
+      'lowpass', 'highpass', 'bandpass', 'notch', 'allpass', 'peaking',
+    ], layer.filter.type, v => { layer.filter.type = v; });
+    addSlider(fBody, 'Freq', 20, 20000, 1, layer.filter.freq, fmtHz, v => { layer.filter.freq = v; }, true);
+    addSlider(fBody, 'Q', 0.1, 30, 0.1, layer.filter.Q, fmtN, v => { layer.filter.Q = v; }, true);
+    addSlider(fBody, 'Env Amt', -20000, 20000, 1, layer.filter.envAmount, fmtInt, v => { layer.filter.envAmount = v; });
+  }
+
+  // LFO
+  const { body: lBody, key: lKey } = makeSection(parent, 'LFO', !layer.lfo.enabled);
+  addToggle(lBody, 'Enable', layer.lfo.enabled, v => { layer.lfo.enabled = v; }, lKey);
+  if (layer.lfo.enabled) {
+    addSelect(lBody, 'Wave', ['sine','square','sawtooth','triangle'], layer.lfo.wave, v => { layer.lfo.wave = v; });
+    addSlider(lBody, 'Rate', 0.1, 50, 0.1, layer.lfo.rate, fmtHz, v => { layer.lfo.rate = v; }, true);
+    addSlider(lBody, 'Depth', 0, 1, 0.01, layer.lfo.depth, fmtPct, v => { layer.lfo.depth = v; });
+    addSelect(lBody, 'Dest', [
+      { value: 'gain', label: 'Gain' }, { value: 'pitch', label: 'Pitch' }, { value: 'filter', label: 'Filter Freq' },
+    ], layer.lfo.dest, v => { layer.lfo.dest = v; });
+  }
+
+  // Layer Gain
+  const { body: gBody } = makeSection(parent, 'Layer Gain', false);
+  addSlider(gBody, 'Volume', 0, 1, 0.01, layer.gain, fmtPct, v => { layer.gain = v; });
+}
+
+function buildGlobalParams(parent, snd) {
+  // Envelope
+  const { body: envBody } = makeSection(parent, 'Envelope (ADSR)', false);
+  addSlider(envBody, 'Attack', 0.001, 1, 0.001, snd.envelope.attack, fmtMs, v => { snd.envelope.attack = v; }, true);
+  addSlider(envBody, 'Decay', 0.001, 1, 0.001, snd.envelope.decay, fmtMs, v => { snd.envelope.decay = v; }, true);
+  addSlider(envBody, 'Sustain', 0, 1, 0.01, snd.envelope.sustain, fmtPct, v => { snd.envelope.sustain = v; });
+  addSlider(envBody, 'Release', 0.001, 2, 0.001, snd.envelope.release, fmtMs, v => { snd.envelope.release = v; }, true);
+
+  // Master
+  const { body: mBody } = makeSection(parent, 'Master', false);
+  addSlider(mBody, 'Duration', 0.02, 3, 0.01, snd.duration, fmtMs, v => { snd.duration = v; });
+  addSlider(mBody, 'Volume', 0, 1, 0.01, snd.masterVolume, fmtPct, v => { snd.masterVolume = v; });
+
+  // ── Effects ──
+
+  // Delay
+  const { body: dlBody, key: dlKey } = makeSection(parent, 'Delay', !snd.delay.enabled);
+  addToggle(dlBody, 'Enable', snd.delay.enabled, v => { snd.delay.enabled = v; }, dlKey);
+  if (snd.delay.enabled) {
+    addSlider(dlBody, 'Time', 0.01, 1, 0.001, snd.delay.time, fmtMs, v => { snd.delay.time = v; }, true);
+    addSlider(dlBody, 'Feedback', 0, 0.95, 0.01, snd.delay.feedback, fmtPct, v => { snd.delay.feedback = v; });
+    addSlider(dlBody, 'Mix', 0, 1, 0.01, snd.delay.mix, fmtPct, v => { snd.delay.mix = v; });
+  }
+
+  // Reverb
+  const { body: rvBody, key: rvKey } = makeSection(parent, 'Reverb', !snd.reverb.enabled);
+  addToggle(rvBody, 'Enable', snd.reverb.enabled, v => { snd.reverb.enabled = v; }, rvKey);
+  if (snd.reverb.enabled) {
+    addSlider(rvBody, 'Decay', 0.1, 5, 0.1, snd.reverb.decay, fmtN, v => { snd.reverb.decay = v; });
+    addSlider(rvBody, 'Mix', 0, 1, 0.01, snd.reverb.mix, fmtPct, v => { snd.reverb.mix = v; });
+  }
+
+  // Chorus
+  const { body: chBody, key: chKey } = makeSection(parent, 'Chorus', !snd.chorus.enabled);
+  addToggle(chBody, 'Enable', snd.chorus.enabled, v => { snd.chorus.enabled = v; }, chKey);
+  if (snd.chorus.enabled) {
+    addSlider(chBody, 'Rate', 0.1, 10, 0.1, snd.chorus.rate, fmtHz, v => { snd.chorus.rate = v; }, true);
+    addSlider(chBody, 'Depth', 0.001, 0.02, 0.001, snd.chorus.depth, v => (v*1000).toFixed(1)+' ms', v => { snd.chorus.depth = v; }, true);
+    addSlider(chBody, 'Mix', 0, 1, 0.01, snd.chorus.mix, fmtPct, v => { snd.chorus.mix = v; });
+  }
+
+  // Phaser
+  const { body: phBody, key: phKey } = makeSection(parent, 'Phaser', !snd.phaser.enabled);
+  addToggle(phBody, 'Enable', snd.phaser.enabled, v => { snd.phaser.enabled = v; }, phKey);
+  if (snd.phaser.enabled) {
+    addSlider(phBody, 'Rate', 0.1, 10, 0.1, snd.phaser.rate, fmtHz, v => { snd.phaser.rate = v; }, true);
+    addSlider(phBody, 'Depth', 100, 8000, 1, snd.phaser.depth, fmtHz, v => { snd.phaser.depth = v; }, true);
+    addSelect(phBody, 'Stages', [
+      {value:'2',label:'2'},{value:'4',label:'4'},{value:'6',label:'6'},{value:'8',label:'8'}
+    ], String(snd.phaser.stages), v => { snd.phaser.stages = parseInt(v); });
+    addSlider(phBody, 'Feedback', 0, 0.95, 0.01, snd.phaser.feedback, fmtPct, v => { snd.phaser.feedback = v; });
+  }
+
+  // Compressor
+  const { body: cpBody, key: cpKey } = makeSection(parent, 'Compressor', !snd.compressor.enabled);
+  addToggle(cpBody, 'Enable', snd.compressor.enabled, v => { snd.compressor.enabled = v; }, cpKey);
+  if (snd.compressor.enabled) {
+    addSlider(cpBody, 'Threshold', -60, 0, 1, snd.compressor.threshold, fmtDb, v => { snd.compressor.threshold = v; });
+    addSlider(cpBody, 'Knee', 0, 40, 1, snd.compressor.knee, fmtDb, v => { snd.compressor.knee = v; });
+    addSlider(cpBody, 'Ratio', 1, 20, 0.1, snd.compressor.ratio, v => v.toFixed(1)+':1', v => { snd.compressor.ratio = v; });
+    addSlider(cpBody, 'Attack', 0.001, 0.1, 0.001, snd.compressor.attack, fmtMs, v => { snd.compressor.attack = v; }, true);
+    addSlider(cpBody, 'Release', 0.01, 1, 0.01, snd.compressor.release, fmtMs, v => { snd.compressor.release = v; }, true);
+  }
+
+  // Distortion (master bus)
+  const { body: dsBody, key: dsKey } = makeSection(parent, 'Distortion', !snd.distortion.enabled);
+  addToggle(dsBody, 'Enable', snd.distortion.enabled, v => { snd.distortion.enabled = v; }, dsKey);
+  if (snd.distortion.enabled) {
+    addSelect(dsBody, 'Curve', [
+      { value: 'softclip', label: 'Soft Clip' }, { value: 'hardclip', label: 'Hard Clip' },
+      { value: 'foldback', label: 'Foldback' },
+    ], snd.distortion.curve, v => { snd.distortion.curve = v; });
+    addSlider(dsBody, 'Drive', 1, 30, 0.1, snd.distortion.drive, fmtN, v => { snd.distortion.drive = v; });
+    addSlider(dsBody, 'Mix', 0, 1, 0.01, snd.distortion.mix, fmtPct, v => { snd.distortion.mix = v; });
+  }
+
+  // EQ (3-band parametric)
+  const { body: eqBody, key: eqKey } = makeSection(parent, 'EQ (3-Band)', !snd.eq.enabled);
+  addToggle(eqBody, 'Enable', snd.eq.enabled, v => { snd.eq.enabled = v; }, eqKey);
+  if (snd.eq.enabled) {
+    addSlider(eqBody, 'Low Freq', 40, 500, 1, snd.eq.lowFreq, fmtHz, v => { snd.eq.lowFreq = v; }, true);
+    addSlider(eqBody, 'Low Gain', -24, 24, 0.5, snd.eq.lowGain, fmtDb, v => { snd.eq.lowGain = v; });
+    addSlider(eqBody, 'Mid Freq', 200, 8000, 1, snd.eq.midFreq, fmtHz, v => { snd.eq.midFreq = v; }, true);
+    addSlider(eqBody, 'Mid Gain', -24, 24, 0.5, snd.eq.midGain, fmtDb, v => { snd.eq.midGain = v; });
+    addSlider(eqBody, 'Mid Q', 0.1, 18, 0.1, snd.eq.midQ, fmtN, v => { snd.eq.midQ = v; }, true);
+    addSlider(eqBody, 'High Freq', 2000, 16000, 1, snd.eq.highFreq, fmtHz, v => { snd.eq.highFreq = v; }, true);
+    addSlider(eqBody, 'High Gain', -24, 24, 0.5, snd.eq.highGain, fmtDb, v => { snd.eq.highGain = v; });
+  }
+
+  // Bitcrusher (sample rate reduction)
+  const { body: bcBody, key: bcKey } = makeSection(parent, 'Bitcrusher', !snd.bitcrusher.enabled);
+  addToggle(bcBody, 'Enable', snd.bitcrusher.enabled, v => { snd.bitcrusher.enabled = v; }, bcKey);
+  if (snd.bitcrusher.enabled) {
+    addSlider(bcBody, 'Bits', 1, 16, 1, snd.bitcrusher.bits, v => v.toFixed(0)+' bit', v => { snd.bitcrusher.bits = Math.round(v); });
+    addSlider(bcBody, 'SR Reduce', 0.01, 1, 0.01, snd.bitcrusher.sampleRate, fmtPct, v => { snd.bitcrusher.sampleRate = v; });
+  }
+
+  // Tremolo
+  const { body: trBody, key: trKey } = makeSection(parent, 'Tremolo', !snd.tremolo.enabled);
+  addToggle(trBody, 'Enable', snd.tremolo.enabled, v => { snd.tremolo.enabled = v; }, trKey);
+  if (snd.tremolo.enabled) {
+    addSelect(trBody, 'Wave', ['sine','square','sawtooth','triangle'], snd.tremolo.wave, v => { snd.tremolo.wave = v; });
+    addSlider(trBody, 'Rate', 0.1, 50, 0.1, snd.tremolo.rate, fmtHz, v => { snd.tremolo.rate = v; }, true);
+    addSlider(trBody, 'Depth', 0, 1, 0.01, snd.tremolo.depth, fmtPct, v => { snd.tremolo.depth = v; });
+  }
+}
+
+// ── Visualization ──
+function drawViz() {
+  const canvas = document.getElementById('vizCanvas');
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = rect.width;
+  const H = rect.height - 40;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0, 0, W, H);
+
+  const snd = getSound(selectedSlot);
+  const env = snd.envelope;
+  const dur = snd.duration;
+
+  // Grid
+  ctx.strokeStyle = '#1a1a2e';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 10; i++) {
+    const x = W * i / 10;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let i = 0; i < 5; i++) {
+    const y = H * i / 5;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  const envH = H * 0.45;
+  const freqH = H * 0.45;
+  const envY0 = 10;
+  const freqY0 = envH + 20;
+
+  // ADSR
+  const totalTime = dur + env.release;
+  const atkEnd = env.attack / totalTime;
+  const decEnd = (env.attack + env.decay) / totalTime;
+  const susEnd = dur / totalTime;
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#0f0';
+  ctx.lineWidth = 2;
+  ctx.moveTo(0, envY0 + envH);
+  ctx.lineTo(atkEnd * W, envY0);
+  ctx.lineTo(decEnd * W, envY0 + envH * (1 - env.sustain));
+  ctx.lineTo(susEnd * W, envY0 + envH * (1 - env.sustain));
+  ctx.lineTo(W, envY0 + envH);
+  ctx.stroke();
+
+  ctx.fillStyle = '#0f0';
+  ctx.font = '10px monospace';
+  ctx.fillText('ADSR', 4, envY0 + 12);
+  ctx.fillStyle = '#555';
+  ctx.fillText('A', atkEnd * W * 0.5, envY0 + envH + 12);
+  ctx.fillText('D', (atkEnd + decEnd) / 2 * W, envY0 + envH + 12);
+  ctx.fillText('S', (decEnd + susEnd) / 2 * W, envY0 + envH + 12);
+  ctx.fillText('R', (susEnd + 1) / 2 * W, envY0 + envH + 12);
+
+  // Frequency sweep
+  const firstLayer = snd.layers.find(l => l.enabled && !['white','pink','brown'].includes(l.source.type));
+  if (firstLayer) {
+    ctx.beginPath();
+    ctx.strokeStyle = '#0ff';
+    ctx.lineWidth = 2;
+    const fS = firstLayer.source.freqStart;
+    const fE = firstLayer.source.freqEnd;
+    const minF = 20, maxF = 20000;
+    for (let px = 0; px < W; px++) {
+      const t = px / W;
+      const f = fS + (fE - fS) * t;
+      const norm = Math.log(f / minF) / Math.log(maxF / minF);
+      const y = freqY0 + freqH * (1 - Math.max(0, Math.min(1, norm)));
+      if (px === 0) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#0ff';
+    ctx.font = '10px monospace';
+    ctx.fillText('Freq: ' + fmtHz(fS) + ' \u2192 ' + fmtHz(fE), 4, freqY0 + 12);
+  }
+
+  // Filter freq envelope
+  const filtLayer = snd.layers.find(l => l.enabled && l.filter.enabled);
+  if (filtLayer) {
+    ctx.beginPath();
+    ctx.strokeStyle = '#f80';
+    ctx.lineWidth = 1.5;
+    const baseF = filtLayer.filter.freq;
+    const envAmt = filtLayer.filter.envAmount;
+    const minF = 20, maxF = 20000;
+    for (let px = 0; px < W; px++) {
+      const t = px / W * totalTime;
+      let envVal = 0;
+      if (t < env.attack) envVal = t / env.attack;
+      else if (t < env.attack + env.decay) envVal = 1 - (1 - env.sustain) * ((t - env.attack) / env.decay);
+      else if (t < dur) envVal = env.sustain;
+      else envVal = env.sustain * (1 - (t - dur) / env.release);
+      const f = Math.max(minF, Math.min(maxF, baseF + envAmt * envVal));
+      const norm = Math.log(f / minF) / Math.log(maxF / minF);
+      const y = freqY0 + freqH * (1 - Math.max(0, Math.min(1, norm)));
+      if (px === 0) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#f80';
+    ctx.font = '10px monospace';
+    ctx.fillText('Filter', 4, freqY0 + 24);
+  }
+
+  // Active effects badge
+  const fx = [];
+  if (snd.delay.enabled) fx.push('DLY');
+  if (snd.reverb.enabled) fx.push('REV');
+  if (snd.chorus.enabled) fx.push('CHR');
+  if (snd.phaser.enabled) fx.push('PHA');
+  if (snd.compressor.enabled) fx.push('CMP');
+  if (snd.distortion.enabled) fx.push('DST');
+  if (snd.eq.enabled) fx.push('EQ');
+  if (snd.bitcrusher.enabled) fx.push('BIT');
+  if (snd.tremolo.enabled) fx.push('TRM');
+  if (fx.length) {
+    ctx.fillStyle = '#666';
+    ctx.font = '10px monospace';
+    ctx.fillText('FX: ' + fx.join(' '), W - 8 - ctx.measureText('FX: ' + fx.join(' ')).width, 14);
+  }
+}
+
+// ── Live Waveform / FFT overlay ──
+let animFrame = null;
+function startAnalyserDraw() {
+  if (!analyserNode) return;
+  const canvas = document.getElementById('vizCanvas');
+  const dctx = canvas.getContext('2d');
+  const W = canvas.width / devicePixelRatio;
+  const H = canvas.height / devicePixelRatio;
+
+  function frame() {
+    drawViz();
+    dctx.save();
+    dctx.scale(1/devicePixelRatio, 1/devicePixelRatio);
+    dctx.scale(devicePixelRatio, devicePixelRatio);
+
+    const bufLen = analyserNode.fftSize;
+    const data = new Float32Array(bufLen);
+    analyserNode.getFloatTimeDomainData(data);
+    dctx.beginPath();
+    dctx.strokeStyle = 'rgba(0,255,100,0.6)';
+    dctx.lineWidth = 1.5;
+    const midY = H * 0.25;
+    for (let i = 0; i < bufLen; i++) {
+      const x = (i / bufLen) * W;
+      const y = midY + data[i] * H * 0.2;
+      if (i === 0) dctx.moveTo(x, y); else dctx.lineTo(x, y);
+    }
+    dctx.stroke();
+
+    if (showFFT) {
+      const fftData = new Uint8Array(analyserNode.frequencyBinCount);
+      analyserNode.getByteFrequencyData(fftData);
+      const barW = W / fftData.length * 2;
+      dctx.fillStyle = 'rgba(100,150,255,0.3)';
+      const fftY0 = H * 0.7;
+      const fftH = H * 0.28;
+      for (let i = 0; i < fftData.length / 2; i++) {
+        const v = fftData[i] / 255;
+        dctx.fillRect(i * barW, fftY0 + fftH * (1 - v), barW - 1, fftH * v);
+      }
+    }
+
+    dctx.restore();
+    if (isPlaying) animFrame = requestAnimationFrame(frame);
+  }
+  animFrame = requestAnimationFrame(frame);
+}
+
+// ── Bitcrusher via ScriptProcessor / AudioWorklet fallback ──
+function createBitcrusher(a, bits, srReduce) {
+  // Use ScriptProcessorNode (deprecated but universal)
+  const bufSize = 4096;
+  const node = a.createScriptProcessor(bufSize, 1, 1);
+  let phase = 0;
+  let lastSample = 0;
+  const step = Math.pow(0.5, bits);
+  node.onaudioprocess = (e) => {
+    const input = e.inputBuffer.getChannelData(0);
+    const output = e.outputBuffer.getChannelData(0);
+    const skip = Math.max(1, Math.round(1 / srReduce));
+    for (let i = 0; i < input.length; i++) {
+      phase++;
+      if (phase >= skip) {
+        phase = 0;
+        // Bit reduction
+        lastSample = step * Math.floor(input[i] / step + 0.5);
+      }
+      output[i] = lastSample;
+    }
+  };
+  return node;
+}
+
+// ── Play Sound ──
+function playSound() {
+  const a = getAC();
+  if (Object.keys(noiseBuffers).length === 0) initNoiseBuffers();
+
+  const snd = getSound(selectedSlot);
+  const env = snd.envelope;
+  const now = a.currentTime;
+  const dur = snd.duration;
+  const endTime = now + dur + env.release + 0.5;
+
+  // Master gain with ADSR
+  const masterGain = a.createGain();
+  masterGain.gain.setValueAtTime(0, now);
+  masterGain.gain.linearRampToValueAtTime(snd.masterVolume, now + env.attack);
+  masterGain.gain.linearRampToValueAtTime(Math.max(0.0001, snd.masterVolume * env.sustain), now + env.attack + env.decay);
+  masterGain.gain.setValueAtTime(Math.max(0.0001, snd.masterVolume * env.sustain), now + dur);
+  masterGain.gain.linearRampToValueAtTime(0.0001, now + dur + env.release);
+
+  // Analyser
+  analyserNode = a.createAnalyser();
+  analyserNode.fftSize = 2048;
+
+  // ── Build effects chain (post-master) ──
+  // Chain order: master → tremolo → distortion → bitcrusher → EQ → chorus → phaser → compressor → delay → reverb → analyser → destination
+  let chainTip = a.destination;
+  const nodesToStop = [];
+
+  // Work backwards to build chain from destination
+
+  // Analyser (always last before destination)
+  analyserNode.connect(chainTip);
+  chainTip = analyserNode;
+
+  // Reverb
+  if (snd.reverb.enabled) {
+    const ir = generateReverbIR(snd.reverb.decay, a.sampleRate);
+    const convolver = a.createConvolver();
+    convolver.buffer = ir;
+    const dryG = a.createGain();
+    dryG.gain.value = 1 - snd.reverb.mix;
+    const wetG = a.createGain();
+    wetG.gain.value = snd.reverb.mix;
+    const merger = a.createGain();
+    merger.connect(chainTip);
+    dryG.connect(merger);
+    convolver.connect(wetG);
+    wetG.connect(merger);
+    // Input splits to dry + convolver
+    const splitter = a.createGain();
+    splitter.connect(dryG);
+    splitter.connect(convolver);
+    chainTip = splitter;
+  }
+
+  // Delay
+  if (snd.delay.enabled) {
+    const delayNode = a.createDelay(1.0);
+    delayNode.delayTime.value = snd.delay.time;
+    const fbGain = a.createGain();
+    fbGain.gain.value = snd.delay.feedback;
+    const dryG = a.createGain();
+    dryG.gain.value = 1 - snd.delay.mix;
+    const wetG = a.createGain();
+    wetG.gain.value = snd.delay.mix;
+    const merger = a.createGain();
+    merger.connect(chainTip);
+    dryG.connect(merger);
+    delayNode.connect(fbGain);
+    fbGain.connect(delayNode);
+    delayNode.connect(wetG);
+    wetG.connect(merger);
+    const splitter = a.createGain();
+    splitter.connect(dryG);
+    splitter.connect(delayNode);
+    chainTip = splitter;
+  }
+
+  // Compressor
+  if (snd.compressor.enabled) {
+    const comp = a.createDynamicsCompressor();
+    comp.threshold.value = snd.compressor.threshold;
+    comp.knee.value = snd.compressor.knee;
+    comp.ratio.value = snd.compressor.ratio;
+    comp.attack.value = snd.compressor.attack;
+    comp.release.value = snd.compressor.release;
+    comp.connect(chainTip);
+    chainTip = comp;
+  }
+
+  // Phaser (chain of allpass filters modulated by LFO)
+  if (snd.phaser.enabled) {
+    const stages = snd.phaser.stages || 4;
+    const filters = [];
+    let prev = a.createGain();
+    prev.connect(chainTip);
+    // Feedback path
+    const fbGain = a.createGain();
+    fbGain.gain.value = snd.phaser.feedback;
+    let lastFilter = null;
+    for (let i = 0; i < stages; i++) {
+      const ap = a.createBiquadFilter();
+      ap.type = 'allpass';
+      ap.frequency.value = 1000;
+      ap.Q.value = 0.5;
+      filters.push(ap);
+      if (i === 0) {
+        // We'll connect input to first filter below
+      }
+      if (lastFilter) lastFilter.connect(ap);
+      lastFilter = ap;
+    }
+    lastFilter.connect(prev); // last allpass → output gain
+    lastFilter.connect(fbGain);
+    // input → first allpass
+    const phaserIn = a.createGain();
+    phaserIn.connect(filters[0]);
+    // direct path
+    phaserIn.connect(prev);
+    fbGain.connect(filters[0]);
+    // LFO modulates allpass frequencies
+    const lfo = a.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = snd.phaser.rate;
+    for (const f of filters) {
+      const lfoG = a.createGain();
+      lfoG.gain.value = snd.phaser.depth;
+      lfo.connect(lfoG);
+      lfoG.connect(f.frequency);
+    }
+    lfo.start(now);
+    lfo.stop(endTime);
+    nodesToStop.push(lfo);
+    chainTip = phaserIn;
+  }
+
+  // Chorus (modulated delay)
+  if (snd.chorus.enabled) {
+    const chorusDelay = a.createDelay(0.1);
+    chorusDelay.delayTime.value = 0.01; // base delay 10ms
+    const lfo = a.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = snd.chorus.rate;
+    const lfoG = a.createGain();
+    lfoG.gain.value = snd.chorus.depth;
+    lfo.connect(lfoG);
+    lfoG.connect(chorusDelay.delayTime);
+    const dryG = a.createGain();
+    dryG.gain.value = 1 - snd.chorus.mix;
+    const wetG = a.createGain();
+    wetG.gain.value = snd.chorus.mix;
+    const merger = a.createGain();
+    merger.connect(chainTip);
+    dryG.connect(merger);
+    chorusDelay.connect(wetG);
+    wetG.connect(merger);
+    const splitter = a.createGain();
+    splitter.connect(dryG);
+    splitter.connect(chorusDelay);
+    lfo.start(now);
+    lfo.stop(endTime);
+    nodesToStop.push(lfo);
+    chainTip = splitter;
+  }
+
+  // EQ (3-band)
+  if (snd.eq.enabled) {
+    const low = a.createBiquadFilter();
+    low.type = 'lowshelf';
+    low.frequency.value = snd.eq.lowFreq;
+    low.gain.value = snd.eq.lowGain;
+    const mid = a.createBiquadFilter();
+    mid.type = 'peaking';
+    mid.frequency.value = snd.eq.midFreq;
+    mid.gain.value = snd.eq.midGain;
+    mid.Q.value = snd.eq.midQ;
+    const high = a.createBiquadFilter();
+    high.type = 'highshelf';
+    high.frequency.value = snd.eq.highFreq;
+    high.gain.value = snd.eq.highGain;
+    low.connect(mid);
+    mid.connect(high);
+    high.connect(chainTip);
+    chainTip = low;
+  }
+
+  // Bitcrusher
+  if (snd.bitcrusher.enabled) {
+    const bc = createBitcrusher(a, snd.bitcrusher.bits, snd.bitcrusher.sampleRate);
+    bc.connect(chainTip);
+    chainTip = bc;
+  }
+
+  // Distortion (master bus)
+  if (snd.distortion.enabled) {
+    const ws = a.createWaveShaper();
+    ws.curve = makeWaveshaperCurve(snd.distortion.curve, snd.distortion.drive);
+    ws.oversample = '4x';
+    const dryG = a.createGain();
+    dryG.gain.value = 1 - snd.distortion.mix;
+    const wetG = a.createGain();
+    wetG.gain.value = snd.distortion.mix;
+    const merger = a.createGain();
+    merger.connect(chainTip);
+    dryG.connect(merger);
+    ws.connect(wetG);
+    wetG.connect(merger);
+    const splitter = a.createGain();
+    splitter.connect(dryG);
+    splitter.connect(ws);
+    chainTip = splitter;
+  }
+
+  // Tremolo (LFO → master output gain)
+  if (snd.tremolo.enabled) {
+    const tremoloGain = a.createGain();
+    tremoloGain.gain.value = 1 - snd.tremolo.depth * 0.5; // center point
+    const lfo = a.createOscillator();
+    lfo.type = snd.tremolo.wave;
+    lfo.frequency.value = snd.tremolo.rate;
+    const lfoG = a.createGain();
+    lfoG.gain.value = snd.tremolo.depth * 0.5;
+    lfo.connect(lfoG);
+    lfoG.connect(tremoloGain.gain);
+    tremoloGain.connect(chainTip);
+    lfo.start(now);
+    lfo.stop(endTime);
+    nodesToStop.push(lfo);
+    chainTip = tremoloGain;
+  }
+
+  // Master gain connects to effects chain
+  masterGain.connect(chainTip);
+  const outputNode = masterGain;
+
+  // ── Build each layer ──
+  snd.layers.forEach(layer => {
+    if (!layer.enabled) return;
+
+    const layerGain = a.createGain();
+    layerGain.gain.value = layer.gain;
+    let lastNode = layerGain;
+
+    // LFO → gain
+    if (layer.lfo.enabled && layer.lfo.dest === 'gain') {
+      const lfo = a.createOscillator();
+      lfo.type = layer.lfo.wave;
+      lfo.frequency.value = layer.lfo.rate;
+      const lfoGain = a.createGain();
+      lfoGain.gain.value = layer.lfo.depth * layer.gain;
+      lfo.connect(lfoGain);
+      lfoGain.connect(layerGain.gain);
+      lfo.start(now);
+      lfo.stop(endTime);
+      nodesToStop.push(lfo);
+    }
+
+    // Filter
+    let filterNode = null;
+    if (layer.filter.enabled) {
+      filterNode = a.createBiquadFilter();
+      filterNode.type = layer.filter.type;
+      filterNode.frequency.value = layer.filter.freq;
+      filterNode.Q.value = layer.filter.Q;
+      if (layer.filter.envAmount !== 0) {
+        const startF = Math.max(20, Math.min(20000, layer.filter.freq + layer.filter.envAmount));
+        filterNode.frequency.setValueAtTime(startF, now);
+        filterNode.frequency.linearRampToValueAtTime(layer.filter.freq, now + env.attack + env.decay);
+      }
+      if (layer.lfo.enabled && layer.lfo.dest === 'filter') {
+        const lfo = a.createOscillator();
+        lfo.type = layer.lfo.wave;
+        lfo.frequency.value = layer.lfo.rate;
+        const lfoGain = a.createGain();
+        lfoGain.gain.value = layer.lfo.depth * layer.filter.freq;
+        lfo.connect(lfoGain);
+        lfoGain.connect(filterNode.frequency);
+        lfo.start(now);
+        lfo.stop(endTime);
+        nodesToStop.push(lfo);
+      }
+      filterNode.connect(lastNode);
+      lastNode = filterNode;
+    }
+
+    // Waveshaper
+    if (layer.waveshaper.enabled) {
+      const ws = a.createWaveShaper();
+      ws.curve = makeWaveshaperCurve(layer.waveshaper.curve, layer.waveshaper.drive);
+      ws.oversample = '4x';
+      ws.connect(lastNode);
+      lastNode = ws;
+    }
+
+    // Source
+    const isNoise = ['white','pink','brown'].includes(layer.source.type);
+    if (isNoise) {
+      const src = a.createBufferSource();
+      src.buffer = noiseBuffers[layer.source.type];
+      src.loop = true;
+      src.connect(lastNode);
+      src.start(now);
+      src.stop(endTime);
+      nodesToStop.push(src);
+    } else if (layer.source.type === 'fm') {
+      const carrier = a.createOscillator();
+      carrier.type = 'sine';
+      carrier.frequency.setValueAtTime(layer.source.freqStart, now);
+      if (layer.source.freqEnd !== layer.source.freqStart) {
+        carrier.frequency.exponentialRampToValueAtTime(Math.max(1, layer.source.freqEnd), now + dur);
+      }
+      carrier.detune.value = layer.source.detune;
+
+      const mod = a.createOscillator();
+      mod.type = 'sine';
+      mod.frequency.value = layer.source.freqStart * layer.fm.ratio;
+      const modGain = a.createGain();
+      modGain.gain.value = layer.fm.depth;
+      mod.connect(modGain);
+      modGain.connect(carrier.frequency);
+
+      if (layer.lfo.enabled && layer.lfo.dest === 'pitch') {
+        const lfo = a.createOscillator();
+        lfo.type = layer.lfo.wave;
+        lfo.frequency.value = layer.lfo.rate;
+        const lfoGain = a.createGain();
+        lfoGain.gain.value = layer.lfo.depth * 100;
+        lfo.connect(lfoGain);
+        lfoGain.connect(carrier.detune);
+        lfo.start(now);
+        lfo.stop(endTime);
+        nodesToStop.push(lfo);
+      }
+
+      carrier.connect(lastNode);
+      carrier.start(now);
+      carrier.stop(endTime);
+      mod.start(now);
+      mod.stop(endTime);
+      nodesToStop.push(carrier, mod);
+    } else {
+      const osc = a.createOscillator();
+      osc.type = layer.source.type;
+      osc.frequency.setValueAtTime(layer.source.freqStart, now);
+      if (layer.source.freqEnd !== layer.source.freqStart) {
+        osc.frequency.exponentialRampToValueAtTime(Math.max(1, layer.source.freqEnd), now + dur);
+      }
+      osc.detune.value = layer.source.detune;
+
+      if (layer.lfo.enabled && layer.lfo.dest === 'pitch') {
+        const lfo = a.createOscillator();
+        lfo.type = layer.lfo.wave;
+        lfo.frequency.value = layer.lfo.rate;
+        const lfoGain = a.createGain();
+        lfoGain.gain.value = layer.lfo.depth * 100;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.detune);
+        lfo.start(now);
+        lfo.stop(endTime);
+        nodesToStop.push(lfo);
+      }
+
+      osc.connect(lastNode);
+      osc.start(now);
+      osc.stop(endTime);
+      nodesToStop.push(osc);
+    }
+
+    layerGain.connect(outputNode);
+  });
+
+  isPlaying = true;
+  startAnalyserDraw();
+  // Extend timeout for delay/reverb tails
+  const tailTime = (snd.delay.enabled ? snd.delay.time * 4 : 0) + (snd.reverb.enabled ? snd.reverb.decay : 0);
+  setTimeout(() => {
+    isPlaying = false;
+    cancelAnimationFrame(animFrame);
+    drawViz();
+  }, (dur + env.release + tailTime + 0.15) * 1000);
+}
+
+// ── Randomize ──
+function randomizeSound(id) {
+  const rng = (a, b) => a + Math.random() * (b - a);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const snd = defaultSound();
+  const l = snd.layers[0];
+  l.enabled = true;
+  l.source.type = pick(['sine','square','sawtooth','triangle','fm']);
+  l.source.freqStart = Math.round(rng(80, 2000));
+  l.source.freqEnd = Math.round(rng(40, 4000));
+  l.source.detune = Math.round(rng(-200, 200));
+  if (l.source.type === 'fm') {
+    l.fm.enabled = true;
+    l.fm.ratio = parseFloat(rng(0.5, 8).toFixed(2));
+    l.fm.depth = Math.round(rng(50, 800));
+  }
+  // waveshaper drive — keep default, don't randomize
+  if (Math.random() > 0.4) {
+    l.filter.enabled = true;
+    l.filter.type = pick(['lowpass','highpass','bandpass']);
+    l.filter.freq = Math.round(rng(200, 8000));
+    l.filter.Q = parseFloat(rng(0.5, 12).toFixed(1));
+    l.filter.envAmount = Math.round(rng(-5000, 5000));
+  }
+  if (Math.random() > 0.6) {
+    l.lfo.enabled = true;
+    l.lfo.rate = parseFloat(rng(1, 30).toFixed(1));
+    l.lfo.depth = parseFloat(rng(0.1, 0.8).toFixed(2));
+    l.lfo.dest = pick(['gain','pitch','filter']);
+    l.lfo.wave = pick(['sine','square','sawtooth','triangle']);
+  }
+  // l.gain — keep default, don't randomize
+
+  if (Math.random() > 0.6) {
+    const l2 = snd.layers[1];
+    l2.enabled = true;
+    l2.source.type = pick(['white','pink','brown','sine','triangle']);
+    l2.source.freqStart = Math.round(rng(100, 1000));
+    l2.source.freqEnd = Math.round(rng(50, 500));
+    // l2.gain — keep default, don't randomize
+    if (Math.random() > 0.5) { l2.filter.enabled = true; l2.filter.freq = Math.round(rng(500,4000)); }
+  }
+
+  snd.envelope.attack = parseFloat(rng(0.001, 0.05).toFixed(3));
+  snd.envelope.decay = parseFloat(rng(0.02, 0.3).toFixed(3));
+  snd.envelope.sustain = parseFloat(rng(0, 0.5).toFixed(2));
+  snd.envelope.release = parseFloat(rng(0.01, 0.3).toFixed(3));
+  snd.duration = parseFloat(rng(0.05, 0.6).toFixed(3));
+  // snd.masterVolume — keep default, don't randomize
+
+  // effects — keep defaults, don't randomize
+
+  sounds[id] = snd;
+  scheduleSave();
+  if (id === selectedSlot) { buildParamPanel(); drawViz(); }
+  buildSlotPanel();
+  setStatus('Randomized ' + id);
+}
+
+// ── Export / Import / Copy ──
+function exportJSON() {
+  const data = { version: 2, sounds };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'teabag_sounds.json'; a.click();
+  URL.revokeObjectURL(url);
+  setStatus('Exported JSON');
+}
+
+function importJSON() {
+  document.getElementById('fileInput').click();
+}
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (data.sounds) {
+        sounds = data.sounds;
+        scheduleSave();
+        buildSlotPanel();
+        buildParamPanel();
+        drawViz();
+        setStatus('Imported ' + Object.keys(data.sounds).length + ' sounds');
+      }
+    } catch(err) { setStatus('Import failed: ' + err.message); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+function buildExportableSoundDefs() {
+  const exported = {};
+  SLOTS.forEach(slot => {
+    const source = sounds[slot.id] ? JSON.parse(JSON.stringify(sounds[slot.id])) : defaultSound();
+    exported[slot.id] = migrateSound(source);
+  });
+  return exported;
+}
+
+function copyJS() {
+  const lines = ['// Teabag Simulator \u2014 Sound Definitions', '// Generated by Sound Designer', 'const SOUND_DEFS = ' + JSON.stringify(buildExportableSoundDefs(), null, 2) + ';'];
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    setStatus('Copied JS to clipboard');
+  }).catch(() => {
+    setStatus('Copy failed (try HTTPS)');
+  });
+}
+
+// ── Copy / Paste Slot ──
+let slotClipboard = null;
+function copySlot() {
+  slotClipboard = JSON.parse(JSON.stringify(getSound(selectedSlot)));
+  setStatus('Copied ' + selectedSlot);
+}
+function pasteSlot() {
+  if (!slotClipboard) { setStatus('Nothing to paste'); return; }
+  sounds[selectedSlot] = JSON.parse(JSON.stringify(slotClipboard));
+  scheduleSave();
+  buildSlotPanel();
+  buildParamPanel();
+  drawViz();
+  setStatus('Pasted to ' + selectedSlot);
+}
+
+// ── Toolbar Buttons ──
+document.getElementById('exportBtn').onclick = exportJSON;
+document.getElementById('importBtn').onclick = importJSON;
+document.getElementById('copyJsBtn').onclick = copyJS;
+document.getElementById('copySlotBtn').onclick = copySlot;
+document.getElementById('pasteSlotBtn').onclick = pasteSlot;
+document.getElementById('playBtn').onclick = playSound;
+document.getElementById('fftToggle').onclick = () => {
+  showFFT = !showFFT;
+  document.getElementById('fftToggle').classList.toggle('active', showFFT);
+  drawViz();
+};
+
+// ── Keyboard Shortcuts ──
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (e.code === 'Space') { e.preventDefault(); playSound(); return; }
+  if (e.key === 'r' || e.key === 'R') { if (!e.ctrlKey && !e.metaKey) { randomizeSound(selectedSlot); return; } }
+
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    const idx = SLOTS.findIndex(s => s.id === selectedSlot);
+    const next = e.key === 'ArrowUp' ? Math.max(0, idx - 1) : Math.min(SLOTS.length - 1, idx + 1);
+    selectSlot(SLOTS[next].id);
+    return;
+  }
+
+  const numKey = parseInt(e.key);
+  if (!isNaN(numKey)) {
+    const idx = numKey === 0 ? 9 : numKey - 1;
+    if (idx < SLOTS.length) selectSlot(SLOTS[idx].id);
+    return;
+  }
+
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); exportJSON(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'c') { e.preventDefault(); copyJS(); return; }
+});
+
+// ── Resize ──
+window.addEventListener('resize', () => drawViz());
+
+// ── Init ──
+loadFromStorage();
+buildSlotPanel();
+buildParamPanel();
+requestAnimationFrame(() => drawViz());
+</script>
+</body>
+</html>

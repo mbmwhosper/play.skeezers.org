@@ -1,0 +1,37 @@
+{
+  "fixtures": [
+    {
+      "id": "strict-valid",
+      "file": "strict-valid.json",
+      "expected": "pass",
+      "notes": "No hard failures; may include zero warnings."
+    },
+    {
+      "id": "visual-override",
+      "file": "visual-override.json",
+      "expected": "pass-with-warnings",
+      "notes": "Use --strict-visual off to allow stylized warning-only export."
+    },
+    {
+      "id": "hard-fail",
+      "file": "hard-fail.json",
+      "expected": "fail-hard",
+      "notes": "Must fail conversion with hard blockers."
+    }
+  ],
+  "runtimePayloads": [
+    {
+      "id": "npc_strict_valid",
+      "file": "strict-valid.json",
+      "designCenterX": 480,
+      "designBaselineY": 400,
+      "sample": true
+    },
+    {
+      "id": "npc_visual_override",
+      "file": "visual-override.json",
+      "designCenterX": 480,
+      "designBaselineY": 400
+    }
+  ]
+}
