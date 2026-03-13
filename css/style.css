@@ -28,13 +28,13 @@ button.active { border-color: var(--accent); color: #dce9ff; }
 .hint { color: var(--muted); align-self: end; opacity: .8; }
 
 .content { min-width: 0; max-width: 100%; overflow-x: hidden; }
-.topbar { display: grid; grid-template-columns: minmax(260px, 2fr) repeat(4, minmax(132px, 1fr)) repeat(5, minmax(88px, auto)); gap: .5rem; border: 1px solid var(--line); border-radius: 14px; padding: .7rem; background: color-mix(in oklab, var(--panel) 90%, #000 10%); position: sticky; top: .8rem; z-index: 8; max-width: 100%; overflow: visible; }
+.topbar { display: grid; grid-template-columns: minmax(260px, 2fr) repeat(4, minmax(132px, 1fr)); gap: .5rem; border: 1px solid var(--line); border-radius: 14px; padding: .7rem; background: color-mix(in oklab, var(--panel) 90%, #000 10%); position: sticky; top: .8rem; z-index: 8; max-width: 100%; overflow: visible; }
 .topbar > * { min-width: 0; }
 .topbar input,
 .topbar select,
 .topbar button { width: 100%; }
-.topbar select,
-.topbar button { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar select { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar button { white-space: normal; line-height: 1.2; }
 .stats { color: var(--muted); font-size: .88rem; margin: .8rem 0; line-height: 1.4; }
 
 .shelves { display: grid; gap: .7rem; margin-bottom: 1rem; }
@@ -60,10 +60,10 @@ button.active { border-color: var(--accent); color: #dce9ff; }
 .player.hidden { display: none; }
 .player-bar { display: flex; justify-content: space-between; align-items: center; gap: .7rem; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding: .65rem .9rem; background: #0f1830; }
 .player-actions { display: flex; gap: .45rem; }
-.frame-wrap { width: 100%; height: 100%; display:flex; justify-content:center; align-items:center; padding: .65rem; }
-#gameFrame { width: 100%; height: 100%; border: none; background:#000; }
-.frame-wrap.ratio-16-9 #gameFrame { width: min(100%, calc((100vh - 90px) * 16 / 9)); height: auto; aspect-ratio: 16 / 9; }
-.frame-wrap.ratio-4-3 #gameFrame { width: min(100%, calc((100vh - 90px) * 4 / 3)); height: auto; aspect-ratio: 4 / 3; }
+.frame-wrap { width: 100%; height: 100%; min-height: 0; display:flex; justify-content:center; align-items:center; padding: 0; }
+#gameFrame { width: 100%; height: 100%; max-width: 100%; max-height: 100%; display: block; border: none; background:#000; }
+.frame-wrap.ratio-16-9 #gameFrame { width: min(100%, calc((100vh - 90px) * 16 / 9)); height: auto; max-height: 100%; aspect-ratio: 16 / 9; }
+.frame-wrap.ratio-4-3 #gameFrame { width: min(100%, calc((100vh - 90px) * 4 / 3)); height: auto; max-height: 100%; aspect-ratio: 4 / 3; }
 
 .details-modal, .palette { width: min(760px, 92vw); border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--text); }
 .details-modal::backdrop, .palette::backdrop { background: #0009; }
