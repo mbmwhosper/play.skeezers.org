@@ -146,7 +146,7 @@
     const total = allGames.length;
     const iframeSafe = allGames.filter((g) => g.iframeSafe).length;
     const brokenCount = Object.keys(broken).length;
-    dom.stats.textContent = `${list.length} shown • ${total} total • ${iframeSafe} iframe-safe • ${brokenCount} reported broken`;
+    dom.stats.textContent = `${list.length} shown · ${total} total · ${iframeSafe} iframe-safe · ${brokenCount} broken reports`;
   }
 
   function renderGrid() {

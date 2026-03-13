@@ -15,6 +15,7 @@ body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--text);
 
 button, select, input { border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--text); padding: .65rem .8rem; min-height: 40px; font-size: 14px; line-height: 1.25; }
 button { cursor: pointer; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 button.ghost { background: transparent; }
 button.active { border-color: var(--accent); color: #dce9ff; }
 
@@ -27,8 +28,14 @@ button.active { border-color: var(--accent); color: #dce9ff; }
 .hint { color: var(--muted); align-self: end; opacity: .8; }
 
 .content { min-width: 0; max-width: 100%; overflow-x: hidden; }
-.topbar { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(110px,1fr)) repeat(5, auto); gap: .5rem; border: 1px solid var(--line); border-radius: 14px; padding: .7rem; background: color-mix(in oklab, var(--panel) 90%, #000 10%); position: sticky; top: .8rem; z-index: 8; max-width: 100%; overflow: visible; }
-.stats { color: var(--muted); font-size: .88rem; margin: .8rem 0; }
+.topbar { display: grid; grid-template-columns: minmax(260px, 2fr) repeat(4, minmax(132px, 1fr)) repeat(5, minmax(88px, auto)); gap: .5rem; border: 1px solid var(--line); border-radius: 14px; padding: .7rem; background: color-mix(in oklab, var(--panel) 90%, #000 10%); position: sticky; top: .8rem; z-index: 8; max-width: 100%; overflow: visible; }
+.topbar > * { min-width: 0; }
+.topbar input,
+.topbar select,
+.topbar button { width: 100%; }
+.topbar select,
+.topbar button { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats { color: var(--muted); font-size: .88rem; margin: .8rem 0; line-height: 1.4; }
 
 .shelves { display: grid; gap: .7rem; margin-bottom: 1rem; }
 .shelf { border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(180deg, #131f3f, #101a35); padding: .6rem; }
@@ -68,7 +75,7 @@ button.active { border-color: var(--accent); color: #dce9ff; }
   .app-shell { grid-template-columns: 1fr; width: min(1440px, 96vw); }
   .sidebar { position: static; height: auto; grid-template-rows: auto auto; }
   .hint { display:none; }
-  .topbar { grid-template-columns: 1fr 1fr; }
+  .topbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #search { grid-column: 1 / -1; }
 }
 
