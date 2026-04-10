@@ -36,6 +36,12 @@ button.active { border-color: var(--accent); color: #dce9ff; }
 .topbar select { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar button { white-space: normal; line-height: 1.2; }
 .stats { color: var(--muted); font-size: .88rem; margin: .8rem 0; line-height: 1.4; }
+.filter-summary { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: 0 0 .9rem; }
+.filter-chip { display: inline-flex; align-items: center; gap: .35rem; padding: .42rem .55rem .42rem .7rem; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in oklab, var(--panel) 92%, #000 8%); color: var(--text); font-size: .8rem; }
+.filter-chip strong { color: var(--accent-2); font-weight: 700; }
+.filter-chip button { min-height: auto; padding: .08rem .35rem; border: 0; background: transparent; color: var(--muted); font-size: .95rem; line-height: 1; }
+.filter-chip button:hover, .filter-chip button:focus-visible { color: var(--text); }
+.filter-summary > button { padding-inline: .9rem; }
 
 .shelves { display: grid; gap: .7rem; margin-bottom: 1rem; }
 .shelf { border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(180deg, #131f3f, #101a35); padding: .6rem; }

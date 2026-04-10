@@ -30,7 +30,7 @@
   const dom = {
     search: byId("search"), category: byId("category"), sort: byId("sort"), modeFilter: byId("modeFilter"), vibeFilter: byId("vibeFilter"),
     iframeSafeOnly: byId("iframeSafeOnly"), favoritesOnly: byId("favoritesOnly"), continueBtn: byId("continueBtn"), randomGame: byId("randomGame"),
-    stats: byId("stats"), shelves: byId("shelves"), grid: byId("gamesGrid"), sideNav: byId("sideNav"),
+    stats: byId("stats"), filterSummary: byId("filterSummary"), shelves: byId("shelves"), grid: byId("gamesGrid"), sideNav: byId("sideNav"),
     player: byId("player"), frame: byId("gameFrame"), frameWrap: byId("frameWrap"), aspectRatio: byId("aspectRatio"),
     nowPlaying: byId("nowPlaying"), backBtn: byId("backBtn"), openExternal: byId("openExternal"), reportBroken: byId("reportBroken"),
     detailsModal: byId("detailsModal"), detailsContent: byId("detailsContent"),
@@ -154,6 +154,74 @@
     dom.stats.textContent = `${list.length} shown · ${total} total · ${iframeSafe} local/iframe-safe · ${external} external disabled · ${brokenCount} broken reports`;
   }
 
+  function chip(label, value, key) {
+    return `<span class="filter-chip"><strong>${escapeHtml(label)}</strong>${escapeHtml(value)}<button type="button" data-clear-filter="${escapeHtml(key)}" aria-label="Clear ${escapeHtml(label)} filter">×</button></span>`;
+  }
+
+  function renderFilterSummary() {
+    const chips = [];
+    const q = dom.search.value.trim();
+    if (q) chips.push(chip("Search", q, "search"));
+    if (dom.category.value !== "all") chips.push(chip("Category", dom.category.value, "category"));
+    if (dom.modeFilter.value !== "all") chips.push(chip("Mode", dom.modeFilter.value, "mode"));
+    if (dom.vibeFilter.value !== "all") chips.push(chip("Vibe", dom.vibeFilter.value, "vibe"));
+    if (dom.sort.value !== "az") chips.push(chip("Sort", dom.sort.options[dom.sort.selectedIndex].text, "sort"));
+    if (showFavoritesOnly) chips.push(chip("Only", "Favorites", "favorites"));
+    if (showIframeSafeOnly) chips.push(chip("School-safe", "On", "safe"));
+    if (activeView !== "home") chips.push(chip("View", activeView, "view"));
+
+    if (!chips.length) {
+      dom.filterSummary.hidden = true;
+      dom.filterSummary.innerHTML = "";
+      return;
+    }
+
+    dom.filterSummary.hidden = false;
+    dom.filterSummary.innerHTML = `${chips.join("")}<button id="clearFilters" class="ghost" type="button">Clear filters</button>`;
+    byId("clearFilters").addEventListener("click", clearFilters);
+    dom.filterSummary.querySelectorAll("[data-clear-filter]").forEach((btn) => {
+      btn.addEventListener("click", () => clearOneFilter(btn.dataset.clearFilter));
+    });
+  }
+
+  function clearOneFilter(key) {
+    if (key === "search") dom.search.value = "";
+    if (key === "category") dom.category.value = "all";
+    if (key === "mode") dom.modeFilter.value = "all";
+    if (key === "vibe") dom.vibeFilter.value = "all";
+    if (key === "sort") dom.sort.value = "az";
+    if (key === "favorites") {
+      showFavoritesOnly = false;
+      dom.favoritesOnly.classList.remove("active");
+    }
+    if (key === "safe") {
+      showIframeSafeOnly = false;
+      dom.iframeSafeOnly.classList.remove("active");
+      dom.iframeSafeOnly.textContent = "School-safe: Off";
+    }
+    if (key === "view") {
+      activeView = "home";
+      dom.sideNav.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset.view === "home"));
+    }
+    render();
+  }
+
+  function clearFilters() {
+    dom.search.value = "";
+    dom.category.value = "all";
+    dom.sort.value = "az";
+    dom.modeFilter.value = "all";
+    dom.vibeFilter.value = "all";
+    showFavoritesOnly = false;
+    showIframeSafeOnly = true;
+    activeView = "home";
+    dom.favoritesOnly.classList.remove("active");
+    dom.iframeSafeOnly.classList.toggle("active", showIframeSafeOnly);
+    dom.iframeSafeOnly.textContent = showIframeSafeOnly ? "School-safe: On" : "School-safe: Off";
+    dom.sideNav.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset.view === "home"));
+    render();
+  }
+
   function renderGrid() {
     const list = filteredGames();
     renderStats(list);
@@ -245,7 +313,7 @@
     render();
   }
 
-  function render() { renderShelves(); renderGrid(); }
+  function render() { renderShelves(); renderFilterSummary(); renderGrid(); }
 
   dom.search.addEventListener("input", render);
   dom.category.addEventListener("change", render);
