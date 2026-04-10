@@ -284,6 +284,12 @@
     return String(s).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
   }
 
+  function closePlayer() {
+    dom.player.classList.add("hidden");
+    dom.frame.src = "";
+    currentGame = null;
+  }
+
   function renderPalette(query = "") {
     const q = query.trim().toLowerCase();
     const commands = [
@@ -336,7 +342,7 @@
 
   dom.continueBtn.addEventListener("click", () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
   dom.randomGame.addEventListener("click", () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
-  dom.backBtn.addEventListener("click", () => { dom.player.classList.add("hidden"); dom.frame.src = ""; });
+  dom.backBtn.addEventListener("click", closePlayer);
   dom.openExternal.addEventListener("click", () => {
     if (!currentGame) return;
     if (currentGame.isExternal) {
@@ -372,6 +378,20 @@
   dom.paletteInput.addEventListener("input", () => renderPalette(dom.paletteInput.value));
 
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (dom.palette.open) {
+        dom.palette.close();
+        return;
+      }
+      if (dom.detailsModal.open) {
+        dom.detailsModal.close();
+        return;
+      }
+      if (!dom.player.classList.contains("hidden")) {
+        closePlayer();
+        return;
+      }
+    }
     if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {
       e.preventDefault(); dom.search.focus();
     }
