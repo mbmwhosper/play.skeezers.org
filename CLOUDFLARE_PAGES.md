@@ -1,41 +1,15 @@
-# Cloudflare Pages migration notes
+# Cloudflare Pages notes
 
-## Recommended target
-- Host: Cloudflare Pages
-- Production domain: `play.skeezers.org`
-- DNS remains in Cloudflare
+Cloudflare Pages is currently not the recommended deployment target for `play.skeezers.org` because the site includes oversized game assets that exceed the platform's 25 MiB per-file limit.
 
-## Why move from GitHub Pages
-- Faster deploy propagation
-- Better preview deploys
-- Better fit since DNS is already on Cloudflare
-- Simpler control over redirects/headers for the rebuild
+## Recommended use of Cloudflare now
+- Keep Cloudflare for DNS and proxying only
+- Use GitHub Pages as the free full-site host
 
-## Suggested Cloudflare Pages settings
-- Framework preset: None
-- Build command: `npm run build:v2-data`
-- Build output directory: `.`
-- Root directory: `/`
-- Node version: 22
+## If revisiting Cloudflare Pages later
+The repo includes a `build:pages` path and `dist-pages/` preparation flow for a split-hosting strategy, but that requires external hosting for oversized assets.
 
-## Important compatibility notes
-- Keep `play.skeezers.org` unchanged so browser game saves remain same-origin.
-- Preserve legacy game paths where possible.
-- Keep SPA fallback enabled so deep links like `#game/...` and future routes survive reloads.
-- `_headers` and `_redirects` are included for Pages compatibility.
-
-## Suggested cutover plan
-1. Connect repo to Cloudflare Pages.
-2. Configure build command and output directory.
-3. Test the generated preview URL.
-4. Add `play.skeezers.org` as a custom domain in Pages.
-5. In Cloudflare DNS, repoint the current Pages target to Cloudflare Pages when preview looks good.
-6. Verify game launches, save continuity, and route reloads.
-
-## Smoke test checklist
-- Homepage loads on preview and production.
-- `npm run build:v2-data` runs during deploy.
-- Existing game paths still open.
-- Existing browser saves still appear for games that use same-origin storage.
-- Deep links reload correctly.
-- Custom domain TLS is valid.
+## Current recommendation
+- Deploy the full site via GitHub Pages
+- Keep `play.skeezers.org` unchanged
+- Use Cloudflare only for the custom domain and DNS layer
