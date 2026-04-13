@@ -15,9 +15,12 @@
 
   <main class="app-shell" id="app">
     <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <h1>Skeezers Arcade</h1>
-        <p>Arcade OS</p>
+      <div class="brand-row">
+        <div class="brand">
+          <h1>Skeezers Arcade</h1>
+          <p>Arcade OS</p>
+        </div>
+        <button id="sidebarToggle" class="ghost sidebar-toggle" aria-expanded="false" aria-controls="sideNav">Menu</button>
       </div>
       <nav class="side-nav" id="sideNav">
         <button data-view="home" class="active">Home</button>
@@ -25,12 +28,43 @@
         <button data-view="favorites">Favorites</button>
         <button data-view="multiplayer">Multiplayer</button>
         <button data-view="chill">Chill</button>
+        <button data-view="quick">Quick Hits</button>
+        <button data-view="strategy">Strategy</button>
         <button data-view="random">Random</button>
       </nav>
       <small class="hint">Tip: press <kbd>/</kbd> to search • <kbd>Ctrl/⌘+K</kbd> command palette</small>
     </aside>
 
     <section class="content">
+      <section class="hero" id="hero">
+        <div class="hero-copy">
+          <span class="hero-kicker">HTML5-only, school-safe by default</span>
+          <h2>Fast game nights, zero junk.</h2>
+          <p>Browse the local catalog, jump back into recent runs, and let the site surface quick wins, chill picks, and multiplayer chaos without making you dig.</p>
+          <div class="hero-actions">
+            <button id="heroRandom">Play something random</button>
+            <button id="heroContinue" class="ghost">Resume last game</button>
+          </div>
+        </div>
+        <div class="hero-panels">
+          <article class="hero-panel">
+            <span>Catalog</span>
+            <strong id="heroCatalogCount">0 games</strong>
+            <small>Embedded and ready to launch</small>
+          </article>
+          <article class="hero-panel">
+            <span>Tonight's vibe</span>
+            <strong id="heroVibe">Quick hits</strong>
+            <small id="heroVibeMeta">Built from your library</small>
+          </article>
+          <article class="hero-panel">
+            <span>Continue</span>
+            <strong id="heroContinueTitle">Nothing yet</strong>
+            <small id="heroContinueMeta">Pick a game to start tracking</small>
+          </article>
+        </div>
+      </section>
+
       <header class="topbar">
         <input id="search" type="text" placeholder="Search games, aliases, genres..." />
 
@@ -65,6 +99,7 @@
 
       <section class="stats" id="stats"></section>
       <section class="filter-summary" id="filterSummary" hidden></section>
+      <section class="spotlights" id="spotlights"></section>
       <section class="shelves" id="shelves"></section>
       <section class="grid" id="gamesGrid" aria-live="polite"></section>
     </section>

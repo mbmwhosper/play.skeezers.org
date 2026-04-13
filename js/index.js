@@ -4,10 +4,11 @@
   const inferTraits = (name, categories) => {
     const lower = name.toLowerCase();
     const tags = new Set(categories.map((c) => c.toLowerCase()));
-    const multiplayer = tags.has("online") || lower.includes(".io") || lower.includes("kart");
-    const quick = tags.has("arcade") || tags.has("runner") || lower.includes("slope");
-    const chill = tags.has("puzzle") || tags.has("idle") || tags.has("sandbox") || tags.has("strategy");
-    return { multiplayer, quick, chill };
+    const multiplayer = tags.has("online") || lower.includes(".io") || lower.includes("kart") || lower.includes("random") || lower.includes("royale");
+    const quick = tags.has("arcade") || tags.has("runner") || lower.includes("slope") || lower.includes("random") || lower.includes("dino");
+    const chill = tags.has("puzzle") || tags.has("idle") || tags.has("sandbox") || tags.has("strategy") || lower.includes("2048") || lower.includes("cookie clicker");
+    const strategy = tags.has("strategy") || tags.has("tower defense") || lower.includes("bloons") || lower.includes("age of war") || lower.includes("civilization");
+    return { multiplayer, quick, chill, strategy };
   };
 
   const allGames = Object.entries(gamesSource).map(([name, data]) => {
@@ -30,11 +31,13 @@
   const dom = {
     search: byId("search"), category: byId("category"), sort: byId("sort"), modeFilter: byId("modeFilter"), vibeFilter: byId("vibeFilter"),
     iframeSafeOnly: byId("iframeSafeOnly"), favoritesOnly: byId("favoritesOnly"), continueBtn: byId("continueBtn"), randomGame: byId("randomGame"),
-    stats: byId("stats"), filterSummary: byId("filterSummary"), shelves: byId("shelves"), grid: byId("gamesGrid"), sideNav: byId("sideNav"),
+    stats: byId("stats"), filterSummary: byId("filterSummary"), spotlights: byId("spotlights"), shelves: byId("shelves"), grid: byId("gamesGrid"), sideNav: byId("sideNav"),
     player: byId("player"), frame: byId("gameFrame"), frameWrap: byId("frameWrap"), aspectRatio: byId("aspectRatio"),
     nowPlaying: byId("nowPlaying"), backBtn: byId("backBtn"), openExternal: byId("openExternal"), reportBroken: byId("reportBroken"),
     detailsModal: byId("detailsModal"), detailsContent: byId("detailsContent"),
     palette: byId("palette"), paletteInput: byId("paletteInput"), paletteList: byId("paletteList"), openPalette: byId("openPalette"),
+    heroCatalogCount: byId("heroCatalogCount"), heroVibe: byId("heroVibe"), heroVibeMeta: byId("heroVibeMeta"), heroContinueTitle: byId("heroContinueTitle"), heroContinueMeta: byId("heroContinueMeta"),
+    heroRandom: byId("heroRandom"), heroContinue: byId("heroContinue"), sidebar: byId("sidebar"), sidebarToggle: byId("sidebarToggle"),
   };
 
   let favorites = readJSON("favorites", []);
@@ -62,6 +65,15 @@
   }
   function getGame(name) { return allGames.find((g) => g.name === name); }
 
+  function pickRecommended() {
+    const candidates = allGames.filter((g) => g.iframeSafe).sort((a, b) => {
+      const scoreA = (plays[a.name] || 0) + (a.quick ? 2 : 0) + (a.multiplayer ? 1 : 0);
+      const scoreB = (plays[b.name] || 0) + (b.quick ? 2 : 0) + (b.multiplayer ? 1 : 0);
+      return scoreB - scoreA;
+    });
+    return candidates[0] || allGames[0] || null;
+  }
+
   function trackPlay(game) {
     lastPlayed = game.name;
     plays[game.name] = (plays[game.name] || 0) + 1;
@@ -78,7 +90,7 @@
     trackPlay(game);
     dom.player.classList.remove("hidden");
     dom.frame.src = game.url;
-    dom.nowPlaying.textContent = `${game.name} • Embedded`;
+    dom.nowPlaying.textContent = `${game.name} • Embedded • ${plays[game.name]} play${plays[game.name] === 1 ? "" : "s"}`;
     render();
   }
 
@@ -102,6 +114,8 @@
         (activeView === "favorites" && favorites.includes(g.name)) ||
         (activeView === "multiplayer" && g.multiplayer) ||
         (activeView === "chill" && g.chill) ||
+        (activeView === "quick" && g.quick) ||
+        (activeView === "strategy" && g.strategy) ||
         activeView === "random";
 
       return inSearch && inCategory && inFav && inSafe && inMode && inVibe && inView;
@@ -118,30 +132,69 @@
     return out;
   }
 
-  function shelf(title, items) {
+  function shelf(title, subtitle, items) {
     if (!items.length) return "";
-    return `<section class="shelf"><h3>${title}</h3><div class="shelf-row">${items.slice(0, 8).map((g) => `
-      <button class="shelf-item" data-play="${escapeHtml(g.name)}">${escapeHtml(g.name)}<small>${plays[g.name] || 0} plays</small></button>
+    return `<section class="shelf"><div class="shelf-head"><h3>${title}</h3><p>${subtitle}</p></div><div class="shelf-row">${items.slice(0, 8).map((g) => `
+      <button class="shelf-item" data-play="${escapeHtml(g.name)}">${escapeHtml(g.name)}<small>${describeGame(g)}</small></button>
     `).join("")}</div></section>`;
   }
 
   function renderShelves() {
     if (activeView !== "home") { dom.shelves.innerHTML = ""; return; }
-    const hot = [...allGames].sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0));
+    const hot = [...allGames].filter((g) => g.iframeSafe).sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0));
     const recent = recentPlayed.map(getGame).filter(Boolean);
-    const quick = allGames.filter((g) => g.quick);
-    const multi = allGames.filter((g) => g.multiplayer);
-    const chill = allGames.filter((g) => g.chill);
+    const quick = allGames.filter((g) => g.quick && g.iframeSafe);
+    const multi = allGames.filter((g) => g.multiplayer && g.iframeSafe);
+    const chill = allGames.filter((g) => g.chill && g.iframeSafe);
+    const strategy = allGames.filter((g) => g.strategy && g.iframeSafe);
 
     dom.shelves.innerHTML = [
-      shelf("Continue where you left off", recent.length ? recent : hot),
-      shelf("Trending now", hot),
-      shelf("Quick 5-minute games", quick),
-      shelf("Best with friends", multi),
-      shelf("Chill picks", chill),
+      shelf("Continue where you left off", "Your recent queue", recent.length ? recent : hot),
+      shelf("Trending now", "Most played in this browser", hot),
+      shelf("Quick 5-minute games", "Fast starts, low commitment", quick),
+      shelf("Best with friends", "Multiplayer and versus picks", multi),
+      shelf("Chill picks", "Puzzle, idle, and low-stress stuff", chill),
+      shelf("Strategy lane", "Think first, click second", strategy),
     ].join("");
 
     dom.shelves.querySelectorAll("[data-play]").forEach((btn) => btn.addEventListener("click", () => {
+      const g = getGame(btn.dataset.play); if (g) launchGame(g);
+    }));
+  }
+
+  function renderSpotlights() {
+    const recommended = pickRecommended();
+    const multiplayer = allGames.filter((g) => g.multiplayer && g.iframeSafe).sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0))[0];
+    const chill = allGames.filter((g) => g.chill && g.iframeSafe).sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0))[0];
+
+    const cards = [
+      recommended && {
+        title: "Recommended next",
+        name: recommended.name,
+        text: `${describeGame(recommended)}. Good first pick if you just want to click and go.`,
+      },
+      multiplayer && {
+        title: "Multiplayer pick",
+        name: multiplayer.name,
+        text: `${describeGame(multiplayer)}. Good for immediate chaos with friends.`,
+      },
+      chill && {
+        title: "Low-stress lane",
+        name: chill.name,
+        text: `${describeGame(chill)}. Better when you want to zone out instead of sweat.`,
+      },
+    ].filter(Boolean);
+
+    dom.spotlights.innerHTML = cards.map((card) => `
+      <article class="spotlight-card">
+        <h3>${escapeHtml(card.title)}</h3>
+        <strong>${escapeHtml(card.name)}</strong>
+        <p>${escapeHtml(card.text)}</p>
+        <button type="button" data-play="${escapeHtml(card.name)}">Play</button>
+      </article>
+    `).join("");
+
+    dom.spotlights.querySelectorAll("[data-play]").forEach((btn) => btn.addEventListener("click", () => {
       const g = getGame(btn.dataset.play); if (g) launchGame(g);
     }));
   }
@@ -151,7 +204,32 @@
     const iframeSafe = allGames.filter((g) => g.iframeSafe).length;
     const external = allGames.filter((g) => g.isExternal).length;
     const brokenCount = Object.keys(broken).length;
-    dom.stats.textContent = `${list.length} shown · ${total} total · ${iframeSafe} local/iframe-safe · ${external} external disabled · ${brokenCount} broken reports`;
+    const favoritesCount = favorites.length;
+    dom.stats.textContent = `${list.length} shown · ${total} total · ${iframeSafe} local/iframe-safe · ${external} external disabled · ${favoritesCount} favorites · ${brokenCount} broken reports`;
+  }
+
+  function updateHero() {
+    const recommended = pickRecommended();
+    const recent = getGame(lastPlayed);
+    const quickCount = allGames.filter((g) => g.quick && g.iframeSafe).length;
+    const chillCount = allGames.filter((g) => g.chill && g.iframeSafe).length;
+
+    dom.heroCatalogCount.textContent = `${allGames.filter((g) => g.iframeSafe).length} local games`;
+    dom.heroVibe.textContent = quickCount >= chillCount ? "Quick hits" : "Chill mode";
+    dom.heroVibeMeta.textContent = quickCount >= chillCount ? `${quickCount} short-session picks ready` : `${chillCount} low-stress picks ready`;
+    dom.heroContinueTitle.textContent = recent ? recent.name : (recommended ? recommended.name : "Nothing yet");
+    dom.heroContinueMeta.textContent = recent ? `${plays[recent.name] || 0} plays tracked in this browser` : (recommended ? `Recommended: ${describeGame(recommended)}` : "Pick a game to start tracking");
+    dom.heroContinue.disabled = !recent;
+    dom.heroContinue.textContent = recent ? `Resume ${recent.name}` : "Resume last game";
+  }
+
+  function updateContinueButton() {
+    const game = getGame(lastPlayed);
+    const canContinue = Boolean(game && game.iframeSafe);
+    dom.continueBtn.disabled = !canContinue;
+    dom.continueBtn.classList.toggle("active", canContinue);
+    dom.continueBtn.textContent = canContinue ? `Continue: ${game.name}` : "Continue";
+    dom.continueBtn.title = canContinue ? `Resume ${game.name}` : "Play a game first to enable continue";
   }
 
   function chip(label, value, key) {
@@ -222,13 +300,38 @@
     render();
   }
 
+  function describeGame(game) {
+    const traits = [];
+    if (game.multiplayer) traits.push("multiplayer");
+    if (game.quick) traits.push("quick");
+    if (game.chill) traits.push("chill");
+    if (game.strategy) traits.push("strategy");
+    if (!traits.length && game.categories.length) traits.push(game.categories[0]);
+    return `${traits.slice(0, 2).join(" • ") || "arcade"} · ${plays[game.name] || 0} plays`;
+  }
+
   function renderGrid() {
     const list = filteredGames();
     renderStats(list);
     dom.grid.innerHTML = "";
 
     if (!list.length) {
-      dom.grid.innerHTML = `<article class="card"><div class="title">No games match this filter</div><div class="meta">Try relaxing category/mode filters or disable iframe-safe only.</div></article>`;
+      dom.grid.innerHTML = `
+        <article class="card empty-state">
+          <div class="title">No games match this filter</div>
+          <div class="meta">Try clearing the current search, relaxing filters, or turning off school-safe mode for external entries.</div>
+          <div class="empty-actions">
+            <button type="button" id="emptyClearFilters">Clear filters</button>
+            <button type="button" id="emptyDisableSafe" class="ghost">Turn off school-safe</button>
+          </div>
+        </article>`;
+      byId("emptyClearFilters").addEventListener("click", clearFilters);
+      byId("emptyDisableSafe").addEventListener("click", () => {
+        showIframeSafeOnly = false;
+        dom.iframeSafeOnly.classList.remove("active");
+        dom.iframeSafeOnly.textContent = "School-safe: Off";
+        render();
+      });
       return;
     }
 
@@ -237,12 +340,20 @@
       card.className = "card";
       const isFav = favorites.includes(game.name);
       const blockedExternal = game.isExternal;
+      const badgeClass = blockedExternal ? "badge warning" : "badge";
       const tags = [game.multiplayer ? "MULTI" : "SOLO", game.iframeSafe ? "IFRAME SAFE" : "EXTERNAL"].join(" • ");
+      const miniTags = [
+        game.quick && "Quick",
+        game.chill && "Chill",
+        game.strategy && "Strategy",
+        ...game.categories.slice(0, 2),
+      ].filter(Boolean).slice(0, 4);
       card.innerHTML = `
-        <div class="row"><div class="title" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div><span class="badge">${tags}</span></div>
+        <div class="row"><div class="title" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div><span class="${badgeClass}">${tags}</span></div>
+        <div class="tag-row">${miniTags.map((tag) => `<span class="mini-tag">${escapeHtml(tag)}</span>`).join("")}</div>
         <div class="meta">${escapeHtml((game.categories.slice(0, 3).join(" • ") || "No category"))}</div>
         <div class="meta">${plays[game.name] || 0} plays ${broken[game.name] ? "• ⚠ reported" : ""}</div>
-        <div class="meta">${blockedExternal ? "External domain blocked in school-safe mode" : "Local/embedded"}</div>
+        <div class="meta">${blockedExternal ? "External domain blocked in school-safe mode" : "Local and embedded, one click to launch"}</div>
         <div class="actions">
           <button class="play-btn" data-play="${escapeHtml(game.name)}" ${blockedExternal ? "disabled title=\"External domains disabled\"" : ""}>${blockedExternal ? "Unavailable" : "Play"}</button>
           <button data-details="${escapeHtml(game.name)}">Details</button>
@@ -269,6 +380,7 @@
       <p><strong>Mode:</strong> ${game.multiplayer ? "Multiplayer" : "Single-player"}</p>
       <p><strong>Launch:</strong> ${game.iframeSafe ? "Iframe-safe" : "External (disabled in school-safe mode)"}</p>
       <p><strong>Tags:</strong> ${escapeHtml(game.categories.join(", ") || "none")}</p>
+      <p><strong>Traits:</strong> ${escapeHtml([game.quick && "quick", game.chill && "chill", game.strategy && "strategy"].filter(Boolean).join(", ") || "standard")}</p>
       <p><strong>Plays:</strong> ${plays[game.name] || 0}</p>
       <div class="actions">
         <button id="detailPlay" ${blockedExternal ? "disabled title=\"External domains disabled\"" : ""}>${blockedExternal ? "Unavailable" : "Play now"}</button>
@@ -294,10 +406,14 @@
     const q = query.trim().toLowerCase();
     const commands = [
       { label: "Go: Home", run: () => setView("home") },
+      { label: "Go: Recent", run: () => setView("recent") },
       { label: "Go: Favorites", run: () => setView("favorites") },
       { label: "Go: Multiplayer", run: () => setView("multiplayer") },
+      { label: "Go: Quick Hits", run: () => setView("quick") },
+      { label: "Go: Strategy", run: () => setView("strategy") },
       { label: "Toggle iframe-safe filter", run: () => { showIframeSafeOnly = !showIframeSafeOnly; render(); } },
       { label: "Launch random game", run: () => { const list = filteredGames(); if (list[0]) launchGame(list[Math.floor(Math.random() * list.length)]); } },
+      { label: "Clear all filters", run: clearFilters },
     ];
 
     const games = allGames
@@ -319,7 +435,14 @@
     render();
   }
 
-  function render() { renderShelves(); renderFilterSummary(); renderGrid(); }
+  function render() {
+    updateContinueButton();
+    updateHero();
+    renderSpotlights();
+    renderShelves();
+    renderFilterSummary();
+    renderGrid();
+  }
 
   dom.search.addEventListener("input", render);
   dom.category.addEventListener("change", render);
@@ -341,7 +464,9 @@
   });
 
   dom.continueBtn.addEventListener("click", () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
+  dom.heroContinue.addEventListener("click", () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
   dom.randomGame.addEventListener("click", () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
+  dom.heroRandom.addEventListener("click", () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
   dom.backBtn.addEventListener("click", closePlayer);
   dom.openExternal.addEventListener("click", () => {
     if (!currentGame) return;
@@ -367,7 +492,15 @@
       return;
     }
     setView(b.dataset.view);
+    dom.sidebar.classList.remove("nav-open");
+    dom.sidebarToggle?.setAttribute("aria-expanded", "false");
   }));
+
+  dom.sidebarToggle?.addEventListener("click", () => {
+    const next = !dom.sidebar.classList.contains("nav-open");
+    dom.sidebar.classList.toggle("nav-open", next);
+    dom.sidebarToggle.setAttribute("aria-expanded", String(next));
+  });
 
   dom.openPalette.addEventListener("click", () => {
     renderPalette();
