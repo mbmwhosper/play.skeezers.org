@@ -44,11 +44,13 @@
     heroRandom: byId('heroRandom'), heroContinue: byId('heroContinue'), sidebar: byId('sidebar'), sidebarToggle: byId('sidebarToggle'),
   };
 
-  let favorites = readJSON('favorites', []);
-  let recentPlayed = readJSON('recentPlayed', []);
-  let plays = readJSON('plays', {});
-  let broken = readJSON('brokenGames', {});
-  let lastPlayed = localStorage.getItem('lastPlayed') || '';
+  const migratedSiteData = window.SkeezersStorageCompat?.migrateSiteData?.() || {};
+
+  let favorites = migratedSiteData.favorites || readJSON('skeezersArcade.favorites', readJSON('favorites', []));
+  let recentPlayed = migratedSiteData.recentPlayed || readJSON('skeezersArcade.recentPlayed', readJSON('recentPlayed', []));
+  let plays = migratedSiteData.plays || readJSON('skeezersArcade.plays', readJSON('plays', {}));
+  let broken = migratedSiteData.brokenGames || readJSON('skeezersArcade.brokenGames', readJSON('brokenGames', {}));
+  let lastPlayed = migratedSiteData.lastPlayed ?? localStorage.getItem('skeezersArcade.lastPlayed') ?? localStorage.getItem('lastPlayed') ?? '';
   let showFavoritesOnly = false;
   let showIframeSafeOnly = true;
   let currentGame = null;
@@ -61,11 +63,11 @@
   function byId(id) { return document.getElementById(id); }
   function readJSON(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch { return fallback; } }
   function save() {
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-    localStorage.setItem('recentPlayed', JSON.stringify(recentPlayed));
-    localStorage.setItem('plays', JSON.stringify(plays));
-    localStorage.setItem('brokenGames', JSON.stringify(broken));
-    localStorage.setItem('lastPlayed', lastPlayed);
+    localStorage.setItem('skeezersArcade.favorites', JSON.stringify(favorites));
+    localStorage.setItem('skeezersArcade.recentPlayed', JSON.stringify(recentPlayed));
+    localStorage.setItem('skeezersArcade.plays', JSON.stringify(plays));
+    localStorage.setItem('skeezersArcade.brokenGames', JSON.stringify(broken));
+    localStorage.setItem('skeezersArcade.lastPlayed', lastPlayed);
   }
   function getGame(name) { return catalog.find((g) => g.name === name); }
   function getGameBySlug(slug) { return catalog.find((g) => g.slug === slug); }
@@ -452,10 +454,32 @@
   }
 
   function syncRoute() {
-    const match = location.hash.match(/^#game\/(.+)$/);
-    if (!match) return;
-    const game = getGameBySlug(match[1]);
-    if (game && currentGame?.slug !== game.slug) launchGame(game, false);
+    const compatPath = window.SkeezersRouteCompat?.normalizeLegacyPath?.(location.pathname);
+    if (compatPath && location.hash !== compatPath) {
+      history.replaceState(null, '', `${location.origin}${location.pathname}${compatPath}`);
+    }
+
+    const normalizedHash = window.SkeezersRouteCompat?.normalizeLegacyHash?.(location.hash) || location.hash;
+    if (normalizedHash !== location.hash) {
+      history.replaceState(null, '', normalizedHash);
+    }
+
+    const match = normalizedHash.match(/^#game\/(.+)$/);
+    if (match) {
+      const game = getGameBySlug(match[1]);
+      if (game && currentGame?.slug !== game.slug) launchGame(game, false);
+      return;
+    }
+
+    const legacyMatch = normalizedHash.match(/^#legacy\/(.+)$/);
+    if (legacyMatch) {
+      const decoded = decodeURIComponent(legacyMatch[1]);
+      const bySlug = getGameBySlug(decoded);
+      const byName = getGame(decoded);
+      const byPath = catalog.find((game) => game.path === decoded || game.url === `games/${decoded}` || game.url === decoded);
+      const target = bySlug || byName || byPath;
+      if (target && currentGame?.slug !== target.slug) launchGame(target, false);
+    }
   }
 
   function render() {
