@@ -16,7 +16,8 @@
     "main": "add-game-entry.js",
     "scripts": {
         "add-game": "node add-game-entry.js",
-    "build:v2-data": "node scripts/build-v2-data.mjs"
+    "build:v2-data": "node scripts/build-v2-data.mjs",
+    "build": "npm run build:v2-data"
     },
     "dependencies": {
         "@inquirer/prompts": "^7.5.3"
