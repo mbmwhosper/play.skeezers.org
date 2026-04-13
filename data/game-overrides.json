@@ -1,0 +1,32 @@
+{
+  "Adventure Capitalist": {
+    "genres": ["idle", "tycoon"],
+    "sessionLength": "medium",
+    "moods": ["chill"],
+    "players": { "min": 1, "max": 1 }
+  },
+  "Sandboxels": {
+    "genres": ["sandbox", "simulation"],
+    "sessionLength": "long",
+    "moods": ["chill", "creative"],
+    "players": { "min": 1, "max": 1 }
+  },
+  "PvZ Web": {
+    "genres": ["strategy", "tower-defense"],
+    "sessionLength": "medium",
+    "moods": ["chill", "strategic"],
+    "players": { "min": 1, "max": 1 }
+  },
+  "Shell Shockers": {
+    "genres": ["fps", "multiplayer"],
+    "sessionLength": "short",
+    "moods": ["competitive", "chaotic"],
+    "players": { "min": 2, "max": 16 }
+  },
+  "Skribbl.io": {
+    "genres": ["party", "drawing"],
+    "sessionLength": "short",
+    "moods": ["chaotic", "social"],
+    "players": { "min": 2, "max": 12 }
+  }
+}
