@@ -1,5 +1,5 @@
 (() => {
-  const catalog = window.catalogV2?.games?.length
+  const catalog = (window.catalogV2?.games?.length
     ? window.catalogV2.games.map((item) => ({
         ...item,
         type: item.type || 'game',
@@ -7,7 +7,12 @@
         featured: Boolean(item.featured),
         tags: item.tags || [],
       }))
-    : buildFallbackCatalog((window.json && window.json.games) || {});
+    : buildFallbackCatalog((window.json && window.json.games) || {}))
+    .filter((item) => {
+      const url = String(item.url || '');
+      const isGithubPlaceholder = /github\.com\//i.test(url);
+      return !isGithubPlaceholder;
+    });
   const collections = window.catalogV2?.collections || [];
 
   function buildFallbackCatalog(gamesSource) {
@@ -177,7 +182,7 @@
 
   function renderStats(list) {
     const totals = { items: catalog.length, games: catalog.filter((g) => g.type === 'game').length, apps: catalog.filter((g) => g.type === 'app').length, emulators: catalog.filter((g) => g.type === 'emulator').length, proxy: catalog.filter((g) => g.type === 'proxy').length };
-    dom.stats.textContent = `${list.length} shown · ${totals.items} total · ${totals.games} games · ${totals.apps} apps · ${totals.emulators} emulators · ${totals.proxy} proxy surfaces`;
+    dom.stats.textContent = `${list.length} shown · ${totals.items} real items live · ${totals.games} games · ${totals.apps} apps · ${totals.emulators} emulators · ${totals.proxy} proxy surfaces`;
   }
 
   function updateHero() {
