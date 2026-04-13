@@ -1,0 +1,9 @@
+node_modules/
+vendor/
+_untracked_sweep/
+teabag-simulator.html
+sound-designer.html
+sw.js
+index.html
+manifest.json
+sfx/

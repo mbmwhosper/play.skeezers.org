@@ -1,0 +1,16 @@
+{
+  "name": "teabag-simulator",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write README.md package.json *.js *.css *.html runtime/**/*.js scripts/**/*.js",
+    "format:check": "prettier --check README.md package.json *.js *.css *.html runtime/**/*.js scripts/**/*.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.2"
+  }
+}

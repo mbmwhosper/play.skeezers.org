@@ -18,6 +18,9 @@ const libraryItemsPath = resolve(root, 'data/library-items.json');
 const libraryItems = JSON.parse(readFileSync(libraryItemsPath, 'utf8'));
 const featuredCollectionsPath = resolve(root, 'data/featured-collections.json');
 const featuredCollections = JSON.parse(readFileSync(featuredCollectionsPath, 'utf8'));
+const externalHostingPlanPath = resolve(root, 'data/external-hosting-plan.json');
+const externalHostingPlan = JSON.parse(readFileSync(externalHostingPlanPath, 'utf8'));
+const externalHostingBySlug = new Map((externalHostingPlan.oversizedGames || []).map((entry) => [entry.slug, entry]));
 
 const genreMap = new Map([
   ['online', 'multiplayer'],
@@ -95,6 +98,7 @@ const games = Object.entries(configJson.games).map(([name, data]) => {
   const override = overrides[name] || {};
   const slug = slugify(name);
   const showcaseEntry = showcaseBySlug.get(slug) || {};
+  const hostingPlan = externalHostingBySlug.get(slug);
   return {
     id: slug,
     slug,
@@ -113,6 +117,9 @@ const games = Object.entries(configJson.games).map(([name, data]) => {
     difficulty: override.difficulty || 'medium',
     coverGradient: showcaseEntry.coverGradient || '',
     eyebrow: showcaseEntry.eyebrow || '',
+    externalHostingStatus: hostingPlan?.status || '',
+    externalHostingReason: hostingPlan?.reason || '',
+    futureBaseUrl: hostingPlan?.futureBaseUrl || '',
   };
 });
 

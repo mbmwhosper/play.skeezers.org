@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "meta": {
+    "id": "npc_visual_override",
+    "label": "Visual Override",
+    "baseTemplate": "female_base"
+  },
+  "runtimeProfile": {
+    "baseType": "party_girl",
+    "npcType": "visual_override_party",
+    "wScale": 1.75,
+    "hScale": 1.7,
+    "healthMin": 70,
+    "healthMax": 115,
+    "color": "#FF1493",
+    "skinColor": "#F5E6D3",
+    "hairColor": "#DAA520",
+    "hairStyle": "long",
+    "eyeColor": "#1A1A2E",
+    "legColor": "#FF1493",
+    "shoeColor": "#FF1493",
+    "feminineBody": true,
+    "bustScale": 0.85,
+    "hasDress": false,
+    "shortDress": true
+  },
+  "poses": {
+    "normal": {
+      "layers": [
+        {
+          "id": "layer_1001",
+          "name": "Body",
+          "type": "ellipse",
+          "visible": true,
+          "geometry": { "x": 450, "y": 255, "w": 62, "h": 140 },
+          "style": {
+            "fill": "#FF1493",
+            "stroke": "#0F172A",
+            "strokeWidth": 2,
+            "opacity": 1,
+            "fillMode": "solid"
+          }
+        }
+      ]
+    },
+    "panic": {
+      "layers": [
+        {
+          "id": "layer_1002",
+          "name": "Body Panic",
+          "type": "ellipse",
+          "visible": true,
+          "geometry": { "x": 450, "y": 255, "w": 62, "h": 140 },
+          "style": {
+            "fill": "#FF1493",
+            "stroke": "#0F172A",
+            "strokeWidth": 2,
+            "opacity": 1,
+            "fillMode": "solid"
+          }
+        }
+      ]
+    },
+    "ko": {
+      "layers": [
+        {
+          "id": "layer_1003",
+          "name": "Body KO",
+          "type": "ellipse",
+          "visible": true,
+          "geometry": { "x": 418, "y": 350, "w": 126, "h": 46 },
+          "style": {
+            "fill": "#FF1493",
+            "stroke": "#0F172A",
+            "strokeWidth": 2,
+            "opacity": 1,
+            "fillMode": "solid"
+          }
+        }
+      ]
+    }
+  }
+}

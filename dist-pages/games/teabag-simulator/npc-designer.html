@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>NPC Character Designer — Teabag Simulator</title>
+    <link rel="stylesheet" href="./npc-designer.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>NPC Character Designer</h1>
+          <p>Layered pose editor with JSON round-trip</p>
+        </div>
+        <div class="topbar-right">
+          <label>
+            Base Template
+            <select id="templateSelect">
+              <option value="male_base">male_base</option>
+              <option value="female_base">female_base</option>
+            </select>
+          </label>
+          <label>
+            Session
+            <select id="sessionSnapshotSelect"></select>
+          </label>
+          <button id="sessionSaveBtn" type="button">Save</button>
+          <button id="sessionSaveAsBtn" type="button">Save As</button>
+          <button id="sessionLoadBtn" type="button">Load</button>
+          <button id="historyUndoBtn" type="button">Undo</button>
+          <button id="historyRedoBtn" type="button">Redo</button>
+          <button id="resetPoseBtn" type="button">Reset Current Pose</button>
+          <button id="resetAllBtn" type="button">Reset All Poses</button>
+        </div>
+      </header>
+
+      <section class="subbar">
+        <div class="pose-controls">
+          <span class="subhead">Pose</span>
+          <button class="pose-tab is-active" data-pose="normal" type="button">normal</button>
+          <button class="pose-tab" data-pose="panic" type="button">panic</button>
+          <button class="pose-tab" data-pose="ko" type="button">ko</button>
+        </div>
+        <div class="pose-copy-controls">
+          <span class="subhead">Copy Current Pose To</span>
+          <select id="copyToPoseSelect">
+            <option value="normal">normal</option>
+            <option value="panic">panic</option>
+            <option value="ko">ko</option>
+          </select>
+          <button id="copyPoseBtn" type="button">Copy Pose</button>
+        </div>
+        <div class="view-controls">
+          <span class="subhead">View</span>
+          <button id="facingToggleBtn" type="button">Facing: Right</button>
+          <button id="zoomOutBtn" type="button">-</button>
+          <input id="zoomRange" type="range" min="0.25" max="4" step="0.01" value="1" />
+          <button id="zoomInBtn" type="button">+</button>
+          <button id="zoomFitBtn" type="button">Fit</button>
+          <span id="zoomValue">100%</span>
+        </div>
+        <div class="preset-controls">
+          <span class="subhead">Presets</span>
+          <button id="applySundressHairBtn" type="button">Sundress Hair (Pose)</button>
+          <button id="applySundressHairAllBtn" type="button">Sundress Hair (All)</button>
+        </div>
+      </section>
+
+      <main class="workspace">
+        <aside class="panel panel-left">
+          <section class="panel-block">
+            <h2>Meta</h2>
+            <label
+              >Character ID <input id="charIdInput" type="text" value="npc_custom_001"
+            /></label>
+            <div class="field-issue" id="issue-char-id"></div>
+            <label
+              >Character Label <input id="charLabelInput" type="text" value="Custom NPC"
+            /></label>
+            <div class="field-issue" id="issue-char-label"></div>
+          </section>
+
+          <section class="panel-block">
+            <h2>Runtime Preview Profile</h2>
+            <label
+              >Base NPC Type
+              <select id="runtimeBaseTypeSelect"></select>
+            </label>
+            <div class="field-issue" id="issue-runtime-base-type"></div>
+
+            <label
+              >Runtime npcType
+              <input id="runtimeNpcTypeInput" type="text" value="custom_designer_npc"
+            /></label>
+            <div class="field-issue" id="issue-runtime-npc-type"></div>
+
+            <div class="field-grid-2">
+              <label
+                >Width Scale
+                <input
+                  id="runtimeWScaleInput"
+                  type="number"
+                  min="0.5"
+                  max="2.2"
+                  step="0.01"
+                  value="1"
+              /></label>
+              <label
+                >Height Scale
+                <input
+                  id="runtimeHScaleInput"
+                  type="number"
+                  min="0.5"
+                  max="2.2"
+                  step="0.01"
+                  value="1"
+              /></label>
+            </div>
+            <div class="field-issue" id="issue-runtime-scale"></div>
+
+            <div class="field-grid-2">
+              <label
+                >Health Min
+                <input id="runtimeHealthMinInput" type="number" min="1" step="1" value="100"
+              /></label>
+              <label
+                >Health Max
+                <input id="runtimeHealthMaxInput" type="number" min="1" step="1" value="180"
+              /></label>
+            </div>
+            <div class="field-issue" id="issue-runtime-health"></div>
+
+            <div class="field-grid-2">
+              <label
+                >Body Color <input id="runtimeBodyColorInput" type="color" value="#3b82f6"
+              /></label>
+              <label
+                >Skin Color <input id="runtimeSkinColorInput" type="color" value="#fbbf6b"
+              /></label>
+            </div>
+            <div class="field-grid-2">
+              <label
+                >Hair Color <input id="runtimeHairColorInput" type="color" value="#3d2b1f"
+              /></label>
+              <label
+                >Hair Style
+                <select id="runtimeHairStyleSelect"></select>
+              </label>
+            </div>
+            <div class="field-grid-2">
+              <label
+                >Eye Color <input id="runtimeEyeColorInput" type="color" value="#1a1a2e"
+              /></label>
+              <label
+                >Leg Color <input id="runtimeLegColorInput" type="color" value="#4a5568"
+              /></label>
+            </div>
+            <label
+              >Shoe Color <input id="runtimeShoeColorInput" type="color" value="#2d3748"
+            /></label>
+            <div class="field-issue" id="issue-runtime-colors"></div>
+
+            <div class="field-grid-2">
+              <label class="toggle-row"
+                ><input id="runtimeFeminineBodyToggle" type="checkbox" /> Feminine Body</label
+              >
+              <label
+                >Bust Scale
+                <input
+                  id="runtimeBustScaleInput"
+                  type="number"
+                  min="0"
+                  max="2"
+                  step="0.01"
+                  value="0.85"
+              /></label>
+            </div>
+            <div class="field-grid-2">
+              <label class="toggle-row"
+                ><input id="runtimeHasDressToggle" type="checkbox" /> Has Dress</label
+              >
+              <label class="toggle-row"
+                ><input id="runtimeShortDressToggle" type="checkbox" /> Short Dress</label
+              >
+            </div>
+            <div class="field-issue" id="issue-runtime-dress"></div>
+          </section>
+
+          <section class="panel-block">
+            <h2>Face</h2>
+            <p class="hint">
+              Managed face controls for eyes, brows, and mouth. Changes apply to layer geometry used
+              by runtime parity preview and export.
+            </p>
+            <div class="field-grid-2">
+              <label
+                >Eye Size
+                <input
+                  id="faceEyeSizeInput"
+                  type="range"
+                  min="0.6"
+                  max="1.8"
+                  step="0.01"
+                  value="1"
+                />
+                <span id="faceEyeSizeValue">1.00x</span>
+              </label>
+              <label
+                >Eye Spacing
+                <input
+                  id="faceEyeSpacingInput"
+                  type="range"
+                  min="0.7"
+                  max="1.6"
+                  step="0.01"
+                  value="1"
+                />
+                <span id="faceEyeSpacingValue">1.00x</span>
+              </label>
+            </div>
+            <div class="field-grid-2">
+              <label
+                >Brow Tilt
+                <input id="faceBrowTiltInput" type="range" min="-1" max="1" step="0.01" value="0" />
+                <span id="faceBrowTiltValue">0.00</span>
+              </label>
+              <label
+                >Mouth Curve
+                <input
+                  id="faceMouthCurveInput"
+                  type="range"
+                  min="-1"
+                  max="1"
+                  step="0.01"
+                  value="0"
+                />
+                <span id="faceMouthCurveValue">0.00</span>
+              </label>
+            </div>
+            <div class="button-row compact">
+              <button id="applyFacePoseBtn" type="button">Apply Face (Pose)</button>
+              <button id="applyFaceAllBtn" type="button">Apply Face (All)</button>
+            </div>
+            <p id="faceStatus" class="hint">Face controls update managed face layers.</p>
+          </section>
+
+          <section class="panel-block">
+            <h2>Tools</h2>
+            <div class="tool-grid" id="toolGrid">
+              <button class="tool-btn is-active" data-tool="select" type="button">Select</button>
+              <button class="tool-btn" data-tool="move" type="button">Move</button>
+              <button class="tool-btn" data-tool="rotate" type="button">Rotate</button>
+              <button class="tool-btn" data-tool="rect" type="button">Rectangle</button>
+              <button class="tool-btn" data-tool="ellipse" type="button">Ellipse</button>
+              <button class="tool-btn" data-tool="line" type="button">Line</button>
+              <button class="tool-btn" data-tool="curve" type="button">Curve</button>
+              <button class="tool-btn" data-tool="polygon" type="button">Polygon</button>
+              <button class="tool-btn" data-tool="color" type="button">Color</button>
+              <button class="tool-btn" data-tool="gradient" type="button">Gradient</button>
+              <button class="tool-btn" data-tool="eyedropper" type="button">Eyedropper</button>
+              <button class="tool-btn" data-tool="hand" type="button">Hand</button>
+            </div>
+            <p class="hint">
+              Multi-select: Shift/Cmd/Ctrl click. Keep aspect: hold Shift while drawing/resizing
+              rectangles or ellipses. Rotate snap: hold Shift. Undo/redo: Cmd/Ctrl+Z,
+              Shift+Cmd/Ctrl+Z, Ctrl+Y.
+            </p>
+          </section>
+
+          <section class="panel-block">
+            <h2>References</h2>
+            <label class="toggle-row"
+              ><input id="showGridToggle" type="checkbox" checked /> Show grid</label
+            >
+            <label class="toggle-row"
+              ><input id="showHeightToggle" type="checkbox" checked /> Show height lines</label
+            >
+            <label class="toggle-row"
+              ><input id="showSilhouetteToggle" type="checkbox" /> Show silhouettes</label
+            >
+            <label
+              >Filter labels <input id="heightFilterInput" type="text" placeholder="e.g. giant"
+            /></label>
+          </section>
+
+          <section class="panel-block">
+            <h2>JSON</h2>
+            <div class="button-row">
+              <button id="exportJsonBtn" type="button">Export Editable JSON</button>
+              <button id="importJsonBtn" type="button">Import JSON</button>
+              <button id="copyJsonBtn" type="button">Copy JSON</button>
+              <button id="downloadJsonBtn" type="button">Download JSON</button>
+            </div>
+            <div class="button-row">
+              <button id="exportCompactBtn" type="button">Export Compact Payload</button>
+              <button id="copyCompactBtn" type="button">Copy Compact Payload</button>
+            </div>
+            <textarea id="jsonWorkspace" spellcheck="false" aria-label="JSON workspace"></textarea>
+            <input id="importFileInput" type="file" accept="application/json,.json" />
+          </section>
+        </aside>
+
+        <section class="panel panel-center">
+          <div class="canvas-wrap">
+            <canvas id="editorCanvas" width="960" height="540"></canvas>
+          </div>
+          <div class="canvas-status" id="canvasStatus">Ready.</div>
+        </section>
+
+        <aside class="panel panel-right">
+          <section class="panel-block sticky-block readiness-block">
+            <h2>Design Readiness</h2>
+            <div class="field-grid-2">
+              <label class="toggle-row"
+                ><input id="strictVisualRulesToggle" type="checkbox" checked /> Strict Visual
+                Rules</label
+              >
+              <label class="toggle-row"
+                ><input id="autoFixVisualToggle" type="checkbox" checked /> Auto-fix Visual
+                Issues</label
+              >
+            </div>
+            <p class="hint">
+              Hard Safety blockers always prevent compact/runtime export. Visual rules become
+              warnings when strict mode is off.
+            </p>
+            <p id="readinessSummary" class="readiness-summary">Running validation...</p>
+            <h3>Hard Blockers</h3>
+            <ul id="hardBlockerList" class="issue-list"></ul>
+            <h3>Warnings</h3>
+            <ul id="warningList" class="issue-list"></ul>
+            <p id="readinessMeta" class="hint"></p>
+          </section>
+
+          <section class="panel-block">
+            <h2>Constraint Reference</h2>
+            <ul id="constraintReferenceList" class="issue-list reference-list"></ul>
+          </section>
+
+          <section class="panel-block">
+            <h2>Layers</h2>
+            <div class="button-row compact">
+              <button id="layerUpBtn" type="button">Up</button>
+              <button id="layerDownBtn" type="button">Down</button>
+              <button id="layerDuplicateBtn" type="button">Duplicate</button>
+              <button id="layerDeleteBtn" type="button">Delete</button>
+            </div>
+            <ul id="layerList" class="layer-list"></ul>
+          </section>
+
+          <section class="panel-block">
+            <h2>Style</h2>
+            <label>Fill <input id="fillColorInput" type="color" value="#3b82f6" /></label>
+            <label>Stroke <input id="strokeColorInput" type="color" value="#0f172a" /></label>
+            <label
+              >Stroke Width
+              <input id="strokeWidthInput" type="range" min="0" max="12" step="0.25" value="2" />
+              <span id="strokeWidthValue">2</span>
+            </label>
+            <label
+              >Opacity
+              <input id="opacityInput" type="range" min="0.05" max="1" step="0.01" value="1" />
+              <span id="opacityValue">1</span>
+            </label>
+            <div class="button-row compact">
+              <button id="applyStyleBtn" type="button">Apply Solid Style</button>
+              <button id="solidFillBtn" type="button">Set Fill Solid</button>
+            </div>
+            <h3>Gradient Editor</h3>
+            <label>Start <input id="gradStartInput" type="color" value="#f97316" /></label>
+            <label>End <input id="gradEndInput" type="color" value="#06b6d4" /></label>
+            <label
+              >Angle
+              <input id="gradAngleInput" type="range" min="0" max="360" step="1" value="90" />
+              <span id="gradAngleValue">90°</span>
+            </label>
+            <button id="applyGradientBtn" type="button">Apply Gradient</button>
+          </section>
+
+          <section class="panel-block">
+            <h2>Live Preview</h2>
+            <div class="preview-grid">
+              <figure>
+                <figcaption>normal</figcaption>
+                <canvas id="previewNormal" width="220" height="180"></canvas>
+              </figure>
+              <figure>
+                <figcaption>panic</figcaption>
+                <canvas id="previewPanic" width="220" height="180"></canvas>
+              </figure>
+              <figure>
+                <figcaption>ko</figcaption>
+                <canvas id="previewKo" width="220" height="180"></canvas>
+              </figure>
+            </div>
+            <div class="live-preview-control-group">
+              <label class="live-preview-control"
+                >Panic Arm Spread
+                <div class="live-preview-control-row">
+                  <input
+                    id="livePreviewPanicArmSpreadInput"
+                    type="range"
+                    min="-1"
+                    max="1"
+                    step="0.01"
+                    value="0"
+                  />
+                  <button id="livePreviewPanicArmSpreadResetBtn" type="button">Snap 0</button>
+                </div>
+                <span id="livePreviewPanicArmSpreadValue">0.00</span>
+              </label>
+              <label class="live-preview-control"
+                >Shoulder Bar Offset Y
+                <input
+                  id="livePreviewPanicShoulderOffsetInput"
+                  type="range"
+                  min="-40"
+                  max="40"
+                  step="1"
+                  value="0"
+                />
+                <span id="livePreviewPanicShoulderOffsetValue">0px</span>
+              </label>
+            </div>
+            <p class="hint" id="selectionInfo">No layer selected.</p>
+          </section>
+
+          <section class="panel-block">
+            <h2>Runtime-Parity Preview</h2>
+            <div class="field-grid-2">
+              <label
+                >Pose
+                <select id="runtimePreviewPoseSelect">
+                  <option value="normal">normal</option>
+                  <option value="panic">panic</option>
+                  <option value="ko">ko</option>
+                </select>
+              </label>
+              <label
+                >Facing
+                <select id="runtimePreviewFacingSelect">
+                  <option value="1">Right</option>
+                  <option value="-1">Left</option>
+                </select>
+              </label>
+            </div>
+            <div class="field-grid-2">
+              <label
+                >Scale
+                <input
+                  id="runtimePreviewScaleInput"
+                  type="range"
+                  min="0.5"
+                  max="1.8"
+                  step="0.01"
+                  value="1"
+                />
+                <span id="runtimePreviewScaleValue">1.00x</span>
+              </label>
+              <label
+                >Animation Tick
+                <input
+                  id="runtimePreviewTickInput"
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="0.01"
+                  value="0"
+                />
+                <span id="runtimePreviewTickValue">0.00</span>
+              </label>
+            </div>
+            <div class="button-row compact">
+              <button id="runtimePreviewLoopToggleBtn" type="button" aria-pressed="false">
+                Start Loop
+              </button>
+            </div>
+            <label class="toggle-row"
+              ><input id="runtimePreviewWorldToggle" type="checkbox" checked /> World Context
+              (ground + silhouettes)</label
+            >
+            <canvas id="runtimePreviewCanvas" width="320" height="220"></canvas>
+            <p id="runtimePreviewStatus" class="hint">Runtime renderer: waiting...</p>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script src="./runtime/npc-render-shared.js"></script>
+    <script src="./npc-designer-constraints.js"></script>
+    <script src="./npc-designer.js"></script>
+  </body>
+</html>

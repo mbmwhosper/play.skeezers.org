@@ -17,6 +17,7 @@
     "scripts": {
         "add-game": "node add-game-entry.js",
     "build:v2-data": "node scripts/build-v2-data.mjs",
+    "build:pages": "npm run build:v2-data && node scripts/prepare-pages-build.mjs",
     "build": "npm run build:v2-data"
     },
     "dependencies": {

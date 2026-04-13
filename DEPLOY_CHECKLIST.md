@@ -7,7 +7,7 @@
 - rebuilt catalog and curated collections are generated into `js/catalog-v2.js`
 
 ## What to verify before cutover
-1. `npm run build` passes locally or in Cloudflare Pages
+1. `npm run build:pages` passes locally or in Cloudflare Pages
 2. preview deploy loads homepage correctly
 3. `#item/<slug>` and legacy `#game/<slug>` links reopen correctly on refresh
 4. a few known games still preserve local save continuity under `play.skeezers.org`
@@ -24,4 +24,5 @@
 ## If something breaks
 - compare localStorage keys under old and rebuilt shell
 - inspect game iframe path changes
+- confirm oversized games are intentionally routed to detail pages until external hosting is wired
 - check Cloudflare Pages redirect and header handling

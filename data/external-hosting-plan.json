@@ -1,0 +1,29 @@
+{
+  "oversizedGames": [
+    {
+      "name": "Adventure Capitalist",
+      "slug": "adventure-capitalist",
+      "currentPath": "adventure-capitalist",
+      "status": "needs-external-hosting",
+      "reason": "Contains files larger than Cloudflare Pages 25 MiB per-file limit",
+      "files": [
+        "games/adventure-capitalist/Release/webgl.data",
+        "games/adventure-capitalist/Release/webgl.js"
+      ],
+      "recommendedHost": "R2 or separate static asset host",
+      "futureBaseUrl": "https://assets.play.skeezers.org/adventure-capitalist/"
+    },
+    {
+      "name": "1v1.LOL",
+      "slug": "1v1-lol",
+      "currentPath": "1v1-lol",
+      "status": "verify-and-prepare-external-hosting",
+      "reason": "Cloudflare Pages validation flagged oversized Unity asset during deploy",
+      "files": [
+        "games/1v1-lol/rc.data.unityweb"
+      ],
+      "recommendedHost": "R2 or separate static asset host",
+      "futureBaseUrl": "https://assets.play.skeezers.org/1v1-lol/"
+    }
+  ]
+}

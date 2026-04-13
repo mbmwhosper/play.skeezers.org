@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "meta": {
+    "id": "NPC BAD",
+    "label": "X",
+    "baseTemplate": "male_base"
+  },
+  "runtimeProfile": {
+    "baseType": "normal",
+    "npcType": "bad profile",
+    "wScale": 2.5,
+    "hScale": 0.2,
+    "healthMin": 220,
+    "healthMax": 120,
+    "color": "#ZZZZZZ",
+    "skinColor": "#F0C8A0",
+    "hairColor": "#8B4513",
+    "hairStyle": "invalid_hair",
+    "eyeColor": "#1A1A2E",
+    "legColor": "#4A5568",
+    "shoeColor": "#2D3748",
+    "feminineBody": false,
+    "bustScale": 3,
+    "hasDress": false,
+    "shortDress": false
+  },
+  "poses": {
+    "normal": {
+      "layers": [
+        {
+          "id": "layer_bad_1",
+          "name": "Broken",
+          "type": "polygon",
+          "visible": true,
+          "geometry": { "points": [{ "x": 400, "y": 300 }] },
+          "style": {
+            "fill": "#GG0000",
+            "stroke": "#0F172A",
+            "strokeWidth": 2,
+            "opacity": 1,
+            "fillMode": "solid"
+          }
+        }
+      ]
+    },
+    "panic": {
+      "layers": []
+    }
+  }
+}
