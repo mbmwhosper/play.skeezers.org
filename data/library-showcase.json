@@ -1,0 +1,29 @@
+{
+  "featured": [
+    {
+      "slug": "pvz-web",
+      "coverGradient": "linear-gradient(135deg, #2e7d32, #0f172a)",
+      "eyebrow": "Featured strategy"
+    },
+    {
+      "slug": "sandboxels",
+      "coverGradient": "linear-gradient(135deg, #ff8f00, #3e2723)",
+      "eyebrow": "Sandbox spotlight"
+    },
+    {
+      "slug": "teabag-simulator",
+      "coverGradient": "linear-gradient(135deg, #8e24aa, #1a237e)",
+      "eyebrow": "Flagship weirdness"
+    },
+    {
+      "slug": "emulatorjs",
+      "coverGradient": "linear-gradient(135deg, #00897b, #102027)",
+      "eyebrow": "Emulator lane"
+    },
+    {
+      "slug": "minecraft-consoles",
+      "coverGradient": "linear-gradient(135deg, #1565c0, #263238)",
+      "eyebrow": "Launcher inspiration"
+    }
+  ]
+}

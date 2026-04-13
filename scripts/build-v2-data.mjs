@@ -11,6 +11,9 @@ const outPath = resolve(root, 'js/catalog-v2.js');
 const rawConfig = readFileSync(configPath, 'utf8');
 const configJson = JSON.parse(rawConfig.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => (g ? '' : m)));
 const overrides = JSON.parse(readFileSync(overridesPath, 'utf8'));
+const showcasePath = resolve(root, 'data/library-showcase.json');
+const showcase = JSON.parse(readFileSync(showcasePath, 'utf8'));
+const showcaseBySlug = new Map((showcase.featured || []).map((entry) => [entry.slug, entry]));
 
 const genreMap = new Map([
   ['online', 'multiplayer'],
@@ -86,9 +89,11 @@ const games = Object.entries(configJson.games).map(([name, data]) => {
   const sourceType = inferSource(path);
   const genres = inferGenres(name, data?.categories || []);
   const override = overrides[name] || {};
+  const slug = slugify(name);
+  const showcaseEntry = showcaseBySlug.get(slug) || {};
   return {
-    id: slugify(name),
-    slug: slugify(name),
+    id: slug,
+    slug,
     name,
     path,
     url: sourceType === 'external' ? path : `games/${path}`,
@@ -102,6 +107,8 @@ const games = Object.entries(configJson.games).map(([name, data]) => {
     sessionLength: override.sessionLength || inferSessionLength(name, override.genres || genres),
     moods: override.moods || inferMoods(name, override.genres || genres),
     difficulty: override.difficulty || 'medium',
+    coverGradient: showcaseEntry.coverGradient || '',
+    eyebrow: showcaseEntry.eyebrow || '',
   };
 });
 
