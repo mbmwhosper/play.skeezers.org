@@ -188,6 +188,15 @@ kbd { font: inherit; font-size: .82em; padding: .12rem .36rem; border-radius: 7p
 .filter-chip button { min-height: auto; padding: .06rem .32rem; border: 0; background: transparent; }
 
 .spotlights { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.detail-page {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 1rem;
+  background: linear-gradient(180deg, rgba(18, 29, 59, 0.78), rgba(9, 15, 30, 0.9));
+  box-shadow: var(--shadow);
+}
+.detail-page.hidden { display: none; }
+.detail-back { justify-self: start; width: fit-content; }
 .spotlight-card {
   border: 1px solid var(--line);
   border-radius: 22px;

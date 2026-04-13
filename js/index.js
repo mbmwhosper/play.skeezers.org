@@ -65,7 +65,7 @@
   const dom = {
     search: byId('search'), category: byId('category'), sort: byId('sort'), modeFilter: byId('modeFilter'), vibeFilter: byId('vibeFilter'),
     iframeSafeOnly: byId('iframeSafeOnly'), favoritesOnly: byId('favoritesOnly'), continueBtn: byId('continueBtn'), randomGame: byId('randomGame'),
-    stats: byId('stats'), filterSummary: byId('filterSummary'), spotlights: byId('spotlights'), shelves: byId('shelves'), grid: byId('gamesGrid'), sideNav: byId('sideNav'),
+    stats: byId('stats'), filterSummary: byId('filterSummary'), spotlights: byId('spotlights'), detailPage: byId('detailPage'), shelves: byId('shelves'), grid: byId('gamesGrid'), sideNav: byId('sideNav'),
     player: byId('player'), frame: byId('gameFrame'), frameWrap: byId('frameWrap'), aspectRatio: byId('aspectRatio'),
     nowPlaying: byId('nowPlaying'), backBtn: byId('backBtn'), openExternal: byId('openExternal'), reportBroken: byId('reportBroken'),
     detailsModal: byId('detailsModal'), detailsContent: byId('detailsContent'),
@@ -107,12 +107,13 @@
 
   function launchGame(game, updateHash = true) {
     if (!game) return;
-    if (!isLaunchable(game)) { openDetails(game); return; }
+    if (!isLaunchable(game)) { openDetailPage(game, updateHash); return; }
     currentGame = game;
     trackPlay(game);
     dom.player.classList.remove('hidden');
     dom.frame.src = game.url;
     dom.nowPlaying.textContent = `${game.name} • ${game.sourceType} • ${plays[game.name]} play${plays[game.name] === 1 ? '' : 's'}`;
+    dom.detailPage.classList.add('hidden');
     if (updateHash) history.replaceState(null, '', `#item/${game.slug}`);
     render();
   }
@@ -303,17 +304,17 @@
     dom.grid.querySelectorAll('[data-fav]').forEach((b) => b.addEventListener('click', () => { const n = b.dataset.fav; favorites = favorites.includes(n) ? favorites.filter((x) => x !== n) : [n, ...favorites]; save(); render(); }));
   }
 
-  function openDetails(game) {
-    if (!game) return;
+  function detailMarkup(game, includeBack = false) {
     const related = relatedGames(game);
     const launchable = isLaunchable(game);
-    dom.detailsContent.innerHTML = `
+    return `
       <section class="detail-hero" style="background:${escapeHtml(getCoverGradient(game))};">
+        ${includeBack ? '<button id="detailPageBack" class="ghost detail-back">← Back</button>' : ''}
         <span class="detail-eyebrow">${escapeHtml(getEyebrow(game))}</span>
         <h2>${escapeHtml(game.name)}</h2>
         <p>${escapeHtml(game.description || 'No description yet.')}</p>
         <div class="detail-actions">
-          <button id="detailPlay">${launchable ? 'Play now' : 'Close and browse'}</button>
+          <button id="detailPlay">${launchable ? 'Play now' : 'Open item'}</button>
           <button id="detailBroken" class="ghost">Report broken</button>
         </div>
       </section>
@@ -330,11 +331,42 @@
         ${related.length ? `<article class="detail-panel"><h3>Related</h3><p>${related.map((item) => escapeHtml(item.name)).join(', ')}</p></article>` : ''}
         ${game.type === 'emulator' ? '<article class="detail-panel"><h3>Save support</h3><p>Depends on emulator/runtime, document per item before launch.</p></article>' : ''}
         ${game.type === 'proxy' ? '<article class="detail-panel"><h3>Warning</h3><p>Keep proxy tools separate from the normal browse and play flow.</p></article>' : ''}
-      </section>
-    `;
-    byId('detailPlay').addEventListener('click', () => { if (launchable) launchGame(game); dom.detailsModal.close(); });
-    byId('detailBroken').addEventListener('click', () => { broken[game.name] = Date.now(); save(); dom.detailsModal.close(); render(); });
+      </section>`;
+  }
+
+  function bindDetailActions(game, scope = document) {
+    const launchable = isLaunchable(game);
+    scope.querySelector('#detailPlay')?.addEventListener('click', () => {
+      if (launchable) {
+        launchGame(game);
+      } else {
+        if (game.url && game.url !== '#') window.open(game.url, '_blank', 'noopener');
+      }
+    });
+    scope.querySelector('#detailBroken')?.addEventListener('click', () => { broken[game.name] = Date.now(); save(); render(); });
+    scope.querySelector('#detailPageBack')?.addEventListener('click', () => {
+      dom.detailPage.classList.add('hidden');
+      history.replaceState(null, '', '#');
+      render();
+    });
+  }
+
+  function openDetails(game) {
+    if (!game) return;
+    dom.detailsContent.innerHTML = detailMarkup(game, false);
+    bindDetailActions(game, dom.detailsContent);
     dom.detailsModal.showModal();
+  }
+
+  function openDetailPage(game, updateHash = true) {
+    dom.player.classList.add('hidden');
+    dom.frame.src = '';
+    currentGame = null;
+    dom.detailPage.innerHTML = detailMarkup(game, true);
+    dom.detailPage.classList.remove('hidden');
+    bindDetailActions(game, dom.detailPage);
+    if (updateHash) history.replaceState(null, '', `#item/${game.slug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
@@ -359,7 +391,17 @@
     const normalizedHash = window.SkeezersRouteCompat?.normalizeLegacyHash?.(location.hash) || location.hash;
     if (normalizedHash !== location.hash) history.replaceState(null, '', normalizedHash);
     const match = normalizedHash.match(/^#item\/(.+)$/) || normalizedHash.match(/^#game\/(.+)$/);
-    if (match) { const game = getGameBySlug(match[1]); if (game && currentGame?.slug !== game.slug) launchGame(game, false); return; }
+    if (match) {
+      const game = getGameBySlug(match[1]);
+      if (game) {
+        if (isLaunchable(game)) {
+          if (currentGame?.slug !== game.slug) launchGame(game, false);
+        } else {
+          openDetailPage(game, false);
+        }
+      }
+      return;
+    }
     const legacyMatch = normalizedHash.match(/^#legacy\/(.+)$/);
     if (legacyMatch) {
       const decoded = decodeURIComponent(legacyMatch[1]);
@@ -368,7 +410,15 @@
     }
   }
 
-  function render() { updateContinueButton(); updateHero(); renderSpotlights(); renderShelves(); renderFilterSummary(); renderGrid(); }
+  function render() {
+    if (!location.hash.startsWith('#item/')) dom.detailPage.classList.add('hidden');
+    updateContinueButton();
+    updateHero();
+    renderSpotlights();
+    renderShelves();
+    renderFilterSummary();
+    renderGrid();
+  }
 
   dom.search.addEventListener('input', render);
   dom.category.addEventListener('change', render);
