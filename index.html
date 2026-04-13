@@ -24,12 +24,17 @@
       </div>
       <nav class="side-nav" id="sideNav">
         <button data-view="home" class="active">Home</button>
+        <button data-view="games">Games</button>
+        <button data-view="apps">Apps</button>
+        <button data-view="emulators">Emulators</button>
+        <button data-view="featured">Featured</button>
         <button data-view="recent">Recently Played</button>
         <button data-view="favorites">Favorites</button>
         <button data-view="multiplayer">Multiplayer</button>
         <button data-view="chill">Chill</button>
         <button data-view="quick">Quick Hits</button>
         <button data-view="strategy">Strategy</button>
+        <button data-view="proxy">Proxy</button>
         <button data-view="random">Random</button>
       </nav>
       <small class="hint">Tip: press <kbd>/</kbd> to search • <kbd>Ctrl/⌘+K</kbd> command palette</small>
@@ -38,9 +43,9 @@
     <section class="content">
       <section class="hero" id="hero">
         <div class="hero-copy">
-          <span class="hero-kicker">HTML5-only, school-safe by default</span>
-          <h2>Fast game nights, zero junk.</h2>
-          <p>Browse the local catalog, jump back into recent runs, and let the site surface quick wins, chill picks, and multiplayer chaos without making you dig.</p>
+          <span class="hero-kicker">Games, apps, emulators, and utilities in one launcher</span>
+          <h2>Your arcade launcher, rebuilt properly.</h2>
+          <p>Browse games, open apps, launch emulator experiences, and keep the fast resume flow, all without losing save continuity or turning the whole site into a cluttered proxy mess.</p>
           <div class="hero-actions">
             <button id="heroRandom">Play something random</button>
             <button id="heroContinue" class="ghost">Resume last game</button>
@@ -49,12 +54,12 @@
         <div class="hero-panels">
           <article class="hero-panel">
             <span>Catalog</span>
-            <strong id="heroCatalogCount">0 games</strong>
-            <small>Embedded and ready to launch</small>
+            <strong id="heroCatalogCount">0 items</strong>
+            <small>Games, apps, and emulators</small>
           </article>
           <article class="hero-panel">
-            <span>Tonight's vibe</span>
-            <strong id="heroVibe">Quick hits</strong>
+            <span>Focus</span>
+            <strong id="heroVibe">Featured games</strong>
             <small id="heroVibeMeta">Built from your library</small>
           </article>
           <article class="hero-panel">

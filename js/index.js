@@ -1,5 +1,36 @@
 (() => {
-  const catalog = window.catalogV2?.games?.length ? window.catalogV2.games : buildFallbackCatalog((window.json && window.json.games) || {});
+  const baseCatalog = window.catalogV2?.games?.length ? window.catalogV2.games : buildFallbackCatalog((window.json && window.json.games) || {});
+  const staticLibraryItems = [
+    {
+      id: 'proxy-interstellar', slug: 'interstellar', type: 'proxy', name: 'Interstellar-style Proxy Hub',
+      description: 'Proxy-style browsing utility surface, separated from normal game discovery.',
+      path: '', url: '#', sourceType: 'proxy', iframeSafe: false, aliases: ['proxy'], categories: ['proxy'], genres: ['proxy'], tags: ['utility'],
+      players: { min: 1, max: 1 }, sessionLength: 'medium', moods: ['utility'], featured: true,
+    },
+    {
+      id: 'app-minecraft-consoles', slug: 'minecraft-consoles', type: 'app', name: 'Minecraft Consoles',
+      description: 'Flagship launcher-style app experience inspired by console UI patterns.',
+      path: '', url: '#', sourceType: 'app', iframeSafe: false, aliases: ['minecraft'], categories: ['app'], genres: ['launcher'], tags: ['featured'],
+      players: { min: 1, max: 4 }, sessionLength: 'long', moods: ['featured'], featured: true,
+    },
+    {
+      id: 'emulator-emulatorjs', slug: 'emulatorjs', type: 'emulator', name: 'EmulatorJS Hub',
+      description: 'Console emulator launcher surface for browser-playable retro systems.',
+      path: '', url: '#', sourceType: 'emulator', iframeSafe: false, aliases: ['retro emulator'], categories: ['emulator'], genres: ['emulator'], tags: ['retro'],
+      players: { min: 1, max: 2 }, sessionLength: 'long', moods: ['retro', 'utility'], featured: true,
+    },
+    {
+      id: 'emulator-jsdos', slug: 'jsdos', type: 'emulator', name: 'DOS Arcade',
+      description: 'DOS-style emulator surface for legacy browser-playable experiences.',
+      path: '', url: '#', sourceType: 'emulator', iframeSafe: false, aliases: ['dos emulator'], categories: ['emulator'], genres: ['emulator', 'dos'], tags: ['retro'],
+      players: { min: 1, max: 1 }, sessionLength: 'medium', moods: ['retro'], featured: false,
+    },
+  ];
+
+  const catalog = [
+    ...baseCatalog.map((item) => ({ ...item, type: 'game', description: item.description || '', featured: item.featured || false, tags: item.tags || [] })),
+    ...staticLibraryItems,
+  ];
 
   function buildFallbackCatalog(gamesSource) {
     return Object.entries(gamesSource).map(([name, data]) => {
@@ -9,21 +40,16 @@
       const lower = name.toLowerCase();
       const genres = [...new Set(categories.map((c) => String(c).toLowerCase()))];
       return {
-        id: slugify(name),
-        slug: slugify(name),
-        name,
-        path,
+        id: slugify(name), slug: slugify(name), name, path,
         url: isExternal ? path : `games/${path}`,
         sourceType: isExternal ? 'external' : (path.startsWith('flash/') ? 'flash' : 'local'),
         iframeSafe: !isExternal,
         aliases: Array.isArray(data?.aliases) ? data.aliases : [],
-        categories,
-        genres,
-        features: [],
+        categories, genres, features: [],
         players: genres.includes('online') || lower.includes('.io') ? { min: 2, max: 16 } : { min: 1, max: 1 },
         sessionLength: genres.includes('idle') ? 'long' : (genres.includes('arcade') ? 'short' : 'medium'),
         moods: genres.includes('puzzle') ? ['chill'] : ['arcade'],
-        difficulty: 'medium',
+        difficulty: 'medium', type: 'game', description: '', featured: false, tags: [],
       };
     });
   }
@@ -45,7 +71,6 @@
   };
 
   const migratedSiteData = window.SkeezersStorageCompat?.migrateSiteData?.() || {};
-
   let favorites = migratedSiteData.favorites || readJSON('skeezersArcade.favorites', readJSON('favorites', []));
   let recentPlayed = migratedSiteData.recentPlayed || readJSON('skeezersArcade.recentPlayed', readJSON('recentPlayed', []));
   let plays = migratedSiteData.plays || readJSON('skeezersArcade.plays', readJSON('plays', {}));
@@ -72,16 +97,17 @@
   function getGame(name) { return catalog.find((g) => g.name === name); }
   function getGameBySlug(slug) { return catalog.find((g) => g.slug === slug); }
 
-  function pickRecommended() {
-    const candidates = catalog.filter((g) => g.iframeSafe).sort((a, b) => scoreGame(b) - scoreGame(a));
-    return candidates[0] || catalog[0] || null;
-  }
-
   function scoreGame(game) {
     return (plays[game.name] || 0)
+      + (game.featured ? 2 : 0)
       + (game.sessionLength === 'short' ? 2 : 0)
       + ((game.players?.max || 1) > 1 ? 1 : 0)
       + ((game.moods || []).includes('chill') ? 1 : 0);
+  }
+
+  function pickRecommended() {
+    const candidates = catalog.filter((g) => g.type === 'game' && g.iframeSafe).sort((a, b) => scoreGame(b) - scoreGame(a));
+    return candidates[0] || catalog[0] || null;
   }
 
   function trackPlay(game) {
@@ -91,9 +117,14 @@
     save();
   }
 
+  function isLaunchable(game) {
+    return game.type === 'game' && game.sourceType !== 'external' && game.sourceType !== 'proxy' && game.sourceType !== 'app' && game.sourceType !== 'emulator';
+  }
+
   function launchGame(game, updateHash = true) {
-    if (!game || game.sourceType === 'external') {
-      alert('This game is hosted on an external domain and is disabled in school-safe mode.');
+    if (!game) return;
+    if (!isLaunchable(game)) {
+      openDetails(game);
       return;
     }
     currentGame = game;
@@ -101,7 +132,7 @@
     dom.player.classList.remove('hidden');
     dom.frame.src = game.url;
     dom.nowPlaying.textContent = `${game.name} • ${game.sourceType} • ${plays[game.name]} play${plays[game.name] === 1 ? '' : 's'}`;
-    if (updateHash) history.replaceState(null, '', `#game/${game.slug}`);
+    if (updateHash) history.replaceState(null, '', `#item/${game.slug}`);
     render();
   }
 
@@ -113,10 +144,10 @@
     const vibe = dom.vibeFilter.value;
 
     let out = catalog.filter((g) => {
-      const inSearch = !q || g.name.toLowerCase().includes(q) || g.aliases.some((a) => a.toLowerCase().includes(q));
+      const inSearch = !q || g.name.toLowerCase().includes(q) || (g.aliases || []).some((a) => a.toLowerCase().includes(q));
       const inCategory = category === 'all' || (g.categories || []).includes(category);
       const inFav = !showFavoritesOnly || favorites.includes(g.name);
-      const inSafe = !showIframeSafeOnly || g.iframeSafe;
+      const inSafe = !showIframeSafeOnly || g.iframeSafe || g.type !== 'game';
       const isMulti = (g.players?.max || 1) > 1 || (g.genres || []).includes('multiplayer');
       const isQuick = g.sessionLength === 'short';
       const isChill = (g.moods || []).includes('chill');
@@ -125,6 +156,11 @@
       const inVibe = vibe === 'all' || (vibe === 'quick' ? isQuick : isChill);
       const inView =
         activeView === 'home' ||
+        (activeView === 'games' && g.type === 'game') ||
+        (activeView === 'apps' && g.type === 'app') ||
+        (activeView === 'emulators' && g.type === 'emulator') ||
+        (activeView === 'featured' && g.featured) ||
+        (activeView === 'proxy' && g.type === 'proxy') ||
         (activeView === 'recent' && recentPlayed.includes(g.name)) ||
         (activeView === 'favorites' && favorites.includes(g.name)) ||
         (activeView === 'multiplayer' && isMulti) ||
@@ -137,13 +173,11 @@
     });
 
     if (activeView === 'random') out = out.sort(() => Math.random() - 0.5);
-
     out.sort((a, b) => {
       if (sort === 'za') return b.name.localeCompare(a.name);
       if (sort === 'popular') return (plays[b.name] || 0) - (plays[a.name] || 0);
       return a.name.localeCompare(b.name);
     });
-
     return out;
   }
 
@@ -156,21 +190,26 @@
 
   function renderShelves() {
     if (activeView !== 'home') { dom.shelves.innerHTML = ''; return; }
-    const safe = catalog.filter((g) => g.iframeSafe);
-    const hot = [...safe].sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0));
+    const games = catalog.filter((g) => g.type === 'game' && g.iframeSafe);
+    const apps = catalog.filter((g) => g.type === 'app');
+    const emulators = catalog.filter((g) => g.type === 'emulator');
+    const featured = catalog.filter((g) => g.featured);
+    const hot = [...games].sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0));
     const recent = recentPlayed.map(getGame).filter(Boolean);
-    const quick = safe.filter((g) => g.sessionLength === 'short');
-    const multi = safe.filter((g) => (g.players?.max || 1) > 1 || (g.genres || []).includes('multiplayer'));
-    const chill = safe.filter((g) => (g.moods || []).includes('chill'));
-    const strategy = safe.filter((g) => (g.genres || []).includes('strategy') || (g.genres || []).includes('tower-defense'));
+    const quick = games.filter((g) => g.sessionLength === 'short');
+    const multi = games.filter((g) => (g.players?.max || 1) > 1 || (g.genres || []).includes('multiplayer'));
+    const chill = games.filter((g) => (g.moods || []).includes('chill'));
+    const strategy = games.filter((g) => (g.genres || []).includes('strategy') || (g.genres || []).includes('tower-defense'));
 
     dom.shelves.innerHTML = [
       shelf('Continue where you left off', 'Your recent queue', recent.length ? recent : hot),
-      shelf('Trending now', 'Most played in this browser', hot),
+      shelf('Featured now', 'Flagship titles and platform surfaces', featured),
       shelf('Quick 5-minute games', 'Fast starts, low commitment', quick),
       shelf('Best with friends', 'Multiplayer and versus picks', multi),
       shelf('Chill picks', 'Puzzle, idle, and low-stress stuff', chill),
       shelf('Strategy lane', 'Think first, click second', strategy),
+      shelf('Apps and utilities', 'Launchers, tools, and platform surfaces', apps),
+      shelf('Emulator lane', 'Retro systems and runtime tools', emulators),
     ].join('');
 
     dom.shelves.querySelectorAll('[data-play]').forEach((btn) => btn.addEventListener('click', () => {
@@ -179,22 +218,13 @@
   }
 
   function renderSpotlights() {
-    const recommended = pickRecommended();
-    const multiplayer = catalog.filter((g) => g.iframeSafe && ((g.players?.max || 1) > 1 || (g.genres || []).includes('multiplayer'))).sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0))[0];
-    const chill = catalog.filter((g) => g.iframeSafe && (g.moods || []).includes('chill')).sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0))[0];
-
-    const cards = [
-      recommended && { title: 'Recommended next', name: recommended.name, text: `${describeGame(recommended)}. Good first pick if you just want to click and go.` },
-      multiplayer && { title: 'Multiplayer pick', name: multiplayer.name, text: `${describeGame(multiplayer)}. Good for immediate chaos with friends.` },
-      chill && { title: 'Low-stress lane', name: chill.name, text: `${describeGame(chill)}. Better when you want to zone out instead of sweat.` },
-    ].filter(Boolean);
-
-    dom.spotlights.innerHTML = cards.map((card) => `
+    const featured = catalog.filter((g) => g.featured).slice(0, 3);
+    dom.spotlights.innerHTML = featured.map((card) => `
       <article class="spotlight-card">
-        <h3>${escapeHtml(card.title)}</h3>
+        <h3>${escapeHtml(card.type === 'game' ? 'Featured game' : card.type === 'emulator' ? 'Featured emulator' : 'Featured app')}</h3>
         <strong>${escapeHtml(card.name)}</strong>
-        <p>${escapeHtml(card.text)}</p>
-        <button type="button" data-play="${escapeHtml(card.name)}">Play</button>
+        <p>${escapeHtml(card.description || describeGame(card))}</p>
+        <button type="button" data-play="${escapeHtml(card.name)}">${card.type === 'game' && isLaunchable(card) ? 'Play' : 'Open details'}</button>
       </article>
     `).join('');
 
@@ -204,36 +234,34 @@
   }
 
   function renderStats(list) {
-    const total = catalog.length;
-    const iframeSafe = catalog.filter((g) => g.iframeSafe).length;
-    const external = catalog.filter((g) => g.sourceType === 'external').length;
-    const brokenCount = Object.keys(broken).length;
-    const favoritesCount = favorites.length;
-    dom.stats.textContent = `${list.length} shown · ${total} total · ${iframeSafe} local/iframe-safe · ${external} external disabled · ${favoritesCount} favorites · ${brokenCount} broken reports`;
+    const totals = {
+      items: catalog.length,
+      games: catalog.filter((g) => g.type === 'game').length,
+      apps: catalog.filter((g) => g.type === 'app').length,
+      emulators: catalog.filter((g) => g.type === 'emulator').length,
+      proxy: catalog.filter((g) => g.type === 'proxy').length,
+    };
+    dom.stats.textContent = `${list.length} shown · ${totals.items} total · ${totals.games} games · ${totals.apps} apps · ${totals.emulators} emulators · ${totals.proxy} proxy surfaces`;
   }
 
   function updateHero() {
     const recommended = pickRecommended();
     const recent = getGame(lastPlayed);
-    const quickCount = catalog.filter((g) => g.iframeSafe && g.sessionLength === 'short').length;
-    const chillCount = catalog.filter((g) => g.iframeSafe && (g.moods || []).includes('chill')).length;
-
-    dom.heroCatalogCount.textContent = `${catalog.filter((g) => g.iframeSafe).length} local games`;
-    dom.heroVibe.textContent = quickCount >= chillCount ? 'Quick hits' : 'Chill mode';
-    dom.heroVibeMeta.textContent = quickCount >= chillCount ? `${quickCount} short-session picks ready` : `${chillCount} low-stress picks ready`;
+    dom.heroCatalogCount.textContent = `${catalog.length} items`;
+    dom.heroVibe.textContent = activeView === 'home' ? 'Featured games' : activeView[0].toUpperCase() + activeView.slice(1);
+    dom.heroVibeMeta.textContent = `${catalog.filter((g) => g.featured).length} featured surfaces ready`;
     dom.heroContinueTitle.textContent = recent ? recent.name : (recommended ? recommended.name : 'Nothing yet');
-    dom.heroContinueMeta.textContent = recent ? `${plays[recent.name] || 0} plays tracked in this browser` : (recommended ? `Recommended: ${describeGame(recommended)}` : 'Pick a game to start tracking');
+    dom.heroContinueMeta.textContent = recent ? `${plays[recent.name] || 0} launches tracked in this browser` : 'Pick a title to start tracking';
     dom.heroContinue.disabled = !recent;
-    dom.heroContinue.textContent = recent ? `Resume ${recent.name}` : 'Resume last game';
+    dom.heroContinue.textContent = recent ? `Resume ${recent.name}` : 'Resume last item';
   }
 
   function updateContinueButton() {
     const game = getGame(lastPlayed);
-    const canContinue = Boolean(game && game.iframeSafe);
+    const canContinue = Boolean(game);
     dom.continueBtn.disabled = !canContinue;
     dom.continueBtn.classList.toggle('active', canContinue);
     dom.continueBtn.textContent = canContinue ? `Continue: ${game.name}` : 'Continue';
-    dom.continueBtn.title = canContinue ? `Resume ${game.name}` : 'Play a game first to enable continue';
   }
 
   function chip(label, value, key) {
@@ -272,19 +300,9 @@
     if (key === 'mode') dom.modeFilter.value = 'all';
     if (key === 'vibe') dom.vibeFilter.value = 'all';
     if (key === 'sort') dom.sort.value = 'az';
-    if (key === 'favorites') {
-      showFavoritesOnly = false;
-      dom.favoritesOnly.classList.remove('active');
-    }
-    if (key === 'safe') {
-      showIframeSafeOnly = false;
-      dom.iframeSafeOnly.classList.remove('active');
-      dom.iframeSafeOnly.textContent = 'School-safe: Off';
-    }
-    if (key === 'view') {
-      activeView = 'home';
-      dom.sideNav.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.view === 'home'));
-    }
+    if (key === 'favorites') { showFavoritesOnly = false; dom.favoritesOnly.classList.remove('active'); }
+    if (key === 'safe') { showIframeSafeOnly = false; dom.iframeSafeOnly.classList.remove('active'); dom.iframeSafeOnly.textContent = 'School-safe: Off'; }
+    if (key === 'view') { activeView = 'home'; dom.sideNav.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.view === 'home')); }
     render();
   }
 
@@ -306,26 +324,18 @@
   }
 
   function describeGame(game) {
-    const traits = [];
+    const traits = [game.type];
     if ((game.players?.max || 1) > 1) traits.push(`${game.players.min}-${game.players.max} players`);
     if (game.sessionLength) traits.push(game.sessionLength);
-    if ((game.moods || []).length) traits.push(game.moods[0]);
-    if (!traits.length && (game.genres || []).length) traits.push(game.genres[0]);
-    return `${traits.slice(0, 2).join(' • ') || 'arcade'} · ${plays[game.name] || 0} plays`;
+    return `${traits.slice(0, 2).join(' • ')} · ${plays[game.name] || 0} plays`;
   }
 
   function relatedGames(game) {
     const genres = new Set(game.genres || []);
-    return catalog
-      .filter((candidate) => candidate.name !== game.name)
-      .map((candidate) => ({
-        candidate,
-        score: (candidate.genres || []).filter((genre) => genres.has(genre)).length + ((candidate.sessionLength === game.sessionLength) ? 1 : 0),
-      }))
-      .filter((entry) => entry.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
-      .map((entry) => entry.candidate);
+    return catalog.filter((candidate) => candidate.name !== game.name).map((candidate) => ({
+      candidate,
+      score: (candidate.genres || []).filter((genre) => genres.has(genre)).length + ((candidate.type === game.type) ? 1 : 0),
+    })).filter((entry) => entry.score > 0).sort((a, b) => b.score - a.score).slice(0, 3).map((entry) => entry.candidate);
   }
 
   function renderGrid() {
@@ -334,22 +344,8 @@
     dom.grid.innerHTML = '';
 
     if (!list.length) {
-      dom.grid.innerHTML = `
-        <article class="card empty-state">
-          <div class="title">No games match this filter</div>
-          <div class="meta">Try clearing the current search, relaxing filters, or turning off school-safe mode for external entries.</div>
-          <div class="empty-actions">
-            <button type="button" id="emptyClearFilters">Clear filters</button>
-            <button type="button" id="emptyDisableSafe" class="ghost">Turn off school-safe</button>
-          </div>
-        </article>`;
+      dom.grid.innerHTML = `<article class="card empty-state"><div class="title">No items match this filter</div><div class="meta">Try clearing the current search or relaxing filters.</div><div class="empty-actions"><button type="button" id="emptyClearFilters">Clear filters</button></div></article>`;
       byId('emptyClearFilters').addEventListener('click', clearFilters);
-      byId('emptyDisableSafe').addEventListener('click', () => {
-        showIframeSafeOnly = false;
-        dom.iframeSafeOnly.classList.remove('active');
-        dom.iframeSafeOnly.textContent = 'School-safe: Off';
-        render();
-      });
       return;
     }
 
@@ -357,18 +353,16 @@
       const card = document.createElement('article');
       card.className = 'card';
       const isFav = favorites.includes(game.name);
-      const blockedExternal = game.sourceType === 'external';
-      const badgeClass = blockedExternal ? 'badge warning' : 'badge';
-      const modeLabel = (game.players?.max || 1) > 1 ? 'MULTI' : 'SOLO';
+      const launchable = isLaunchable(game);
+      const modeLabel = game.type.toUpperCase();
       const miniTags = [game.sessionLength, ...(game.moods || []).slice(0, 2), ...(game.genres || []).slice(0, 2)].filter(Boolean).slice(0, 4);
       card.innerHTML = `
-        <div class="row"><div class="title" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div><span class="${badgeClass}">${modeLabel} • ${escapeHtml(game.sourceType.toUpperCase())}</span></div>
+        <div class="row"><div class="title" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div><span class="badge">${escapeHtml(modeLabel)}</span></div>
         <div class="tag-row">${miniTags.map((tag) => `<span class="mini-tag">${escapeHtml(tag)}</span>`).join('')}</div>
-        <div class="meta">${escapeHtml((game.categories || []).slice(0, 3).join(' • ') || (game.genres || []).slice(0, 3).join(' • ') || 'No category')}</div>
-        <div class="meta">${plays[game.name] || 0} plays ${broken[game.name] ? '• ⚠ reported' : ''}</div>
-        <div class="meta">${blockedExternal ? 'External domain blocked in school-safe mode' : 'Local and embedded, one click to launch'}</div>
+        <div class="meta">${escapeHtml(game.description || (game.categories || []).slice(0, 3).join(' • ') || 'No description yet')}</div>
+        <div class="meta">${plays[game.name] || 0} launches ${broken[game.name] ? '• ⚠ reported' : ''}</div>
         <div class="actions">
-          <button class="play-btn" data-play="${escapeHtml(game.name)}" ${blockedExternal ? 'disabled title="External domains disabled"' : ''}>${blockedExternal ? 'Unavailable' : 'Play'}</button>
+          <button class="play-btn" data-play="${escapeHtml(game.name)}">${launchable ? 'Play' : 'Open details'}</button>
           <button data-details="${escapeHtml(game.name)}">Details</button>
           <button class="fav-btn ${isFav ? 'active' : ''}" data-fav="${escapeHtml(game.name)}">★</button>
         </div>
@@ -387,206 +381,100 @@
 
   function openDetails(game) {
     if (!game) return;
-    const blockedExternal = game.sourceType === 'external';
     const related = relatedGames(game);
+    const launchable = isLaunchable(game);
     dom.detailsContent.innerHTML = `
       <h2>${escapeHtml(game.name)}</h2>
-      <p><strong>Players:</strong> ${game.players?.min || 1}${(game.players?.max || 1) > 1 ? ` to ${game.players.max}` : ''}</p>
+      <p><strong>Type:</strong> ${escapeHtml(game.type)}</p>
       <p><strong>Source:</strong> ${escapeHtml(game.sourceType)}</p>
+      <p><strong>Description:</strong> ${escapeHtml(game.description || 'No description yet.')}</p>
+      <p><strong>Players:</strong> ${game.players?.min || 1}${(game.players?.max || 1) > 1 ? ` to ${game.players.max}` : ''}</p>
       <p><strong>Session length:</strong> ${escapeHtml(game.sessionLength || 'medium')}</p>
       <p><strong>Moods:</strong> ${escapeHtml((game.moods || []).join(', ') || 'none')}</p>
       <p><strong>Genres:</strong> ${escapeHtml((game.genres || []).join(', ') || 'none')}</p>
-      <p><strong>Tags:</strong> ${escapeHtml((game.categories || []).join(', ') || 'none')}</p>
       <p><strong>Plays:</strong> ${plays[game.name] || 0}</p>
+      ${game.type === 'emulator' ? '<p><strong>Save support:</strong> Depends on emulator/runtime, document per item before launch.</p>' : ''}
+      ${game.type === 'proxy' ? '<p><strong>Warning:</strong> Keep proxy tools separate from the normal browse/play flow.</p>' : ''}
       ${related.length ? `<p><strong>Related:</strong> ${related.map((item) => escapeHtml(item.name)).join(', ')}</p>` : ''}
       <div class="actions">
-        <button id="detailPlay" ${blockedExternal ? 'disabled title="External domains disabled"' : ''}>${blockedExternal ? 'Unavailable' : 'Play now'}</button>
+        <button id="detailPlay">${launchable ? 'Play now' : 'Close and browse'}</button>
         <button id="detailBroken" class="ghost">Report broken</button>
       </div>
     `;
-    byId('detailPlay').addEventListener('click', () => { launchGame(game); dom.detailsModal.close(); });
+    byId('detailPlay').addEventListener('click', () => { if (launchable) launchGame(game); dom.detailsModal.close(); });
     byId('detailBroken').addEventListener('click', () => { broken[game.name] = Date.now(); save(); dom.detailsModal.close(); render(); });
     dom.detailsModal.showModal();
   }
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-  }
-
-  function closePlayer(updateHash = true) {
-    dom.player.classList.add('hidden');
-    dom.frame.src = '';
-    currentGame = null;
-    if (updateHash && location.hash.startsWith('#game/')) history.replaceState(null, '', '#');
-  }
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+  function closePlayer(updateHash = true) { dom.player.classList.add('hidden'); dom.frame.src = ''; currentGame = null; if (updateHash && location.hash.startsWith('#item/')) history.replaceState(null, '', '#'); }
 
   function renderPalette(query = '') {
     const q = query.trim().toLowerCase();
     const commands = [
       { label: 'Go: Home', run: () => setView('home') },
-      { label: 'Go: Recent', run: () => setView('recent') },
-      { label: 'Go: Favorites', run: () => setView('favorites') },
-      { label: 'Go: Multiplayer', run: () => setView('multiplayer') },
-      { label: 'Go: Quick Hits', run: () => setView('quick') },
-      { label: 'Go: Strategy', run: () => setView('strategy') },
-      { label: 'Toggle iframe-safe filter', run: () => { showIframeSafeOnly = !showIframeSafeOnly; render(); } },
-      { label: 'Launch random game', run: () => { const list = filteredGames(); if (list[0]) launchGame(list[Math.floor(Math.random() * list.length)]); } },
+      { label: 'Go: Games', run: () => setView('games') },
+      { label: 'Go: Apps', run: () => setView('apps') },
+      { label: 'Go: Emulators', run: () => setView('emulators') },
+      { label: 'Go: Featured', run: () => setView('featured') },
+      { label: 'Go: Proxy', run: () => setView('proxy') },
+      { label: 'Launch random item', run: () => { const list = filteredGames(); if (list[0]) launchGame(list[Math.floor(Math.random() * list.length)]); } },
       { label: 'Clear all filters', run: clearFilters },
     ];
 
-    const games = catalog
-      .filter((g) => !q || g.name.toLowerCase().includes(q) || g.aliases.some((a) => a.toLowerCase().includes(q)))
-      .slice(0, 12)
-      .map((g) => ({ label: `Play: ${g.name}`, run: () => launchGame(g) }));
-
+    const games = catalog.filter((g) => !q || g.name.toLowerCase().includes(q) || (g.aliases || []).some((a) => a.toLowerCase().includes(q))).slice(0, 12).map((g) => ({ label: `Open: ${g.name}`, run: () => launchGame(g) }));
     const rows = [...commands, ...games].filter((x) => !q || x.label.toLowerCase().includes(q));
     dom.paletteList.innerHTML = rows.map((r, i) => `<button data-cmd="${i}">${escapeHtml(r.label)}</button>`).join('');
-    dom.paletteList.querySelectorAll('[data-cmd]').forEach((b) => b.addEventListener('click', () => {
-      rows[Number(b.dataset.cmd)]?.run();
-      dom.palette.close();
-    }));
+    dom.paletteList.querySelectorAll('[data-cmd]').forEach((b) => b.addEventListener('click', () => { rows[Number(b.dataset.cmd)]?.run(); dom.palette.close(); }));
   }
 
-  function setView(view) {
-    activeView = view;
-    dom.sideNav.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.view === view));
-    render();
-  }
+  function setView(view) { activeView = view; dom.sideNav.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.view === view)); render(); }
 
   function syncRoute() {
     const compatPath = window.SkeezersRouteCompat?.normalizeLegacyPath?.(location.pathname);
-    if (compatPath && location.hash !== compatPath) {
-      history.replaceState(null, '', `${location.origin}${location.pathname}${compatPath}`);
-    }
-
+    if (compatPath && location.hash !== compatPath) history.replaceState(null, '', `${location.origin}${location.pathname}${compatPath}`);
     const normalizedHash = window.SkeezersRouteCompat?.normalizeLegacyHash?.(location.hash) || location.hash;
-    if (normalizedHash !== location.hash) {
-      history.replaceState(null, '', normalizedHash);
-    }
-
-    const match = normalizedHash.match(/^#game\/(.+)$/);
-    if (match) {
-      const game = getGameBySlug(match[1]);
-      if (game && currentGame?.slug !== game.slug) launchGame(game, false);
-      return;
-    }
-
+    if (normalizedHash !== location.hash) history.replaceState(null, '', normalizedHash);
+    const match = normalizedHash.match(/^#item\/(.+)$/) || normalizedHash.match(/^#game\/(.+)$/);
+    if (match) { const game = getGameBySlug(match[1]); if (game && currentGame?.slug !== game.slug) launchGame(game, false); return; }
     const legacyMatch = normalizedHash.match(/^#legacy\/(.+)$/);
     if (legacyMatch) {
       const decoded = decodeURIComponent(legacyMatch[1]);
-      const bySlug = getGameBySlug(decoded);
-      const byName = getGame(decoded);
-      const byPath = catalog.find((game) => game.path === decoded || game.url === `games/${decoded}` || game.url === decoded);
-      const target = bySlug || byName || byPath;
+      const target = getGameBySlug(decoded) || getGame(decoded) || catalog.find((game) => game.path === decoded || game.url === `games/${decoded}` || game.url === decoded);
       if (target && currentGame?.slug !== target.slug) launchGame(target, false);
     }
   }
 
-  function render() {
-    updateContinueButton();
-    updateHero();
-    renderSpotlights();
-    renderShelves();
-    renderFilterSummary();
-    renderGrid();
-  }
+  function render() { updateContinueButton(); updateHero(); renderSpotlights(); renderShelves(); renderFilterSummary(); renderGrid(); }
 
   dom.search.addEventListener('input', render);
   dom.category.addEventListener('change', render);
   dom.sort.addEventListener('change', render);
   dom.modeFilter.addEventListener('change', render);
   dom.vibeFilter.addEventListener('change', render);
-
-  dom.favoritesOnly.addEventListener('click', () => {
-    showFavoritesOnly = !showFavoritesOnly;
-    dom.favoritesOnly.classList.toggle('active', showFavoritesOnly);
-    render();
-  });
-
-  dom.iframeSafeOnly.addEventListener('click', () => {
-    showIframeSafeOnly = !showIframeSafeOnly;
-    dom.iframeSafeOnly.classList.toggle('active', showIframeSafeOnly);
-    dom.iframeSafeOnly.textContent = showIframeSafeOnly ? 'School-safe: On' : 'School-safe: Off';
-    render();
-  });
-
+  dom.favoritesOnly.addEventListener('click', () => { showFavoritesOnly = !showFavoritesOnly; dom.favoritesOnly.classList.toggle('active', showFavoritesOnly); render(); });
+  dom.iframeSafeOnly.addEventListener('click', () => { showIframeSafeOnly = !showIframeSafeOnly; dom.iframeSafeOnly.classList.toggle('active', showIframeSafeOnly); dom.iframeSafeOnly.textContent = showIframeSafeOnly ? 'School-safe: On' : 'School-safe: Off'; render(); });
   dom.continueBtn.addEventListener('click', () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
   dom.heroContinue.addEventListener('click', () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
   dom.randomGame.addEventListener('click', () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
   dom.heroRandom.addEventListener('click', () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
   dom.backBtn.addEventListener('click', () => closePlayer());
-  dom.openExternal.addEventListener('click', () => {
-    if (!currentGame) return;
-    window.open(currentGame.url, '_blank', 'noopener');
-  });
+  dom.openExternal.addEventListener('click', () => { if (!currentGame) return; window.open(currentGame.url, '_blank', 'noopener'); });
   dom.reportBroken.addEventListener('click', () => { if (!currentGame) return; broken[currentGame.name] = Date.now(); save(); alert('Marked as broken. Thanks.'); render(); });
-
-  dom.aspectRatio.addEventListener('change', () => {
-    dom.frameWrap.classList.remove('ratio-16-9', 'ratio-4-3');
-    if (dom.aspectRatio.value === '16:9') dom.frameWrap.classList.add('ratio-16-9');
-    if (dom.aspectRatio.value === '4:3') dom.frameWrap.classList.add('ratio-4-3');
-  });
-
-  dom.sideNav.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
-    if (b.dataset.view === 'random') {
-      setView('home');
-      const list = filteredGames();
-      if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]);
-      return;
-    }
-    setView(b.dataset.view);
-    dom.sidebar.classList.remove('nav-open');
-    dom.sidebarToggle?.setAttribute('aria-expanded', 'false');
-  }));
-
-  dom.sidebarToggle?.addEventListener('click', () => {
-    const next = !dom.sidebar.classList.contains('nav-open');
-    dom.sidebar.classList.toggle('nav-open', next);
-    dom.sidebarToggle.setAttribute('aria-expanded', String(next));
-  });
-
-  dom.openPalette.addEventListener('click', () => {
-    renderPalette();
-    dom.palette.showModal();
-    dom.paletteInput.value = '';
-    dom.paletteInput.focus();
-  });
+  dom.aspectRatio.addEventListener('change', () => { dom.frameWrap.classList.remove('ratio-16-9', 'ratio-4-3'); if (dom.aspectRatio.value === '16:9') dom.frameWrap.classList.add('ratio-16-9'); if (dom.aspectRatio.value === '4:3') dom.frameWrap.classList.add('ratio-4-3'); });
+  dom.sideNav.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { if (b.dataset.view === 'random') { setView('home'); const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); return; } setView(b.dataset.view); dom.sidebar.classList.remove('nav-open'); dom.sidebarToggle?.setAttribute('aria-expanded', 'false'); }));
+  dom.sidebarToggle?.addEventListener('click', () => { const next = !dom.sidebar.classList.contains('nav-open'); dom.sidebar.classList.toggle('nav-open', next); dom.sidebarToggle.setAttribute('aria-expanded', String(next)); });
+  dom.openPalette.addEventListener('click', () => { renderPalette(); dom.palette.showModal(); dom.paletteInput.value = ''; dom.paletteInput.focus(); });
   dom.paletteInput.addEventListener('input', () => renderPalette(dom.paletteInput.value));
-
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (dom.palette.open) {
-        dom.palette.close();
-        return;
-      }
-      if (dom.detailsModal.open) {
-        dom.detailsModal.close();
-        return;
-      }
-      if (!dom.player.classList.contains('hidden')) {
-        closePlayer();
-        return;
-      }
-    }
-    if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
-      e.preventDefault(); dom.search.focus();
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault(); renderPalette(); dom.palette.showModal(); dom.paletteInput.focus();
-    }
-    if (['ArrowRight', 'ArrowLeft'].includes(e.key) && dom.player.classList.contains('hidden')) {
-      const cards = Array.from(document.querySelectorAll('[data-play]'));
-      const idx = cards.indexOf(document.activeElement);
-      const next = e.key === 'ArrowRight' ? cards[idx + 1] : cards[idx - 1];
-      if (next) next.focus();
-    }
+    if (e.key === 'Escape') { if (dom.palette.open) { dom.palette.close(); return; } if (dom.detailsModal.open) { dom.detailsModal.close(); return; } if (!dom.player.classList.contains('hidden')) { closePlayer(); return; } }
+    if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) { e.preventDefault(); dom.search.focus(); }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); renderPalette(); dom.palette.showModal(); dom.paletteInput.focus(); }
   });
 
   window.addEventListener('hashchange', syncRoute);
-
   dom.iframeSafeOnly.classList.toggle('active', showIframeSafeOnly);
   dom.iframeSafeOnly.textContent = showIframeSafeOnly ? 'School-safe: On' : 'School-safe: Off';
-
   setView('home');
   syncRoute();
 })();

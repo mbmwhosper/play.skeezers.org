@@ -19,6 +19,7 @@ Use other source repos primarily as content and metadata inputs, not as direct U
 - Home
 - Games
 - Apps
+- Emulators
 - Featured
 - Recent
 - Favorites
@@ -31,6 +32,7 @@ Each catalog item should normalize into one of:
 - `app`
 - `tool`
 - `proxy`
+- `emulator`
 
 Shared fields:
 - `id`
@@ -62,6 +64,7 @@ Type-specific examples:
 - Games: players, session length, genres, controls
 - Apps: utility type, online/offline, auth requirements
 - Proxy: provider, warnings, launch method
+- Emulators: system/platform, rom policy note, input methods, save support
 
 ## Homepage composition
 1. Hero spotlight
@@ -75,7 +78,7 @@ Type-specific examples:
    - chill
    - strategy
    - newly added
-4. Apps and tools rail
+4. Apps, tools, and emulators rail
 5. Spotlight section for flagship titles
 6. Search/filter entrypoint
 
@@ -86,6 +89,7 @@ Primary nav:
 - Home
 - Games
 - Apps
+- Emulators
 - Featured
 - Recent
 - Favorites
@@ -116,6 +120,14 @@ A game detail surface should include:
 - local vs external note
 - safety or auth note when relevant
 - related apps/tools
+
+## Emulator detail page model
+- icon / hero
+- supported system/platform
+- launch CTA
+- input/save support notes
+- rom/content policy note if applicable
+- related games or emulator tools
 
 ## Proxy section guidance
 If included:
@@ -151,6 +163,7 @@ If included:
 
 ### Phase 4: catalog expansion
 - ingest curated sources
+- include emulator entries and metadata from NettleWeb-style references
 - dedupe and tag
 - add artwork
 

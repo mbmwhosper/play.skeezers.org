@@ -14,6 +14,19 @@ Use these as inputs for titles, metadata, or flagship experiences.
 - Radon-Games/Radon-Games
 - nettleweb/nettleweb
 
+## Emulator intake
+From NettleWeb-style references, pull emulator concepts into a dedicated emulator section.
+Potential categories:
+- console emulators
+- DOS/emulator runtimes
+- system-specific launchers
+- emulator-backed apps/tools
+
+Rules:
+- emulator entries should be clearly separated from normal games
+- document save support and input expectations
+- clearly label external/runtime requirements
+
 ## Intake rules
 - dedupe titles aggressively
 - prefer local/self-hosted over external where feasible
