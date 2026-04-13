@@ -158,4 +158,4 @@ const output = {
 
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, `window.catalogV2 = ${JSON.stringify(output)};\n`, 'utf8');
-console.log(`Built ${games.length} catalog entries -> ${outPath}`);
+console.log(`Built ${mergedItems.length} catalog entries -> ${outPath}`);

@@ -82,6 +82,7 @@
   function launchGame(game, updateHash = true) {
     if (!game) return;
     if (!isLaunchable(game)) { openDetailPage(game, updateHash); return; }
+    dom.detailsModal.open && dom.detailsModal.close();
     currentGame = game;
     trackPlay(game);
     dom.player.classList.remove('hidden');
@@ -332,12 +333,17 @@
 
   function openDetails(game) {
     if (!game) return;
+    if (window.innerWidth <= 920) {
+      openDetailPage(game, true);
+      return;
+    }
     dom.detailsContent.innerHTML = detailMarkup(game, false);
     bindDetailActions(game, dom.detailsContent);
     dom.detailsModal.showModal();
   }
 
   function openDetailPage(game, updateHash = true) {
+    dom.detailsModal.open && dom.detailsModal.close();
     dom.player.classList.add('hidden');
     dom.frame.src = '';
     currentGame = null;
@@ -390,13 +396,17 @@
   }
 
   function render() {
-    if (!location.hash.startsWith('#item/')) dom.detailPage.classList.add('hidden');
+    const showingDetailRoute = location.hash.startsWith('#item/');
+    if (!showingDetailRoute) dom.detailPage.classList.add('hidden');
     updateContinueButton();
     updateHero();
     renderSpotlights();
     renderShelves();
     renderFilterSummary();
     renderGrid();
+    dom.spotlights.style.display = activeView === 'home' && !showingDetailRoute ? '' : 'none';
+    dom.shelves.style.display = activeView === 'home' && !showingDetailRoute ? '' : 'none';
+    dom.grid.style.display = showingDetailRoute ? 'none' : '';
   }
 
   dom.search.addEventListener('input', render);

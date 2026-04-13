@@ -1,17 +1,17 @@
 {
-    "name": "monkeygg2",
-    "version": "1.0.0",
-    "description": "<p align=\"center\"><img src=\"https://raw.githubusercontent.com/MonkeyGG2/monkeygg2.github.io/main/imgs/icon-256-256.png\" height=\"200\"></p>",
-    "homepage": "https://github.com/MonkeyGG2/monkeygg2.github.io#readme",
+    "name": "play-skeezers-org",
+    "version": "2.0.0",
+    "description": "Skeezers Arcade v2, a rebuilt browser game, app, and emulator hub for play.skeezers.org.",
+    "homepage": "https://play.skeezers.org",
     "bugs": {
-        "url": "https://github.com/MonkeyGG2/monkeygg2.github.io/issues"
+        "url": "https://github.com/mbmwhosper/play.skeezers.org/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/MonkeyGG2/monkeygg2.github.io.git"
+        "url": "git+https://github.com/mbmwhosper/play.skeezers.org.git"
     },
-    "license": "WTFPL",
-    "author": "",
+    "license": "MIT",
+    "author": "Albert",
     "type": "module",
     "main": "add-game-entry.js",
     "scripts": {

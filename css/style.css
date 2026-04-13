@@ -222,6 +222,7 @@ kbd { font: inherit; font-size: .82em; padding: .12rem .36rem; border-radius: 7p
 .shelf-head { display: flex; justify-content: space-between; gap: .8rem; align-items: end; margin-bottom: .55rem; }
 .shelf h3 { margin: 0; font-size: 1rem; }
 .shelf p { margin: 0; color: var(--muted); font-size: .84rem; }
+.shelf:empty { display: none; }
 .shelf-row { display: flex; gap: .55rem; flex-wrap: wrap; }
 .shelf-item {
   min-width: 215px;
@@ -407,7 +408,7 @@ kbd { font: inherit; font-size: .82em; padding: .12rem .36rem; border-radius: 7p
 
 @media (max-width: 680px) {
   .app-shell { width: min(100vw, 96vw); padding-top: .65rem; }
-  .hero, .topbar, .shelf, .spotlight-card, .sidebar, .card { border-radius: 18px; }
+  .hero, .topbar, .shelf, .spotlight-card, .sidebar, .card, .detail-page { border-radius: 18px; }
   .topbar { grid-template-columns: 1fr; top: .5rem; }
   .grid { grid-template-columns: 1fr; }
   .hero-actions, .player-actions, .actions, .empty-actions, .detail-actions { flex-direction: column; }
