@@ -8,6 +8,7 @@
         tags: item.tags || [],
       }))
     : buildFallbackCatalog((window.json && window.json.games) || {});
+  const collections = window.catalogV2?.collections || [];
 
   function buildFallbackCatalog(gamesSource) {
     return Object.entries(gamesSource).map(([name, data]) => {
@@ -137,9 +138,14 @@
     const featured = catalog.filter((g) => g.featured);
     const hot = [...games].sort((a, b) => (plays[b.name] || 0) - (plays[a.name] || 0));
     const recent = recentPlayed.map(getGame).filter(Boolean);
+    const collectionShelves = collections.map((collection) => {
+      const items = (collection.items || []).map((slug) => getGameBySlug(slug)).filter(Boolean);
+      return shelf(collection.title, collection.description || '', items);
+    }).join('');
     dom.shelves.innerHTML = [
       shelf('Continue where you left off', 'Your recent queue', recent.length ? recent : hot),
       shelf('Featured now', 'Flagship titles and platform surfaces', featured),
+      collectionShelves,
       shelf('Quick 5-minute games', 'Fast starts, low commitment', games.filter((g) => g.sessionLength === 'short')),
       shelf('Best with friends', 'Multiplayer and versus picks', games.filter((g) => (g.players?.max || 1) > 1 || (g.genres || []).includes('multiplayer'))),
       shelf('Apps and utilities', 'Launchers, tools, and platform surfaces', apps),

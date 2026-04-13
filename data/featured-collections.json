@@ -1,0 +1,22 @@
+{
+  "collections": [
+    {
+      "slug": "flagship-experiences",
+      "title": "Flagship experiences",
+      "description": "The big-ticket surfaces that define the platform.",
+      "items": ["pvz-web", "sandboxels", "teabag-simulator", "terraria-wasm", "minecraft-consoles"]
+    },
+    {
+      "slug": "emulator-lane",
+      "title": "Emulator lane",
+      "description": "Retro systems, runtimes, and nostalgia machines.",
+      "items": ["nettle-emulators", "emulatorjs", "jsdos"]
+    },
+    {
+      "slug": "platform-shells",
+      "title": "Platform shells",
+      "description": "App and proxy surfaces that shape the overall hub UX.",
+      "items": ["interstellar-hub", "dogeub-hub", "radon-library", "gogoat-arcade"]
+    }
+  ]
+}

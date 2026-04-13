@@ -16,6 +16,8 @@ const showcase = JSON.parse(readFileSync(showcasePath, 'utf8'));
 const showcaseBySlug = new Map((showcase.featured || []).map((entry) => [entry.slug, entry]));
 const libraryItemsPath = resolve(root, 'data/library-items.json');
 const libraryItems = JSON.parse(readFileSync(libraryItemsPath, 'utf8'));
+const featuredCollectionsPath = resolve(root, 'data/featured-collections.json');
+const featuredCollections = JSON.parse(readFileSync(featuredCollectionsPath, 'utf8'));
 
 const genreMap = new Map([
   ['online', 'multiplayer'],
@@ -151,6 +153,7 @@ const output = {
     external: mergedItems.filter((g) => g.sourceType === 'external').length,
   },
   games: mergedItems,
+  collections: featuredCollections.collections || [],
 };
 
 mkdirSync(dirname(outPath), { recursive: true });
