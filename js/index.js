@@ -1,40 +1,13 @@
 (() => {
-  const baseCatalog = window.catalogV2?.games?.length ? window.catalogV2.games : buildFallbackCatalog((window.json && window.json.games) || {});
-  const staticLibraryItems = [
-    {
-      id: 'proxy-interstellar', slug: 'interstellar', type: 'proxy', name: 'Interstellar-style Proxy Hub',
-      description: 'Proxy-style browsing utility surface, separated from normal game discovery.',
-      path: '', url: '#', sourceType: 'proxy', iframeSafe: false, aliases: ['proxy'], categories: ['proxy'], genres: ['proxy'], tags: ['utility'],
-      players: { min: 1, max: 1 }, sessionLength: 'medium', moods: ['utility'], featured: true,
-      coverGradient: 'linear-gradient(135deg, #4a148c, #0b1020)', eyebrow: 'Proxy utility'
-    },
-    {
-      id: 'app-minecraft-consoles', slug: 'minecraft-consoles', type: 'app', name: 'Minecraft Consoles',
-      description: 'Flagship launcher-style app experience inspired by console UI patterns.',
-      path: '', url: '#', sourceType: 'app', iframeSafe: false, aliases: ['minecraft'], categories: ['app'], genres: ['launcher'], tags: ['featured'],
-      players: { min: 1, max: 4 }, sessionLength: 'long', moods: ['featured'], featured: true,
-      coverGradient: 'linear-gradient(135deg, #1565c0, #263238)', eyebrow: 'Launcher inspiration'
-    },
-    {
-      id: 'emulator-emulatorjs', slug: 'emulatorjs', type: 'emulator', name: 'EmulatorJS Hub',
-      description: 'Console emulator launcher surface for browser-playable retro systems.',
-      path: '', url: '#', sourceType: 'emulator', iframeSafe: false, aliases: ['retro emulator'], categories: ['emulator'], genres: ['emulator'], tags: ['retro'],
-      players: { min: 1, max: 2 }, sessionLength: 'long', moods: ['retro', 'utility'], featured: true,
-      coverGradient: 'linear-gradient(135deg, #00897b, #102027)', eyebrow: 'Emulator lane'
-    },
-    {
-      id: 'emulator-jsdos', slug: 'jsdos', type: 'emulator', name: 'DOS Arcade',
-      description: 'DOS-style emulator surface for legacy browser-playable experiences.',
-      path: '', url: '#', sourceType: 'emulator', iframeSafe: false, aliases: ['dos emulator'], categories: ['emulator'], genres: ['emulator', 'dos'], tags: ['retro'],
-      players: { min: 1, max: 1 }, sessionLength: 'medium', moods: ['retro'], featured: false,
-      coverGradient: 'linear-gradient(135deg, #5d4037, #111827)', eyebrow: 'Retro runtime'
-    },
-  ];
-
-  const catalog = [
-    ...baseCatalog.map((item) => ({ ...item, type: 'game', description: item.description || '', featured: item.featured || false, tags: item.tags || [] })),
-    ...staticLibraryItems,
-  ];
+  const catalog = window.catalogV2?.games?.length
+    ? window.catalogV2.games.map((item) => ({
+        ...item,
+        type: item.type || 'game',
+        description: item.description || '',
+        featured: Boolean(item.featured),
+        tags: item.tags || [],
+      }))
+    : buildFallbackCatalog((window.json && window.json.games) || {});
 
   function buildFallbackCatalog(gamesSource) {
     return Object.entries(gamesSource).map(([name, data]) => {

@@ -14,6 +14,8 @@ const overrides = JSON.parse(readFileSync(overridesPath, 'utf8'));
 const showcasePath = resolve(root, 'data/library-showcase.json');
 const showcase = JSON.parse(readFileSync(showcasePath, 'utf8'));
 const showcaseBySlug = new Map((showcase.featured || []).map((entry) => [entry.slug, entry]));
+const libraryItemsPath = resolve(root, 'data/library-items.json');
+const libraryItems = JSON.parse(readFileSync(libraryItemsPath, 'utf8'));
 
 const genreMap = new Map([
   ['online', 'multiplayer'],
@@ -112,15 +114,43 @@ const games = Object.entries(configJson.games).map(([name, data]) => {
   };
 });
 
+const mergedItems = [...games, ...((libraryItems.items || []).map((item) => ({
+  id: item.slug,
+  slug: item.slug,
+  name: item.name,
+  path: item.path || '',
+  url: item.url || '#',
+  sourceType: item.sourceType || 'external',
+  iframeSafe: Boolean(item.iframeSafe),
+  aliases: item.aliases || [],
+  categories: item.categories || [],
+  genres: item.genres || [],
+  features: item.features || [],
+  players: item.players || { min: 1, max: 1 },
+  sessionLength: item.sessionLength || 'medium',
+  moods: item.moods || [],
+  difficulty: item.difficulty || 'medium',
+  coverGradient: item.coverGradient || '',
+  eyebrow: item.eyebrow || '',
+  type: item.type || 'app',
+  description: item.description || '',
+  featured: Boolean(item.featured),
+  tags: item.tags || [],
+})))];
+
 const output = {
   generatedAt: new Date().toISOString(),
   totals: {
-    games: games.length,
-    local: games.filter((g) => g.sourceType === 'local').length,
-    flash: games.filter((g) => g.sourceType === 'flash').length,
-    external: games.filter((g) => g.sourceType === 'external').length,
+    items: mergedItems.length,
+    games: mergedItems.filter((g) => (g.type || 'game') === 'game').length,
+    apps: mergedItems.filter((g) => g.type === 'app').length,
+    emulators: mergedItems.filter((g) => g.type === 'emulator').length,
+    proxy: mergedItems.filter((g) => g.type === 'proxy').length,
+    local: mergedItems.filter((g) => g.sourceType === 'local').length,
+    flash: mergedItems.filter((g) => g.sourceType === 'flash').length,
+    external: mergedItems.filter((g) => g.sourceType === 'external').length,
   },
-  games,
+  games: mergedItems,
 };
 
 mkdirSync(dirname(outPath), { recursive: true });
