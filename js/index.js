@@ -82,7 +82,18 @@
   function scoreGame(game) { return (plays[game.name] || 0) + (game.featured ? 2 : 0) + (game.sessionLength === 'short' ? 2 : 0) + ((game.players?.max || 1) > 1 ? 1 : 0) + ((game.moods || []).includes('chill') ? 1 : 0); }
   function pickRecommended() { const candidates = catalog.filter((g) => g.type === 'game' && g.iframeSafe).sort((a, b) => scoreGame(b) - scoreGame(a)); return candidates[0] || catalog[0] || null; }
   function trackPlay(game) { lastPlayed = game.name; plays[game.name] = (plays[game.name] || 0) + 1; recentPlayed = [game.name, ...recentPlayed.filter((x) => x !== game.name)].slice(0, 12); save(); }
+  function isProxyItem(game) {
+    return game?.type === 'proxy' || game?.sourceType === 'proxy' || (game?.genres || []).includes('proxy');
+  }
+
+  function getProxyLaunchUrl(game) {
+    const targetUrl = String(game?.proxyTargetUrl || game?.launchUrl || game?.targetUrl || '').trim();
+    if (!targetUrl) return '';
+    return window.SkeezersProxyEngine?.resolveProxyUrl?.(targetUrl, game?.proxyPath) || '';
+  }
+
   function isLaunchable(game) {
+    if (isProxyItem(game)) return Boolean(getProxyLaunchUrl(game));
     return game.type === 'game'
       && game.sourceType !== 'external'
       && game.sourceType !== 'proxy'
@@ -98,8 +109,9 @@
     currentGame = game;
     trackPlay(game);
     dom.player.classList.remove('hidden');
-    dom.frame.src = game.url;
-    dom.nowPlaying.textContent = `${game.name} • ${game.sourceType} • ${plays[game.name]} play${plays[game.name] === 1 ? '' : 's'}`;
+    const launchUrl = isProxyItem(game) ? getProxyLaunchUrl(game) : game.url;
+    dom.frame.src = launchUrl;
+    dom.nowPlaying.textContent = `${game.name} • ${isProxyItem(game) ? 'proxy' : game.sourceType} • ${plays[game.name]} play${plays[game.name] === 1 ? '' : 's'}`;
     dom.detailPage.classList.add('hidden');
     if (updateHash) history.replaceState(null, '', `#item/${game.slug}`);
     render();
@@ -315,7 +327,7 @@
         <h2>${escapeHtml(game.name)}</h2>
         <p>${escapeHtml(game.description || 'No description yet.')}</p>
         <div class="detail-actions">
-          <button id="detailPlay">${launchable ? 'Play now' : (game.externalHostingStatus ? 'Coming soon' : 'Open item')}</button>
+          <button id="detailPlay">${launchable ? (isProxyItem(game) ? 'Open proxy workspace' : 'Play now') : (game.externalHostingStatus ? 'Coming soon' : 'Open item')}</button>
           <button id="detailBroken" class="ghost">Report broken</button>
         </div>
       </section>
@@ -331,7 +343,7 @@
         <article class="detail-panel"><h3>Plays</h3><p>${plays[game.name] || 0}</p></article>
         ${related.length ? `<article class="detail-panel"><h3>Related</h3><p>${related.map((item) => escapeHtml(item.name)).join(', ')}</p></article>` : ''}
         ${game.type === 'emulator' ? '<article class="detail-panel"><h3>Save support</h3><p>Depends on emulator/runtime, document per item before launch.</p></article>' : ''}
-        ${game.type === 'proxy' ? '<article class="detail-panel"><h3>Warning</h3><p>Keep proxy tools separate from the normal browse and play flow.</p></article>' : ''}
+        ${game.type === 'proxy' ? `<article class="detail-panel"><h3>Proxy engine</h3><p>${escapeHtml(window.SkeezersProxyEngine?.getStatus?.().base || 'Not configured')}</p></article><article class="detail-panel"><h3>Warning</h3><p>Keep proxy tools separate from the normal browse and play flow.</p></article>` : ''}
         ${game.externalHostingStatus ? `<article class="detail-panel"><h3>Hosting status</h3><p>${escapeHtml(game.externalHostingReason || 'This item needs external asset hosting before it can launch from the new deployment.')}</p></article>` : ''}
       </section>`;
   }
@@ -343,6 +355,8 @@
         launchGame(game);
       } else if (game.externalHostingStatus) {
         alert('This game needs external asset hosting before it can launch from the new Cloudflare deployment.');
+      } else if (isProxyItem(game)) {
+        alert('Proxy engine is not configured yet. Point this item at a real target URL and self-hosted proxy path.');
       } else {
         if (game.url && game.url !== '#') window.open(game.url, '_blank', 'noopener');
       }

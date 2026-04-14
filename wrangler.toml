@@ -1,6 +1,8 @@
 name = "play-skeezers-org"
+main = "proxy-worker.mjs"
 compatibility_date = "2026-04-13"
 
 [assets]
 directory = "."
+binding = "ASSETS"
 not_found_handling = "single-page-application"
