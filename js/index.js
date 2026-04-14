@@ -185,24 +185,33 @@
     dom.stats.textContent = `${list.length} shown · ${totals.items} real items live · ${totals.games} games · ${totals.apps} apps · ${totals.emulators} emulators · ${totals.proxy} proxy surfaces`;
   }
 
+  function getResumeCandidate() {
+    const recent = getGame(lastPlayed);
+    if (recent && isLaunchable(recent)) return recent;
+    return recentPlayed.map(getGame).find((game) => game && isLaunchable(game)) || null;
+  }
+
   function updateHero() {
     const recommended = pickRecommended();
-    const recent = getGame(lastPlayed);
+    const resumeGame = getResumeCandidate();
     dom.heroCatalogCount.textContent = `${catalog.length} items`;
     dom.heroVibe.textContent = activeView === 'home' ? 'Featured games' : activeView[0].toUpperCase() + activeView.slice(1);
     dom.heroVibeMeta.textContent = `${catalog.filter((g) => g.featured).length} featured surfaces ready`;
-    dom.heroContinueTitle.textContent = recent ? recent.name : (recommended ? recommended.name : 'Nothing yet');
-    dom.heroContinueMeta.textContent = recent ? `${plays[recent.name] || 0} launches tracked in this browser` : 'Pick a title to start tracking';
-    dom.heroContinue.disabled = !recent;
-    dom.heroContinue.textContent = recent ? `Resume ${recent.name}` : 'Resume last item';
+    dom.heroContinueTitle.textContent = resumeGame ? resumeGame.name : 'Nothing yet';
+    dom.heroContinueMeta.textContent = resumeGame
+      ? `${plays[resumeGame.name] || 0} launches tracked in this browser`
+      : (recommended ? `Try ${recommended.name} to start a resume trail` : 'Pick a title to start tracking');
+    dom.heroContinue.disabled = !resumeGame;
+    dom.heroContinue.textContent = resumeGame ? `Resume ${resumeGame.name}` : 'Resume last game';
   }
 
   function updateContinueButton() {
-    const game = getGame(lastPlayed);
+    const game = getResumeCandidate();
     const canContinue = Boolean(game);
     dom.continueBtn.disabled = !canContinue;
     dom.continueBtn.classList.toggle('active', canContinue);
     dom.continueBtn.textContent = canContinue ? `Continue: ${game.name}` : 'Continue';
+    dom.continueBtn.title = canContinue ? `Resume ${game.name}` : 'Play something first to unlock resume';
   }
 
   function chip(label, value, key) { return `<span class="filter-chip"><strong>${escapeHtml(label)}</strong>${escapeHtml(value)}<button type="button" data-clear-filter="${escapeHtml(key)}" aria-label="Clear ${escapeHtml(label)} filter">×</button></span>`; }
@@ -431,8 +440,8 @@
   dom.vibeFilter.addEventListener('change', render);
   dom.favoritesOnly.addEventListener('click', () => { showFavoritesOnly = !showFavoritesOnly; dom.favoritesOnly.classList.toggle('active', showFavoritesOnly); render(); });
   dom.iframeSafeOnly.addEventListener('click', () => { showIframeSafeOnly = !showIframeSafeOnly; dom.iframeSafeOnly.classList.toggle('active', showIframeSafeOnly); dom.iframeSafeOnly.textContent = showIframeSafeOnly ? 'School-safe: On' : 'School-safe: Off'; render(); });
-  dom.continueBtn.addEventListener('click', () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
-  dom.heroContinue.addEventListener('click', () => { const g = getGame(lastPlayed); if (g) launchGame(g); });
+  dom.continueBtn.addEventListener('click', () => { const g = getResumeCandidate(); if (g) launchGame(g); });
+  dom.heroContinue.addEventListener('click', () => { const g = getResumeCandidate(); if (g) launchGame(g); });
   dom.randomGame.addEventListener('click', () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
   dom.heroRandom.addEventListener('click', () => { const list = filteredGames(); if (list.length) launchGame(list[Math.floor(Math.random() * list.length)]); });
   dom.backBtn.addEventListener('click', () => closePlayer());
