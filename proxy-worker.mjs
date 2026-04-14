@@ -76,12 +76,12 @@ async function handleProxy(request) {
 }
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request) {
     const url = new URL(request.url);
     if (url.pathname.startsWith('/service/proxy/')) {
       return handleProxy(request);
     }
 
-    return env.ASSETS.fetch(request);
+    return badRequest('This Worker only serves the proxy route. Serve the static arcade separately.', 404);
   },
 };

@@ -96,7 +96,22 @@ Theme standard not implemented yet (TODO)
 
 Proxy configuration options are under the **"config"** key.
 The value for key `"proxy"` is a boolean value that enables or disables the proxy function. If `"proxy"` is set to false, then the user will be greeted with an error dialog when attempting to access the proxy.
-The value for key `"proxyPath"` is the path to the proxy. It can be an absolute path or a relative path, but the proxy must support **CORS** as the proxy page will be displayed as an iframe on the site.
+The value for key `"proxyPath"` is the path to the proxy.
+
+This fork now includes a minimal Worker-backed same-origin proxy route:
+
+- `/service/proxy/<urlencoded-target>`
+
+If `proxyPath` points at another origin, the runtime now falls back to the same-origin Worker route so the workspace iframe still has a real launch path.
+
+Useful commands:
+- `npm run dev:worker`
+- `npm run check:worker`
+- `npm run deploy:worker`
+
+The proxy Worker is deployed separately from the main static site because some game assets exceed Cloudflare's 25 MiB asset ceiling.
+
+This is a narrow upstream bridge for simple iframe workspace flows, not a full stealth proxy stack.
 
 
 ## Deployment
@@ -117,19 +132,35 @@ Alternatively, you can simply fork this repository on [GitHub](https://github.co
 
 ### With Proxy
 
-Visit the [VioletGG2](https://github.com/MonkeyGG2/VioletGG2) page to learn more about hosting MonkeyGG2 with a proxy.
+This fork now supports a minimal built-in Cloudflare Worker proxy path for testing and simple workspace flows.
+
+```bash
+npm install
+npm run dev:worker
+```
+
+For production packaging without deploying:
+
+```bash
+npm run check:worker
+```
+
+For deployment:
+
+```bash
+npm run deploy:worker
+```
+
+If you want full proxy behavior for complex sites, replace the minimal bridge with a fuller engine such as an Ultraviolet or Interstellar-compatible stack.
 
 ### Running Locally
 
 ```bash
-# WARNING: if you have a folder named "monkeygg2", this command will remove all files inside of that folder
-# please change the name of the directory in the following two commands
-git clone https://github.com/MonkeyGG2/monkeygg2.github.io.git monkeygg2
-cd monkeygg2
-# from here you can use any tool for running a static server, "live-server" from npm will be used here
-npm install -g live-server # only if you don't have it installed already
-npx live-server
+npm install
+npm run dev:worker
 ```
+
+That runs the site and the Worker together so `/service/proxy/...` is available locally.
 
 ## License
 

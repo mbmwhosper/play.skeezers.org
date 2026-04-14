@@ -16,11 +16,17 @@
     "main": "add-game-entry.js",
     "scripts": {
         "add-game": "node add-game-entry.js",
-    "build:v2-data": "node scripts/build-v2-data.mjs",
-    "build:pages": "npm run build:v2-data && node scripts/prepare-pages-build.mjs",
-    "build": "npm run build:v2-data"
+        "build:v2-data": "node scripts/build-v2-data.mjs",
+        "build:pages": "npm run build:v2-data && node scripts/prepare-pages-build.mjs",
+        "build": "npm run build:v2-data",
+        "dev:worker": "wrangler dev -c wrangler.proxy.toml",
+        "deploy:worker": "wrangler deploy -c wrangler.proxy.toml",
+        "check:worker": "wrangler deploy --dry-run -c wrangler.proxy.toml"
     },
     "dependencies": {
         "@inquirer/prompts": "^7.5.3"
+    },
+    "devDependencies": {
+        "wrangler": "^4.82.2"
     }
 }

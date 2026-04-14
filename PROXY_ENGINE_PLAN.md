@@ -6,10 +6,9 @@ This repo no longer treats the proxy surface as a fake reference card only. It n
 - `proxy-worker.mjs`
   - handles `/service/proxy/<urlencoded-target>`
   - forwards upstream requests through the Cloudflare Worker entrypoint
-  - preserves static asset serving through the `ASSETS` binding
   - strips frame-blocking headers so the workspace iframe can load proxied content
-- `wrangler.toml`
-  - now runs in Worker mode with asset binding support
+- `wrangler.proxy.toml`
+  - deploys the proxy route as a standalone Worker, separate from the oversized static game hosting
 - `js/proxy-engine.js`
   - normalizes proxy base paths
   - falls back to same-origin `/service/proxy/` when config points at some unrelated host
@@ -38,3 +37,5 @@ This is a minimal upstream bridge, not a stealth-grade full web proxy. It will w
 
 ## Important note
 This still cannot run on plain GitHub Pages alone. The active proxy route depends on the Worker runtime.
+
+Also, because the arcade contains files above Cloudflare's 25 MiB asset ceiling, the proxy Worker is deployed separately from the main static game host.
