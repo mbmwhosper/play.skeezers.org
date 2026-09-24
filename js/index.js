@@ -39,7 +39,11 @@
 
   function slugify(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''); }
   function getCoverGradient(item) { return item.coverGradient || 'linear-gradient(135deg, #1e3a8a, #111827)'; }
-  function getEyebrow(item) { return item.eyebrow || (item.type === 'game' ? 'Playable now' : item.type === 'app' ? 'App surface' : item.type === 'emulator' ? 'Emulator surface' : 'Utility surface'); }
+  function getEyebrow(item) {
+    if (item.eyebrow) return item.eyebrow;
+    if (item.type === 'game' && !isLaunchable(item)) return 'Details only';
+    return item.type === 'game' ? 'Playable now' : item.type === 'app' ? 'App surface' : item.type === 'emulator' ? 'Emulator surface' : 'Utility surface';
+  }
 
   const dom = {
     search: byId('search'), category: byId('category'), sort: byId('sort'), modeFilter: byId('modeFilter'), vibeFilter: byId('vibeFilter'),
@@ -89,6 +93,12 @@
   function getProxyLaunchUrl(game) {
     const targetUrl = String(game?.proxyTargetUrl || game?.launchUrl || game?.targetUrl || '').trim();
     if (!targetUrl) return '';
+    try {
+      const hostname = new URL(targetUrl).hostname.toLowerCase();
+      if (/^(?:www\.)?example\.(?:com|net|org)$/.test(hostname)) return '';
+    } catch {
+      return '';
+    }
     return window.SkeezersProxyEngine?.resolveProxyUrl?.(targetUrl, game?.proxyPath) || '';
   }
 
@@ -222,7 +232,7 @@
     const canContinue = Boolean(game);
     dom.continueBtn.disabled = !canContinue;
     dom.continueBtn.classList.toggle('active', canContinue);
-    dom.continueBtn.textContent = canContinue ? `Continue: ${game.name}` : 'Continue';
+    dom.continueBtn.textContent = 'Continue';
     dom.continueBtn.title = canContinue ? `Resume ${game.name}` : 'Play something first to unlock resume';
   }
 
@@ -301,11 +311,11 @@
         </div>
         <div class="row"><div class="title" title="${escapeHtml(game.name)}">${escapeHtml(game.name)}</div></div>
         <div class="tag-row">${miniTags.map((tag) => `<span class="mini-tag">${escapeHtml(tag)}</span>`).join('')}</div>
-        <div class="meta">${escapeHtml(game.description || 'No description yet')}</div>
-        <div class="meta">${plays[game.name] || 0} launches ${broken[game.name] ? '• ⚠ reported' : ''}</div>
+        ${game.description ? `<div class="meta">${escapeHtml(game.description)}</div>` : ''}
+        <div class="meta">${plays[game.name] || 0} ${(plays[game.name] || 0) === 1 ? 'launch' : 'launches'} ${broken[game.name] ? '• ⚠ reported' : ''}</div>
         <div class="actions">
-          <button class="play-btn" data-play="${escapeHtml(game.name)}">${launchable ? 'Play' : 'Open details'}</button>
-          <button data-details="${escapeHtml(game.name)}">Details</button>
+          <button class="play-btn" data-play="${escapeHtml(game.name)}">${launchable ? 'Play' : 'Details'}</button>
+          ${launchable ? `<button data-details="${escapeHtml(game.name)}">Details</button>` : ''}
           <button class="fav-btn ${isFav ? 'active' : ''}" data-fav="${escapeHtml(game.name)}">★</button>
         </div>
       `;

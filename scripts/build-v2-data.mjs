@@ -129,6 +129,8 @@ const mergedItems = [...games, ...((libraryItems.items || []).map((item) => ({
   name: item.name,
   path: item.path || '',
   url: item.url || '#',
+  ...(item.proxyTargetUrl ? { proxyTargetUrl: item.proxyTargetUrl } : {}),
+  ...(item.proxyPath ? { proxyPath: item.proxyPath } : {}),
   sourceType: item.sourceType || 'external',
   iframeSafe: Boolean(item.iframeSafe),
   aliases: item.aliases || [],
