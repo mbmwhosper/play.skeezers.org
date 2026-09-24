@@ -1,145 +1,75 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#101114" />
-  <title>Skeezers Arcade — HTML5 Game Hub</title>
-  <meta name="description" content="Skeezers Arcade is an HTML5-only game hub with a massive, fast-loading browser catalog." />
-  <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101114">
+  <meta name="description" content="The Skeezers browser game library.">
+  <title>Skeezers — game library</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-  <div class="bg-glow"></div>
+  <header class="site-header">
+    <a class="brand" href="./"><span class="brand-mark">S</span><span>Skeezers</span></a>
+    <span id="summary">Loading games…</span>
+  </header>
 
-  <main class="app-shell" id="app">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand-row">
-        <div class="brand">
-          <span class="brand-mark" aria-hidden="true">S</span>
-          <div><h1>Skeezers</h1><p>Game library</p></div>
-        </div>
-        <button id="sidebarToggle" class="ghost sidebar-toggle" aria-expanded="false" aria-controls="sideNav">Menu</button>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">THE SKEEZERS ARCADE</p>
+      <h1>Pick a game.</h1>
+      <p>One fast library that remembers where you left off.</p>
+      <div class="hero-actions">
+        <button id="randomGame" type="button">Play something random</button>
+        <button id="continueGame" class="quiet" type="button" disabled>Resume last game</button>
       </div>
-      <nav class="side-nav" id="sideNav">
-        <button data-view="home" class="active">Home</button>
-        <button data-view="games">Games</button>
-        <button data-view="apps">Apps</button>
-        <button data-view="emulators">Emulators</button>
-        <button data-view="featured">Featured</button>
-        <button data-view="recent">Recently Played</button>
-        <button data-view="favorites">Favorites</button>
-        <button data-view="multiplayer">Multiplayer</button>
-        <button data-view="chill">Chill</button>
-        <button data-view="quick">Quick Hits</button>
-        <button data-view="strategy">Strategy</button>
-        <button data-view="proxy">Proxy</button>
-        <button data-view="random">Random</button>
-      </nav>
-      <small class="hint">Tip: press <kbd>/</kbd> to search • <kbd>Ctrl/⌘+K</kbd> command palette</small>
-    </aside>
+    </section>
 
-    <section class="content">
-      <section class="hero" id="hero">
-        <div class="hero-copy">
-          <span class="hero-kicker">THE SKEEZERS ARCADE</span>
-          <h2>Pick a game.</h2>
-          <p>Games, apps, emulators, and utilities—organized into one fast library that remembers where you left off.</p>
-          <div class="hero-actions">
-            <button id="heroRandom">Play something random</button>
-            <button id="heroContinue" class="ghost">Resume last game</button>
-          </div>
-        </div>
-        <div class="hero-panels">
-          <article class="hero-panel">
-            <span>Catalog</span>
-            <strong id="heroCatalogCount">0 items</strong>
-            <small>Games, apps, and emulators</small>
-          </article>
-          <article class="hero-panel">
-            <span>Focus</span>
-            <strong id="heroVibe">Featured games</strong>
-            <small id="heroVibeMeta">Built from your library</small>
-          </article>
-          <article class="hero-panel">
-            <span>Continue</span>
-            <strong id="heroContinueTitle">Nothing yet</strong>
-            <small id="heroContinueMeta">Pick a game to start tracking</small>
-          </article>
-        </div>
-      </section>
+    <section class="search-bar" aria-label="Search the game library">
+      <label>
+        <span class="sr-only">Search games</span>
+        <input id="search" type="search" placeholder="Search games…" autocomplete="off">
+      </label>
+    </section>
 
-      <header class="topbar">
-        <input id="search" type="text" placeholder="Search games, aliases, genres..." />
-
-        <select id="category">
-          <option value="all">All categories</option>
-        </select>
-
-        <select id="sort">
-          <option value="az">A → Z</option>
-          <option value="za">Z → A</option>
-          <option value="popular">Most played</option>
-        </select>
-
-        <select id="modeFilter">
-          <option value="all">Any mode</option>
-          <option value="multiplayer">Multiplayer</option>
-          <option value="singleplayer">Single-player</option>
-        </select>
-
-        <select id="vibeFilter">
-          <option value="all">Any vibe</option>
-          <option value="quick">Quick (&lt;10 min)</option>
-          <option value="chill">Chill</option>
-        </select>
-
-        <button id="iframeSafeOnly" class="ghost">Iframe-safe</button>
-        <button id="favoritesOnly" class="ghost">Favorites</button>
-        <button id="continueBtn" class="ghost">Continue</button>
-        <button id="randomGame">Random</button>
-        <button id="openPalette" class="ghost">⌘K</button>
-      </header>
-
-      <section class="stats" id="stats"></section>
-      <section class="filter-summary" id="filterSummary" hidden></section>
-      <section class="spotlights" id="spotlights"></section>
-      <section class="detail-page hidden" id="detailPage"></section>
-      <section class="shelves" id="shelves"></section>
-      <section class="grid" id="gamesGrid" aria-live="polite"></section>
+    <section class="library" aria-labelledby="libraryTitle">
+      <div class="library-heading">
+        <h2 id="libraryTitle">Games</h2>
+        <span id="gameCount"></span>
+      </div>
+      <div id="gameList" class="game-list" aria-live="polite"></div>
+      <p id="emptyState" class="empty" hidden>No games match that search.</p>
     </section>
   </main>
 
-  <section id="player" class="player hidden">
-    <div class="player-bar">
-      <button id="backBtn">← Library</button>
-      <div id="nowPlaying"></div>
+  <footer>
+    <span>© <span id="year"></span> Skeezers</span>
+    <span>Press <kbd>/</kbd> to search.</span>
+  </footer>
+
+  <section id="player" class="player hidden" aria-label="Game player">
+    <header class="player-header">
+      <button id="backBtn" type="button">← Library</button>
+      <strong id="nowPlaying"></strong>
       <div class="player-actions">
-        <select id="aspectRatio">
+        <select id="aspectRatio" aria-label="Player aspect ratio">
           <option value="fill">Fill</option>
           <option value="16:9">16:9</option>
           <option value="4:3">4:3</option>
         </select>
-        <button id="reportBroken" class="ghost">Report broken</button>
-        <button id="openExternal" class="ghost">Open in new tab</button>
+        <button id="reportBroken" class="quiet" type="button">Report broken</button>
+        <button id="openExternal" class="quiet" type="button">Open in new tab</button>
       </div>
-    </div>
+    </header>
     <div class="frame-wrap" id="frameWrap">
       <iframe id="gameFrame" title="Game player" allowfullscreen loading="eager"></iframe>
     </div>
   </section>
 
   <dialog id="detailsModal" class="details-modal">
-    <article id="detailsContent"></article>
-    <form method="dialog" class="details-close-row"><button>Close</button></form>
-  </dialog>
-
-  <dialog id="palette" class="palette">
-    <input id="paletteInput" type="text" placeholder="Run command or jump to game..." />
-    <div id="paletteList"></div>
-    <form method="dialog"><button>Close</button></form>
+    <div id="detailsContent"></div>
+    <form method="dialog" class="dialog-close"><button type="submit">Close</button></form>
   </dialog>
 
   <script src="js/config.js"></script>
@@ -149,5 +79,4 @@
   <script src="js/proxy-engine.js"></script>
   <script src="js/index.js" defer></script>
 </body>
-
 </html>

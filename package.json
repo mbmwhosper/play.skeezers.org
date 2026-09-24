@@ -19,6 +19,7 @@
         "build:v2-data": "node scripts/build-v2-data.mjs",
         "build:pages": "npm run build:v2-data && node scripts/prepare-pages-build.mjs",
         "build": "npm run build:v2-data",
+        "test": "node tests/minimal-ui.test.cjs",
         "dev:worker": "wrangler dev -c wrangler.proxy.toml",
         "deploy:worker": "wrangler deploy -c wrangler.proxy.toml",
         "check:worker": "wrangler deploy --dry-run -c wrangler.proxy.toml"
